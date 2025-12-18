@@ -19,7 +19,7 @@
       --card-bg: #ffffff; 
       --text-dark: #1f2937; 
       --text-mid: #6b7280;
-      --accent-color: #2563eb; /* Modern Blue */
+      --accent-color: #2563eb; 
       --accent-hover: #1d4ed8; 
       --border-color: #e5e7eb;
       --input-bg: #f9fafb; 
@@ -55,7 +55,7 @@
       } 
     }
 
-    /* --- BEAUTIFUL TOAST NOTIFICATIONS --- */
+    /* --- TOAST NOTIFICATIONS --- */
     #toast-container {
       position: fixed; top: 20px; left: 50%; transform: translateX(-50%); 
       z-index: 99999; width: 90%; max-width: 420px; 
@@ -72,31 +72,22 @@
       font-size: 15px; font-weight: 600;
       animation: toastSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; 
       opacity: 0; transform: translateY(-20px);
-      border-left: 6px solid transparent; /* Colored bar placeholder */
+      border-left: 6px solid transparent; 
       pointer-events: auto;
       overflow: hidden;
-      position: relative;
     }
 
     .toast i { font-size: 20px; }
     
-    /* Toast Themes */
-    .toast.success { border-left-color: var(--success-green); } 
-    .toast.success i { color: var(--success-green); }
-    
-    .toast.error { border-left-color: var(--error-red); } 
-    .toast.error i { color: var(--error-red); }
-    
-    .toast.warning { border-left-color: var(--warning-orange); } 
-    .toast.warning i { color: var(--warning-orange); }
+    .toast.success { border-left-color: var(--success-green); } .toast.success i { color: var(--success-green); }
+    .toast.error { border-left-color: var(--error-red); } .toast.error i { color: var(--error-red); }
+    .toast.warning { border-left-color: var(--warning-orange); } .toast.warning i { color: var(--warning-orange); }
 
     .toast.fade-out { animation: toastFadeOut 0.3s ease-in forwards; }
-
     @keyframes toastSlideIn { to { opacity: 1; transform: translateY(0); } }
     @keyframes toastFadeOut { to { opacity: 0; transform: translateY(-10px); } }
 
-
-    /* --- EXISTING UI STYLES --- */
+    /* --- UI ELEMENTS --- */
     .form-header { margin-bottom: 25px; text-align: center; }
     h2 { margin: 0 0 5px 0; font-size: 26px; display: flex; justify-content: center; align-items: center; gap: 12px; font-weight: 800; color: #111827; }
     .subtitle { color: var(--text-mid); font-size: 14px; margin-top: 5px; }
@@ -447,7 +438,7 @@
       } else {
         productDetails = { productName: "Unknown Product", barcode: barcode, supplier: "N/A" };
         isProductFound = false;
-        // Don't show toast on every keystroke, only on explicit next step check
+        // No toast here to avoid spamming while typing
       }
       document.getElementById("product-name-summary2").innerText = productDetails.productName;
       document.getElementById("barcode-summary2").innerText = productDetails.barcode;
@@ -485,17 +476,17 @@
       }
     }
 
+    // 🔴 MODIFIED: STRICT BLOCKING LOGIC
     function nextStep() {
       if (currentStep === 0) {
          if(!barcodeInput.value.trim()) { showToast("Enter a barcode", "warning"); return; }
          
-         performBarcodeLookup(true); // Ensure status is up to date
+         performBarcodeLookup(true); // Ensure latest status
          
-         // 🚫 STRICT BLOCK: If product not found, STOP here.
          if(!isProductFound) {
+            // SHOW ERROR TOAST AND STOP. DO NOT SHOW CONFIRM DIALOG.
             showToast("⛔ Product not found in Database!", "error");
-            document.getElementById("product-details-display-step2").style.display = 'none'; // Hide details
-            return; // EXIT FUNCTION. Do not increment step.
+            return; 
          }
       }
       
@@ -633,7 +624,7 @@
           barcodeInput.value = decodedText;
           stopScanner();
           performBarcodeLookup(true);
-          // Only auto-advance if found. If not found, user stays on screen to see error.
+          // Only auto-advance if found. If not found, show toast on screen.
           if(productMap[decodedText]) {
              nextStep();
           } else {
