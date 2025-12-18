@@ -7,20 +7,72 @@
   <meta name="theme-color" content="#007bff">
   <meta name="apple-mobile-web-app-capable" content="yes">
   
-  <!-- 1. LINK TO MANIFEST -->
   <link rel="manifest" href="manifest.json">
-
   <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/3144/3144456.png" type="image/png">
   <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js" type="text/javascript"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   
   <style>
-    /* ... EXACT SAME CSS AS BEFORE ... */
-    :root { --bg-light: #f4f6f9; --card-bg: #ffffff; --text-dark: #212529; --text-mid: #6c757d; --accent-color: #007bff; --accent-hover: #0069d9; --border-color: #dee2e6; --input-bg: #f8f9fa; --error-red: #dc3545; --success-green: #28a745; }
+    /* --- CSS VARIABLES --- */
+    :root {
+      --bg-light: #f4f6f9; --card-bg: #ffffff; --text-dark: #212529; --text-mid: #6c757d;
+      --accent-color: #007bff; --accent-hover: #0069d9; --border-color: #dee2e6;
+      --input-bg: #f8f9fa; --error-red: #dc3545; --success-green: #28a745; --warning-orange: #ffc107;
+    }
+
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: var(--bg-light); color: var(--text-dark); display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; }
+    
     .form-container { width: 100%; max-width: 600px; margin: 0; padding: 20px; background: var(--card-bg); min-height: 100vh; position: relative; }
     @media (min-width: 600px) { body { align-items: center; padding: 20px; } .form-container { min-height: auto; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid var(--border-color); margin: auto; padding: 30px; } }
+
+    /* --- TOAST NOTIFICATIONS (NEW) --- */
+    #toast-container {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 99999;
+      width: 90%;
+      max-width: 400px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: none; /* Allows clicking through the container */
+    }
+
+    .toast {
+      background: white;
+      color: #333;
+      padding: 16px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      animation: slideDown 0.3s ease-out forwards;
+      opacity: 0;
+      border-left: 6px solid #333;
+      pointer-events: auto; /* Re-enable clicks on the toast itself */
+    }
+
+    .toast.success { border-left-color: var(--success-green); }
+    .toast.success i { color: var(--success-green); }
+    
+    .toast.error { border-left-color: var(--error-red); }
+    .toast.error i { color: var(--error-red); }
+    
+    .toast.warning { border-left-color: var(--warning-orange); }
+    .toast.warning i { color: var(--warning-orange); }
+
+    .toast.fade-out { animation: fadeOut 0.3s ease-in forwards; }
+
+    @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    @keyframes fadeOut { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(0.9); } }
+
+    /* --- EXISTING STYLES --- */
     .form-header { margin-bottom: 20px; text-align: center; }
     h2 { margin: 0 0 5px 0; font-size: 24px; display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap; }
     .subtitle { color: var(--text-mid); font-size: 14px; margin-top: 5px; }
@@ -28,39 +80,50 @@
     .status-online { background: #d4edda; color: #155724; }
     .status-offline { background: #f8d7da; color: #721c24; }
     .refresh-button-header { background: var(--input-bg); border: 1px solid var(--border-color); color: var(--accent-color); width: 36px; height: 36px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; margin-left: 8px; }
+    
     .progress-container { margin-bottom: 25px; text-align: center; }
     .progress-bar-bg { width: 100%; height: 6px; background-color: var(--input-bg); border-radius: 3px; overflow: hidden; margin-bottom: 8px; }
     .progress-bar-fill { height: 100%; width: 0%; background-color: var(--accent-color); transition: width 0.3s ease; }
     .progress-text { font-size: 13px; color: var(--text-mid); font-weight: 500; }
+    
     .form-step { display: none; animation: fadeIn 0.3s ease-out; }
     .form-step.active { display: block; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    
     label { display: block; margin-top: 20px; margin-bottom: 8px; font-weight: 600; font-size: 15px; color: var(--text-dark); }
     .input-group { position: relative; }
     .input-group i:not(#scannerIcon) { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-mid); font-size: 18px; pointer-events: none; }
+    
     input, select { width: 100%; padding: 14px 16px 14px 48px; border-radius: 12px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-dark); font-size: 16px; appearance: none; -webkit-appearance: none; }
     input:focus, select:focus { outline: none; border-color: var(--accent-color); box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15); background: #fff; }
     select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236c757d'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 16px center; background-size: 20px; padding-right: 40px; }
+    
     #scannerIcon { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--accent-color); font-size: 22px; padding: 8px; cursor: pointer; z-index: 5; }
+    
     .item-type-buttons { display: flex; gap: 12px; margin-top: 10px; }
     .type-button { flex: 1; padding: 14px; border-radius: 10px; border: 2px solid var(--border-color); background: #fff; color: var(--text-mid); font-weight: 600; font-size: 16px; cursor: pointer; transition: all 0.2s; }
     .type-button.selected { background-color: rgba(0, 123, 255, 0.05); color: var(--accent-color); border-color: var(--accent-color); }
+    
     .form-actions { display: flex; gap: 15px; margin-top: 35px; padding-bottom: 20px; }
     .form-actions button { flex: 1; padding: 16px; border-radius: 12px; font-size: 16px; font-weight: 700; border: none; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
     .prev-button { background-color: #e9ecef; color: var(--text-dark); }
     .next-button, .log-button { background-color: var(--accent-color); color: white; }
     .next-button:active, .log-button:active { background-color: var(--accent-hover); transform: scale(0.98); }
     .form-actions button:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
+    
     .product-details { background-color: rgba(0, 123, 255, 0.05); padding: 16px; border-radius: 12px; border: 1px solid rgba(0, 123, 255, 0.1); margin: 15px 0 25px 0; }
     .product-details .product-name { font-size: 18px; color: var(--accent-color); font-weight: 700; margin-bottom: 8px; }
     .detail-row { display: flex; flex-direction: column; gap: 5px; font-size: 14px; color: var(--text-mid); }
     @media (min-width: 400px) { .detail-row { flex-direction: row; justify-content: space-between; } }
+    
     .review-summary { background: var(--input-bg); padding: 20px; border-radius: 12px; display: grid; gap: 15px; font-size: 15px; }
     @media (min-width: 500px) { .review-summary { grid-template-columns: 1fr 1fr; } }
     .review-item i { width: 20px; color: var(--accent-color); text-align: center; margin-right: 8px; }
+    
     #scanner-container { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #000; z-index: 10000; flex-direction: column; justify-content: center; }
     #reader { width: 100%; height: 100%; object-fit: cover; }
     #close-scanner { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); background: rgba(255, 255, 255, 0.2); border: 2px solid #fff; color: white; padding: 12px 30px; border-radius: 30px; font-weight: bold; font-size: 16px; backdrop-filter: blur(5px); z-index: 10001; }
+    
     .loader-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.9); z-index: 20000; justify-content: center; align-items: center; flex-direction: column; font-weight: 600; }
     .loader-overlay.active { display: flex; }
     .loader-spinner { width: 50px; height: 50px; border: 5px solid #e9ecef; border-top: 5px solid var(--accent-color); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
@@ -68,6 +131,10 @@
   </style>
 </head>
 <body>
+
+  <!-- TOAST CONTAINER -->
+  <div id="toast-container"></div>
+
   <div class="form-container">
     <div class="form-header">
       <h2>
@@ -80,14 +147,9 @@
       <p class="subtitle">Pending Uploads: <span id="queueCount">0</span></p>
     </div>
 
-    <!-- PROGRESS BAR -->
     <div class="progress-container">
-      <div class="progress-bar-bg">
-        <div class="progress-bar-fill" style="width: 0%;"></div>
-      </div>
-      <div class="progress-text">
-        <span id="currentStepText">Step 1</span>
-      </div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: 0%;"></div></div>
+      <div class="progress-text"><span id="currentStepText">Step 1</span></div>
     </div>
 
     <form id="inventoryForm">
@@ -237,15 +299,36 @@
     let productMap = {};
     const stepTitles = ["Scan", "Details", "Location", "Review"];
 
-    // ==========================================
-    // 2. REGISTER SERVICE WORKER (Makes it Offline Ready)
-    // ==========================================
+    // 2. REGISTER SERVICE WORKER
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('sw.js')
           .then(reg => console.log('Service Worker Registered'))
           .catch(err => console.log('Service Worker Failed', err));
       });
+    }
+
+    // ==========================================
+    // NOTIFICATION SYSTEM (TOAST)
+    // ==========================================
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      
+      let icon = 'fa-check-circle';
+      if (type === 'error') icon = 'fa-times-circle';
+      if (type === 'warning') icon = 'fa-exclamation-triangle';
+
+      toast.className = `toast ${type}`;
+      toast.innerHTML = `<i class="fas ${icon}"></i> <span>${message}</span>`;
+      
+      container.appendChild(toast);
+
+      // Remove after 3.5 seconds
+      setTimeout(() => {
+        toast.classList.add('fade-out');
+        toast.addEventListener('animationend', () => toast.remove());
+      }, 3500);
     }
 
     // ==========================================
@@ -261,7 +344,6 @@
       fields.forEach(field => field.addEventListener('change', updateNavigationButtons));
       barcodeInput.addEventListener('input', barcodeInputLookup);
 
-      // OFFLINE / DB INIT
       loadLocalDB();
       updateQueueDisplay();
       checkOnlineStatus();
@@ -298,7 +380,7 @@
     }
 
     function forceUpdateDB() {
-      if(!navigator.onLine) return;
+      if(!navigator.onLine) { showToast("Offline: Cannot update DB", "warning"); return; }
       
       fetch(API_URL + "?action=getProducts")
         .then(res => res.json())
@@ -308,7 +390,7 @@
             localStorage.setItem(LOCAL_DB_KEY, JSON.stringify(data.products));
             localStorage.setItem(DB_VERSION_KEY, data.version);
             productMap = data.products;
-            alert("Database Updated Successfully!");
+            showToast("Database Updated Successfully!", "success");
             barcodeInputLookup();
           }
         })
@@ -333,7 +415,7 @@
       } else {
         productDetails = { productName: "Unknown Product", barcode: barcode, supplier: "N/A" };
         isProductFound = false;
-        if(!silent) alert(`Barcode '${barcode}' not found in database.`);
+        if(!silent) showToast(`Barcode '${barcode}' not found`, "error");
       }
       document.getElementById("product-name-summary2").innerText = productDetails.productName;
       document.getElementById("barcode-summary2").innerText = productDetails.barcode;
@@ -373,7 +455,7 @@
 
     function nextStep() {
       if (currentStep === 0) {
-         if(!barcodeInput.value.trim()) { alert("Enter barcode"); return; }
+         if(!barcodeInput.value.trim()) { showToast("Enter a barcode", "warning"); return; }
          performBarcodeLookup(true);
          if(!isProductFound && !confirm("Product not found in DB. Continue anyway?")) return;
       }
@@ -435,10 +517,10 @@
         .then(data => {
           loader.classList.remove('active');
           if(data.status === 'success') {
-            alert("Success! Item Logged.");
+            showToast("Success! Item Logged.", "success");
             resetForm();
           } else {
-            alert("Server Error: " + data.message);
+            showToast("Server Error: " + data.message, "error");
           }
         })
         .catch(err => {
@@ -455,7 +537,7 @@
       queue.push(item);
       localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(queue));
       updateQueueDisplay();
-      alert("Offline Mode: Item saved to queue. Will sync when online.");
+      showToast("Saved to Offline Queue", "warning");
       resetForm();
     }
 
@@ -475,7 +557,7 @@
            localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(queue));
            updateQueueDisplay();
            if(queue.length > 0) syncQueue(); 
-           else alert("All offline items have been synced!");
+           else showToast("All offline items synced!", "success");
          }
       })
       .catch(err => console.log("Sync paused"));
