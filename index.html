@@ -96,8 +96,30 @@
     .status-online { background: #dcfce7; color: #166534; }
     .status-offline { background: #fee2e2; color: #991b1b; }
     
-    .refresh-button-header { background: #eff6ff; border: 1px solid #bfdbfe; color: var(--accent-color); width: 40px; height: 40px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 18px; cursor: pointer; transition: 0.2s; margin-left: 8px; }
-    .refresh-button-header:active { transform: rotate(180deg); }
+    /* REFRESH BUTTON & LOADER */
+    .refresh-button-header { 
+        background: #eff6ff; 
+        border: 1px solid #bfdbfe; 
+        color: var(--accent-color); 
+        width: 40px; 
+        height: 40px; 
+        border-radius: 50%; 
+        display: inline-flex; 
+        align-items: center; 
+        justify-content: center; 
+        font-size: 18px; 
+        cursor: pointer; 
+        transition: 0.2s; 
+        margin-left: 8px; 
+        position: relative;
+    }
+    .refresh-button-header:active { transform: scale(0.9); }
+    .refresh-button-header:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .refresh-button-header.is-loading i {
+        animation: spin 1s linear infinite;
+    }
 
     .progress-container { margin-bottom: 30px; text-align: center; }
     .progress-bar-bg { width: 100%; height: 6px; background-color: #e5e7eb; border-radius: 3px; overflow: hidden; margin-bottom: 10px; }
@@ -151,7 +173,6 @@
     .loader-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.9); z-index: 20000; justify-content: center; align-items: center; flex-direction: column; font-weight: 600; color: var(--text-dark); }
     .loader-overlay.active { display: flex; }
     .loader-spinner { width: 50px; height: 50px; border: 5px solid #e5e7eb; border-top: 5px solid var(--accent-color); border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 20px; }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
@@ -286,7 +307,7 @@
 
   <script>
     // ==========================================
-    // 🔴 CONFIGURATION: PASTE URL BELOW 🔴
+    // 🔴 CONFIGURATION
     // ==========================================
     const API_URL = "https://script.google.com/macros/s/AKfycby__866_Y_0XFiaPPCUaX6U1oZK329Ek6SRg9iU4u-aq5ARhxmkTmIHq6gvTpxXMf-8Lw/exec";
     
@@ -304,7 +325,6 @@
     const progressBarFill = document.querySelector(".progress-bar-fill");
     const currentStepText = document.getElementById("currentStepText");
     const loader = document.getElementById("loader");
-    const loaderText = document.getElementById("loaderText");
     const scannerIcon = document.getElementById("scannerIcon");
     const barcodeInput = document.getElementById("barcode");
     const identitySelect = document.getElementById("identity");
@@ -314,6 +334,7 @@
     const expBtn = document.getElementById("expBtn");
     const dmgBtn = document.getElementById("dmgBtn");
     const locationSelect = document.getElementById("location");
+    const refreshBtn = document.getElementById("refreshBtn");
 
     // DATA VARIABLES
     let currentStep = 0;
@@ -323,31 +344,18 @@
     let productMap = {};
     const stepTitles = ["Scan", "Details", "Location", "Review"];
 
-    // 2. REGISTER SERVICE WORKER
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js')
-          .then(reg => console.log('Service Worker Registered'))
-          .catch(err => console.log('Service Worker Failed', err));
-      });
-    }
-
     // ==========================================
-    // NOTIFICATION SYSTEM (TOAST)
+    // NOTIFICATION SYSTEM
     // ==========================================
     function showToast(message, type = 'success') {
       const container = document.getElementById('toast-container');
       const toast = document.createElement('div');
-      
       let icon = 'fa-check-circle';
       if (type === 'error') icon = 'fa-times-circle';
       if (type === 'warning') icon = 'fa-exclamation-triangle';
-
       toast.className = `toast ${type}`;
       toast.innerHTML = `<i class="fas ${icon}"></i> <span>${message}</span>`;
-      
       container.appendChild(toast);
-
       setTimeout(() => {
         toast.classList.add('fade-out');
         toast.addEventListener('animationend', () => toast.remove());
@@ -364,7 +372,6 @@
       
       const fields = [identitySelect, quantityInput, entryTypeInput, expiryDateInput, locationSelect];
       fields.forEach(field => field.addEventListener('input', updateNavigationButtons));
-      fields.forEach(field => field.addEventListener('change', updateNavigationButtons));
       barcodeInput.addEventListener('input', barcodeInputLookup);
 
       loadLocalDB();
@@ -396,15 +403,16 @@
     // ==========================================
     function loadLocalDB() {
       const saved = localStorage.getItem(LOCAL_DB_KEY);
-      if (saved) {
-        productMap = JSON.parse(saved);
-        console.log("Loaded " + Object.keys(productMap).length + " products locally.");
-      }
+      if (saved) productMap = JSON.parse(saved);
     }
 
     function forceUpdateDB() {
       if(!navigator.onLine) { showToast("Offline: Cannot update DB", "warning"); return; }
       
+      // UI: Add loading animation to the refresh button
+      refreshBtn.classList.add('is-loading');
+      refreshBtn.disabled = true;
+
       fetch(API_URL + "?action=getProducts")
         .then(res => res.json())
         .then(data => {
@@ -415,9 +423,19 @@
             productMap = data.products;
             showToast("Database Updated Successfully!", "success");
             barcodeInputLookup();
+          } else {
+            showToast("Database is already up to date", "success");
           }
         })
-        .catch(err => console.log("Update check failed", err));
+        .catch(err => {
+            console.error("Update failed", err);
+            showToast("Failed to fetch updates", "error");
+        })
+        .finally(() => {
+            // UI: Remove loading animation
+            refreshBtn.classList.remove('is-loading');
+            refreshBtn.disabled = false;
+        });
     }
 
     function barcodeInputLookup() {
@@ -438,7 +456,6 @@
       } else {
         productDetails = { productName: "Unknown Product", barcode: barcode, supplier: "N/A" };
         isProductFound = false;
-        // No toast here to avoid spamming while typing
       }
       document.getElementById("product-name-summary2").innerText = productDetails.productName;
       document.getElementById("barcode-summary2").innerText = productDetails.barcode;
@@ -448,7 +465,7 @@
     }
 
     // ==========================================
-    // WIZARD NAVIGATION
+    // NAVIGATION
     // ==========================================
     function showStep(stepIndex) {
       steps.forEach((step, index) => step.classList.toggle('active', index === stepIndex));
@@ -476,20 +493,15 @@
       }
     }
 
-    // 🔴 MODIFIED: STRICT BLOCKING LOGIC
     function nextStep() {
       if (currentStep === 0) {
          if(!barcodeInput.value.trim()) { showToast("Enter a barcode", "warning"); return; }
-         
-         performBarcodeLookup(true); // Ensure latest status
-         
+         performBarcodeLookup(true);
          if(!isProductFound) {
-            // SHOW ERROR TOAST AND STOP. DO NOT SHOW CONFIRM DIALOG.
             showToast("⛔ Product not found in Database!", "error");
             return; 
          }
       }
-      
       if (currentStep < steps.length - 1) {
         currentStep++;
         showStep(currentStep);
@@ -624,7 +636,6 @@
           barcodeInput.value = decodedText;
           stopScanner();
           performBarcodeLookup(true);
-          // Only auto-advance if found. If not found, show toast on screen.
           if(productMap[decodedText]) {
              nextStep();
           } else {
