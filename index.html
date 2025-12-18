@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Inventory Logger</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#007bff">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  
+  <!-- 1. LINK TO MANIFEST -->
+  <link rel="manifest" href="manifest.json">
+
+  <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/3144/3144456.png" type="image/png">
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js" type="text/javascript"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <style>
+    /* ... EXACT SAME CSS AS BEFORE ... */
+    :root { --bg-light: #f4f6f9; --card-bg: #ffffff; --text-dark: #212529; --text-mid: #6c757d; --accent-color: #007bff; --accent-hover: #0069d9; --border-color: #dee2e6; --input-bg: #f8f9fa; --error-red: #dc3545; --success-green: #28a745; }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: var(--bg-light); color: var(--text-dark); display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; }
+    .form-container { width: 100%; max-width: 600px; margin: 0; padding: 20px; background: var(--card-bg); min-height: 100vh; position: relative; }
+    @media (min-width: 600px) { body { align-items: center; padding: 20px; } .form-container { min-height: auto; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid var(--border-color); margin: auto; padding: 30px; } }
+    .form-header { margin-bottom: 20px; text-align: center; }
+    h2 { margin: 0 0 5px 0; font-size: 24px; display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .subtitle { color: var(--text-mid); font-size: 14px; margin-top: 5px; }
+    .status-badge { font-size: 12px; padding: 4px 10px; border-radius: 20px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; display: inline-block; vertical-align: middle; }
+    .status-online { background: #d4edda; color: #155724; }
+    .status-offline { background: #f8d7da; color: #721c24; }
+    .refresh-button-header { background: var(--input-bg); border: 1px solid var(--border-color); color: var(--accent-color); width: 36px; height: 36px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; margin-left: 8px; }
+    .progress-container { margin-bottom: 25px; text-align: center; }
+    .progress-bar-bg { width: 100%; height: 6px; background-color: var(--input-bg); border-radius: 3px; overflow: hidden; margin-bottom: 8px; }
+    .progress-bar-fill { height: 100%; width: 0%; background-color: var(--accent-color); transition: width 0.3s ease; }
+    .progress-text { font-size: 13px; color: var(--text-mid); font-weight: 500; }
+    .form-step { display: none; animation: fadeIn 0.3s ease-out; }
+    .form-step.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    label { display: block; margin-top: 20px; margin-bottom: 8px; font-weight: 600; font-size: 15px; color: var(--text-dark); }
+    .input-group { position: relative; }
+    .input-group i:not(#scannerIcon) { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-mid); font-size: 18px; pointer-events: none; }
+    input, select { width: 100%; padding: 14px 16px 14px 48px; border-radius: 12px; border: 1px solid var(--border-color); background: var(--input-bg); color: var(--text-dark); font-size: 16px; appearance: none; -webkit-appearance: none; }
+    input:focus, select:focus { outline: none; border-color: var(--accent-color); box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15); background: #fff; }
+    select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236c757d'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 16px center; background-size: 20px; padding-right: 40px; }
+    #scannerIcon { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--accent-color); font-size: 22px; padding: 8px; cursor: pointer; z-index: 5; }
+    .item-type-buttons { display: flex; gap: 12px; margin-top: 10px; }
+    .type-button { flex: 1; padding: 14px; border-radius: 10px; border: 2px solid var(--border-color); background: #fff; color: var(--text-mid); font-weight: 600; font-size: 16px; cursor: pointer; transition: all 0.2s; }
+    .type-button.selected { background-color: rgba(0, 123, 255, 0.05); color: var(--accent-color); border-color: var(--accent-color); }
+    .form-actions { display: flex; gap: 15px; margin-top: 35px; padding-bottom: 20px; }
+    .form-actions button { flex: 1; padding: 16px; border-radius: 12px; font-size: 16px; font-weight: 700; border: none; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    .prev-button { background-color: #e9ecef; color: var(--text-dark); }
+    .next-button, .log-button { background-color: var(--accent-color); color: white; }
+    .next-button:active, .log-button:active { background-color: var(--accent-hover); transform: scale(0.98); }
+    .form-actions button:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
+    .product-details { background-color: rgba(0, 123, 255, 0.05); padding: 16px; border-radius: 12px; border: 1px solid rgba(0, 123, 255, 0.1); margin: 15px 0 25px 0; }
+    .product-details .product-name { font-size: 18px; color: var(--accent-color); font-weight: 700; margin-bottom: 8px; }
+    .detail-row { display: flex; flex-direction: column; gap: 5px; font-size: 14px; color: var(--text-mid); }
+    @media (min-width: 400px) { .detail-row { flex-direction: row; justify-content: space-between; } }
+    .review-summary { background: var(--input-bg); padding: 20px; border-radius: 12px; display: grid; gap: 15px; font-size: 15px; }
+    @media (min-width: 500px) { .review-summary { grid-template-columns: 1fr 1fr; } }
+    .review-item i { width: 20px; color: var(--accent-color); text-align: center; margin-right: 8px; }
+    #scanner-container { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #000; z-index: 10000; flex-direction: column; justify-content: center; }
+    #reader { width: 100%; height: 100%; object-fit: cover; }
+    #close-scanner { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); background: rgba(255, 255, 255, 0.2); border: 2px solid #fff; color: white; padding: 12px 30px; border-radius: 30px; font-weight: bold; font-size: 16px; backdrop-filter: blur(5px); z-index: 10001; }
+    .loader-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.9); z-index: 20000; justify-content: center; align-items: center; flex-direction: column; font-weight: 600; }
+    .loader-overlay.active { display: flex; }
+    .loader-spinner { width: 50px; height: 50px; border: 5px solid #e9ecef; border-top: 5px solid var(--accent-color); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div class="form-container">
+    <div class="form-header">
+      <h2>
+        Inventory Logger
+        <span id="connectionStatus" class="status-badge status-online">Online</span>
+        <button type="button" id="refreshBtn" class="refresh-button-header" onclick="forceUpdateDB()" title="Check for Updates">
+            <i class="fas fa-sync-alt"></i>
+        </button>
+      </h2>
+      <p class="subtitle">Pending Uploads: <span id="queueCount">0</span></p>
+    </div>
+
+    <!-- PROGRESS BAR -->
+    <div class="progress-container">
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" style="width: 0%;"></div>
+      </div>
+      <div class="progress-text">
+        <span id="currentStepText">Step 1</span>
+      </div>
+    </div>
+
+    <form id="inventoryForm">
+      
+      <!-- STEP 1: SCAN -->
+      <div class="form-step active" id="step1">
+        <label for="barcode">Scan Product</label>
+        <div class="input-group">
+          <i class="fas fa-barcode"></i> 
+          <input type="text" id="barcode" name="barcode" placeholder="Tap cam icon or type code" autocomplete="off" required>
+          <i class="fas fa-camera" id="scannerIcon" title="Open Camera"></i> 
+        </div>
+      </div>
+
+      <!-- STEP 2: DETAILS -->
+      <div class="form-step" id="step2">
+        <div class="product-details" id="product-details-display-step2" style="display: none;">
+          <div class="product-name" id="product-name-summary2"></div>
+          <div class="detail-row">
+            <div><i class="fas fa-tag"></i> <span id="barcode-summary2"></span></div>
+            <div><i class="fas fa-check-circle"></i> <span id="supplier-summary2"></span></div>
+          </div>
+        </div>
+        
+        <label for="identity">Staff Name</label>
+        <div class="input-group">
+          <i class="fas fa-user"></i>
+          <select id="identity" name="identity" required>
+            <option value="">Select Staff...</option>
+            <option>SATTAR</option><option>ANAS</option><option>KUMAR</option>
+            <option>JOWEL</option><option>SHAHID</option><option>MUHAMMED</option>
+            <option>AROOS</option><option>MOIDU</option><option>SALAM</option>
+            <option>RAMSHAD</option><option>ANWAR</option><option>MANIK</option>
+          </select>
+        </div>
+
+        <label>Item Type</label>
+        <div class="item-type-buttons">
+          <div class="type-button" id="expBtn" onclick="setType('Expiry')">Expiry</div>
+          <div class="type-button" id="dmgBtn" onclick="setType('Damage')">Damage</div>
+        </div>
+        <input type="hidden" name="type" id="entryType" required>
+
+        <label for="quantity">Quantity</label>
+        <div class="input-group">
+          <i class="fas fa-hashtag"></i>
+          <input type="number" id="quantity" name="quantity" placeholder="1" required min="1" value="1" inputmode="numeric">
+        </div>
+
+        <label for="expiryDate">Expiry Date</label>
+        <div class="input-group">
+          <i class="fas fa-calendar-alt"></i>
+          <input type="date" id="expiryDate" name="expiryDate" required>
+        </div>
+      </div>
+
+      <!-- STEP 3: LOCATION -->
+      <div class="form-step" id="step3">
+        <label for="location">Storage Location</label>
+        <div class="input-group">
+          <i class="fas fa-map-marker-alt"></i>
+          <select id="location" name="location" required>
+            <option value="">Select Location...</option>
+            <option>Front side</option>
+            <option>Back side</option>
+            <option>On Display</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- STEP 4: REVIEW -->
+      <div class="form-step" id="step4">
+        <label>Confirm Details</label>
+        <div class="product-details">
+            <div class="product-name" id="final-product-name"></div>
+        </div>
+        <div class="review-summary">
+            <div class="review-item"><i class="fas fa-barcode"></i> <span id="review-barcode"></span></div>
+            <div class="review-item"><i class="fas fa-user"></i> <span id="review-identity"></span></div>
+            <div class="review-item"><i class="fas fa-map-marker-alt"></i> <span id="review-location"></span></div>
+            <div class="review-item"><i class="fas fa-hashtag"></i> <strong>Qty:</strong> <span id="review-quantity"></span></div>
+            <div class="review-item"><i class="fas fa-box"></i> <span id="review-type"></span></div>
+            <div class="review-item"><i class="fas fa-calendar-alt"></i> <span id="review-expiryDate"></span></div>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" id="prevBtn" class="prev-button" onclick="prevStep()" disabled>
+          <i class="fas fa-arrow-left"></i> Back
+        </button>
+        <button type="button" id="nextBtn" class="next-button" onclick="nextStep()">
+          Next <i class="fas fa-arrow-right"></i>
+        </button>
+        <button type="submit" id="logItemBtn" class="log-button" style="display: none;">
+          <i class="fas fa-check-circle"></i> Submit
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <div class="loader-overlay" id="loader">
+      <div class="loader-spinner"></div>
+      <span id="loaderText">Processing...</span>
+  </div>
+  
+  <div id="scanner-container">
+    <div id="reader"></div>
+    <button id="close-scanner" onclick="stopScanner()">Close Camera</button>
+  </div>
+
+  <script>
+    // ==========================================
+    // 🔴 CONFIGURATION: PASTE URL BELOW 🔴
+    // ==========================================
+    const API_URL = "https://script.google.com/macros/s/AKfycby__866_Y_0XFiaPPCUaX6U1oZK329Ek6SRg9iU4u-aq5ARhxmkTmIHq6gvTpxXMf-8Lw/exec";
+    
+    // STORAGE KEYS
+    const LOCAL_DB_KEY = 'inventory_product_db';
+    const DB_VERSION_KEY = 'inventory_db_version';
+    const OFFLINE_QUEUE_KEY = 'inventory_offline_queue';
+
+    // UI ELEMENTS
+    const form = document.getElementById("inventoryForm");
+    const steps = document.querySelectorAll(".form-step");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const logItemBtn = document.getElementById("logItemBtn");
+    const progressBarFill = document.querySelector(".progress-bar-fill");
+    const currentStepText = document.getElementById("currentStepText");
+    const loader = document.getElementById("loader");
+    const loaderText = document.getElementById("loaderText");
+    const scannerIcon = document.getElementById("scannerIcon");
+    const barcodeInput = document.getElementById("barcode");
+    const identitySelect = document.getElementById("identity");
+    const expiryDateInput = document.getElementById("expiryDate");
+    const quantityInput = document.getElementById("quantity");
+    const entryTypeInput = document.getElementById("entryType");
+    const expBtn = document.getElementById("expBtn");
+    const dmgBtn = document.getElementById("dmgBtn");
+    const locationSelect = document.getElementById("location");
+
+    // DATA VARIABLES
+    let currentStep = 0;
+    let html5QrCodeScanner = null;
+    let isProductFound = false;
+    let productDetails = {};
+    let productMap = {};
+    const stepTitles = ["Scan", "Details", "Location", "Review"];
+
+    // ==========================================
+    // 2. REGISTER SERVICE WORKER (Makes it Offline Ready)
+    // ==========================================
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+          .then(reg => console.log('Service Worker Registered'))
+          .catch(err => console.log('Service Worker Failed', err));
+      });
+    }
+
+    // ==========================================
+    // INITIALIZATION
+    // ==========================================
+    window.onload = function() {
+      showStep(currentStep);
+      expiryDateInput.valueAsDate = new Date();
+      scannerIcon.addEventListener('click', startScanner);
+      
+      const fields = [identitySelect, quantityInput, entryTypeInput, expiryDateInput, locationSelect];
+      fields.forEach(field => field.addEventListener('input', updateNavigationButtons));
+      fields.forEach(field => field.addEventListener('change', updateNavigationButtons));
+      barcodeInput.addEventListener('input', barcodeInputLookup);
+
+      // OFFLINE / DB INIT
+      loadLocalDB();
+      updateQueueDisplay();
+      checkOnlineStatus();
+      
+      window.addEventListener('online', () => { checkOnlineStatus(); syncQueue(); });
+      window.addEventListener('offline', checkOnlineStatus);
+
+      if(navigator.onLine) {
+        forceUpdateDB();
+        syncQueue();
+      }
+    };
+
+    function checkOnlineStatus() {
+      const el = document.getElementById('connectionStatus');
+      if(navigator.onLine) {
+        el.className = 'status-badge status-online';
+        el.innerText = 'Online';
+      } else {
+        el.className = 'status-badge status-offline';
+        el.innerText = 'Offline';
+      }
+    }
+
+    // ==========================================
+    // DATABASE & OFFLINE LOGIC
+    // ==========================================
+    function loadLocalDB() {
+      const saved = localStorage.getItem(LOCAL_DB_KEY);
+      if (saved) {
+        productMap = JSON.parse(saved);
+        console.log("Loaded " + Object.keys(productMap).length + " products locally.");
+      }
+    }
+
+    function forceUpdateDB() {
+      if(!navigator.onLine) return;
+      
+      fetch(API_URL + "?action=getProducts")
+        .then(res => res.json())
+        .then(data => {
+          const localVer = localStorage.getItem(DB_VERSION_KEY);
+          if(String(data.version) !== String(localVer)) {
+            localStorage.setItem(LOCAL_DB_KEY, JSON.stringify(data.products));
+            localStorage.setItem(DB_VERSION_KEY, data.version);
+            productMap = data.products;
+            alert("Database Updated Successfully!");
+            barcodeInputLookup();
+          }
+        })
+        .catch(err => console.log("Update check failed", err));
+    }
+
+    function barcodeInputLookup() {
+      updateNavigationButtons();
+      const barcode = barcodeInput.value.trim();
+      if (currentStep === 0 && barcode.length > 0) {
+        performBarcodeLookup(true);
+      } else {
+        document.getElementById("product-details-display-step2").style.display = 'none';
+      }
+    }
+
+    function performBarcodeLookup(silent) {
+      const barcode = barcodeInput.value.trim();
+      if (productMap[barcode]) {
+        productDetails = { productName: productMap[barcode], barcode: barcode, supplier: "Auto (Sheet)" };
+        isProductFound = true;
+      } else {
+        productDetails = { productName: "Unknown Product", barcode: barcode, supplier: "N/A" };
+        isProductFound = false;
+        if(!silent) alert(`Barcode '${barcode}' not found in database.`);
+      }
+      document.getElementById("product-name-summary2").innerText = productDetails.productName;
+      document.getElementById("barcode-summary2").innerText = productDetails.barcode;
+      document.getElementById("supplier-summary2").innerText = productDetails.supplier;
+      document.getElementById("product-details-display-step2").style.display = barcode.length > 0 ? 'block' : 'none';
+      updateNavigationButtons();
+    }
+
+    // ==========================================
+    // WIZARD NAVIGATION
+    // ==========================================
+    function showStep(stepIndex) {
+      steps.forEach((step, index) => step.classList.toggle('active', index === stepIndex));
+      prevBtn.disabled = stepIndex === 0;
+      nextBtn.style.display = stepIndex === steps.length - 1 ? 'none' : 'flex';
+      logItemBtn.style.display = stepIndex === steps.length - 1 ? 'flex' : 'none';
+      updateProgressBar();
+      updateNavigationButtons();
+      if(stepIndex === 1) performBarcodeLookup(true);
+    }
+
+    function updateProgressBar() {
+      const progress = ((currentStep + 1) / steps.length) * 100;
+      progressBarFill.style.width = `${progress}%`;
+      currentStepText.innerHTML = `${stepTitles[currentStep]}`;
+    }
+
+    function updateNavigationButtons() {
+      if (currentStep === 0) {
+        nextBtn.disabled = barcodeInput.value.trim() === '';
+      } else if (currentStep === 1) {
+        nextBtn.disabled = !identitySelect.value || !entryTypeInput.value || !quantityInput.value || !expiryDateInput.value;
+      } else if (currentStep === 2) {
+        nextBtn.disabled = !locationSelect.value;
+      }
+    }
+
+    function nextStep() {
+      if (currentStep === 0) {
+         if(!barcodeInput.value.trim()) { alert("Enter barcode"); return; }
+         performBarcodeLookup(true);
+         if(!isProductFound && !confirm("Product not found in DB. Continue anyway?")) return;
+      }
+      if (currentStep < steps.length - 1) {
+        currentStep++;
+        showStep(currentStep);
+        if(currentStep === 3) populateReviewDetails();
+      }
+    }
+
+    function prevStep() {
+      if (currentStep > 0) { currentStep--; showStep(currentStep); }
+    }
+
+    function setType(type) {
+      entryTypeInput.value = type;
+      expBtn.classList.toggle('selected', type === 'Expiry');
+      dmgBtn.classList.toggle('selected', type === 'Damage');
+      updateNavigationButtons();
+    }
+
+    function populateReviewDetails() {
+      document.getElementById("final-product-name").innerText = productDetails.productName;
+      document.getElementById("review-barcode").innerText = barcodeInput.value;
+      document.getElementById("review-identity").innerText = identitySelect.value;
+      document.getElementById("review-location").innerText = locationSelect.value;
+      document.getElementById("review-quantity").innerText = quantityInput.value;
+      document.getElementById("review-type").innerText = entryTypeInput.value;
+      document.getElementById("review-expiryDate").innerText = expiryDateInput.value;
+    }
+
+    // ==========================================
+    // SUBMISSION
+    // ==========================================
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      submitItem();
+    });
+
+    function submitItem() {
+      const item = {
+        barcode: barcodeInput.value.trim(),
+        quantity: quantityInput.value.trim(),
+        expiryDate: expiryDateInput.value.trim(),
+        location: locationSelect.value.trim(),
+        identity: identitySelect.value.trim(),
+        type: entryTypeInput.value.trim(),
+        productName: productDetails.productName,
+        timestamp: new Date().toISOString()
+      };
+
+      if(navigator.onLine) {
+        loader.classList.add('active');
+        fetch(API_URL, {
+          method: 'POST',
+          body: JSON.stringify(item)
+        })
+        .then(res => res.json())
+        .then(data => {
+          loader.classList.remove('active');
+          if(data.status === 'success') {
+            alert("Success! Item Logged.");
+            resetForm();
+          } else {
+            alert("Server Error: " + data.message);
+          }
+        })
+        .catch(err => {
+          loader.classList.remove('active');
+          saveOffline(item);
+        });
+      } else {
+        saveOffline(item);
+      }
+    }
+
+    function saveOffline(item) {
+      const queue = JSON.parse(localStorage.getItem(OFFLINE_QUEUE_KEY) || "[]");
+      queue.push(item);
+      localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(queue));
+      updateQueueDisplay();
+      alert("Offline Mode: Item saved to queue. Will sync when online.");
+      resetForm();
+    }
+
+    function syncQueue() {
+      const queue = JSON.parse(localStorage.getItem(OFFLINE_QUEUE_KEY) || "[]");
+      if(queue.length === 0) return;
+      
+      const item = queue[0];
+      fetch(API_URL, {
+        method: 'POST',
+        body: JSON.stringify(item)
+      })
+      .then(res => res.json())
+      .then(data => {
+         if(data.status === 'success') {
+           queue.shift(); 
+           localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(queue));
+           updateQueueDisplay();
+           if(queue.length > 0) syncQueue(); 
+           else alert("All offline items have been synced!");
+         }
+      })
+      .catch(err => console.log("Sync paused"));
+    }
+
+    function updateQueueDisplay() {
+      const queue = JSON.parse(localStorage.getItem(OFFLINE_QUEUE_KEY) || "[]");
+      document.getElementById("queueCount").innerText = queue.length;
+    }
+
+    function resetForm() {
+      form.reset();
+      productDetails = {};
+      isProductFound = false;
+      document.getElementById("product-details-display-step2").style.display = 'none';
+      expBtn.classList.remove('selected');
+      dmgBtn.classList.remove('selected');
+      currentStep = 0;
+      showStep(currentStep);
+      expiryDateInput.valueAsDate = new Date();
+    }
+
+    // ==========================================
+    // SCANNER
+    // ==========================================
+    function startScanner() {
+      document.getElementById("scanner-container").style.display = 'flex';
+      html5QrCodeScanner = new Html5Qrcode("reader");
+      html5QrCodeScanner.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: 250 },
+        decodedText => {
+          barcodeInput.value = decodedText;
+          stopScanner();
+          performBarcodeLookup(true);
+          nextStep();
+        },
+        err => {}
+      );
+    }
+
+    function stopScanner() {
+      if (html5QrCodeScanner) {
+        html5QrCodeScanner.stop().then(() => {
+          document.getElementById("scanner-container").style.display = 'none';
+          html5QrCodeScanner = null;
+        });
+      }
+    }
+  </script>
+</body>
+</html>
