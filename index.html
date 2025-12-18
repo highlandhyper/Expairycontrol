@@ -26,49 +26,20 @@
     .form-container { width: 100%; max-width: 600px; margin: 0; padding: 20px; background: var(--card-bg); min-height: 100vh; position: relative; }
     @media (min-width: 600px) { body { align-items: center; padding: 20px; } .form-container { min-height: auto; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid var(--border-color); margin: auto; padding: 30px; } }
 
-    /* --- TOAST NOTIFICATIONS (NEW) --- */
+    /* --- TOAST NOTIFICATIONS --- */
     #toast-container {
-      position: fixed;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 99999;
-      width: 90%;
-      max-width: 400px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      pointer-events: none; /* Allows clicking through the container */
+      position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 99999;
+      width: 90%; max-width: 400px; display: flex; flex-direction: column; gap: 10px; pointer-events: none;
     }
-
     .toast {
-      background: white;
-      color: #333;
-      padding: 16px;
-      border-radius: 12px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 14px;
-      font-weight: 600;
-      animation: slideDown 0.3s ease-out forwards;
-      opacity: 0;
-      border-left: 6px solid #333;
-      pointer-events: auto; /* Re-enable clicks on the toast itself */
+      background: white; color: #333; padding: 16px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 600;
+      animation: slideDown 0.3s ease-out forwards; opacity: 0; border-left: 6px solid #333; pointer-events: auto;
     }
-
-    .toast.success { border-left-color: var(--success-green); }
-    .toast.success i { color: var(--success-green); }
-    
-    .toast.error { border-left-color: var(--error-red); }
-    .toast.error i { color: var(--error-red); }
-    
-    .toast.warning { border-left-color: var(--warning-orange); }
-    .toast.warning i { color: var(--warning-orange); }
-
+    .toast.success { border-left-color: var(--success-green); } .toast.success i { color: var(--success-green); }
+    .toast.error { border-left-color: var(--error-red); } .toast.error i { color: var(--error-red); }
+    .toast.warning { border-left-color: var(--warning-orange); } .toast.warning i { color: var(--warning-orange); }
     .toast.fade-out { animation: fadeOut 0.3s ease-in forwards; }
-
     @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     @keyframes fadeOut { from { opacity: 1; transform: scale(1); } to { opacity: 0; transform: scale(0.9); } }
 
@@ -324,7 +295,6 @@
       
       container.appendChild(toast);
 
-      // Remove after 3.5 seconds
       setTimeout(() => {
         toast.classList.add('fade-out');
         toast.addEventListener('animationend', () => toast.remove());
@@ -456,8 +426,14 @@
     function nextStep() {
       if (currentStep === 0) {
          if(!barcodeInput.value.trim()) { showToast("Enter a barcode", "warning"); return; }
-         performBarcodeLookup(true);
-         if(!isProductFound && !confirm("Product not found in DB. Continue anyway?")) return;
+         
+         performBarcodeLookup(true); // Update lookup status
+         
+         // 🔴 STRICT CHECK: Block if product not found
+         if(!isProductFound) {
+            showToast("Product not found in Database. Cannot proceed.", "error");
+            return; 
+         }
       }
       if (currentStep < steps.length - 1) {
         currentStep++;
