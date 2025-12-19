@@ -85,41 +85,68 @@
     
     /* REFRESH BUTTON WITH INTERNAL PROGRESS */
     .refresh-button-header { 
-        background: #eff6ff; border: 1px solid #bfdbfe; color: var(--accent-color); 
-        width: 42px; height: 42px; border-radius: 50%; 
-        display: inline-flex; align-items: center; justify-content: center; 
-        font-size: 16px; cursor: pointer; transition: 0.2s; margin-left: 8px; 
-        position: relative; overflow: visible;
+        background: #eff6ff; 
+        border: 1px solid #bfdbfe; 
+        color: var(--accent-color); 
+        width: 42px; 
+        height: 42px; 
+        border-radius: 50%; 
+        display: inline-flex; 
+        align-items: center; 
+        justify-content: center; 
+        font-size: 16px; 
+        cursor: pointer; 
+        transition: 0.2s; 
+        margin-left: 8px; 
+        position: relative;
+        padding: 0;
+        outline: none;
     }
     .refresh-button-header:active { transform: scale(0.9); }
     .refresh-button-header:disabled { cursor: not-allowed; }
 
-    /* The Progress Ring SVG */
+    /* Centered SVG Loader */
     .sync-loader {
-        position: absolute; top: -2px; left: -2px; width: 44px; height: 44px;
-        transform: rotate(-90deg); display: none; pointer-events: none;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: none;
+        pointer-events: none;
+        transform: rotate(-90deg);
     }
     .sync-loader circle {
-        fill: none; stroke: var(--accent-color); stroke-width: 3;
-        stroke-dasharray: 126; stroke-dashoffset: 126;
+        fill: none;
+        stroke: var(--accent-color);
+        stroke-width: 3;
         stroke-linecap: round;
+        /* Circumference of r=17.5 is ~110 */
+        stroke-dasharray: 110;
+        stroke-dashoffset: 110;
     }
     
     /* Loading States */
-    .refresh-button-header.is-loading .sync-loader { display: block; }
+    .refresh-button-header.is-loading .sync-loader { 
+        display: block; 
+    }
     .refresh-button-header.is-loading .sync-loader circle {
-        animation: progressAnim 1.5s ease-in-out infinite;
+        animation: dashAnim 1.5s ease-in-out infinite;
     }
     .refresh-button-header.is-loading i {
         animation: rotateIcon 1.5s linear infinite;
         color: var(--text-mid);
     }
-    @keyframes progressAnim {
-        0% { stroke-dashoffset: 126; }
-        50% { stroke-dashoffset: 40; transform: rotate(0deg); }
-        100% { stroke-dashoffset: 126; transform: rotate(270deg); }
+
+    @keyframes dashAnim {
+        0% { stroke-dashoffset: 110; }
+        50% { stroke-dashoffset: 20; }
+        100% { stroke-dashoffset: 110; }
     }
-    @keyframes rotateIcon { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    @keyframes rotateIcon { 
+        from { transform: rotate(0deg); } 
+        to { transform: rotate(360deg); } 
+    }
 
     .progress-container { margin-bottom: 30px; text-align: center; }
     .progress-bar-bg { width: 100%; height: 6px; background-color: #e5e7eb; border-radius: 3px; overflow: hidden; margin-bottom: 10px; }
@@ -180,7 +207,10 @@
         Inventory Logger
         <span id="connectionStatus" class="status-badge status-online">Online</span>
         <button type="button" id="refreshBtn" class="refresh-button-header" onclick="forceUpdateDB()">
-            <svg class="sync-loader"><circle cx="22" cy="22" r="20"></circle></svg>
+            <!-- SVG viewBox adjusted to match button size (42x42) -->
+            <svg class="sync-loader" viewBox="0 0 42 42">
+                <circle cx="21" cy="21" r="17.5"></circle>
+            </svg>
             <i class="fas fa-sync-alt"></i>
         </button>
       </h2>
@@ -332,8 +362,10 @@
           }
         })
         .finally(() => {
-          refreshBtn.classList.remove('is-loading');
-          refreshBtn.disabled = false;
+          setTimeout(() => {
+            refreshBtn.classList.remove('is-loading');
+            refreshBtn.disabled = false;
+          }, 500); // Small delay for visual smoothness
         });
     }
 
