@@ -22,7 +22,6 @@
       --accent-color: #2563eb; 
       --accent-hover: #1d4ed8; 
       --border-color: #e5e7eb;
-      --input-bg: #f9fafb; 
       --error-red: #ef4444; 
       --success-green: #10b981; 
       --warning-orange: #f59e0b;
@@ -61,70 +60,71 @@
       z-index: 99999; width: 90%; max-width: 420px; 
       display: flex; flex-direction: column; gap: 12px; pointer-events: none;
     }
-
     .toast {
-      background: white; 
-      color: var(--text-dark); 
-      padding: 16px 20px; 
-      border-radius: 12px; 
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-      display: flex; align-items: center; gap: 15px; 
-      font-size: 15px; font-weight: 600;
-      animation: toastSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; 
-      opacity: 0; transform: translateY(-20px);
-      border-left: 6px solid transparent; 
-      pointer-events: auto;
-      overflow: hidden;
+      background: white; color: var(--text-dark); padding: 16px 20px; border-radius: 12px; 
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      display: flex; align-items: center; gap: 15px; font-size: 15px; font-weight: 600;
+      animation: toastSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; opacity: 0;
+      border-left: 6px solid transparent; pointer-events: auto;
     }
-
-    .toast i { font-size: 20px; }
-    
-    .toast.success { border-left-color: var(--success-green); } .toast.success i { color: var(--success-green); }
-    .toast.error { border-left-color: var(--error-red); } .toast.error i { color: var(--error-red); }
-    .toast.warning { border-left-color: var(--warning-orange); } .toast.warning i { color: var(--warning-orange); }
-
-    .toast.fade-out { animation: toastFadeOut 0.3s ease-in forwards; }
+    .toast.success { border-left-color: var(--success-green); }
+    .toast.error { border-left-color: var(--error-red); }
+    .toast.warning { border-left-color: var(--warning-orange); }
     @keyframes toastSlideIn { to { opacity: 1; transform: translateY(0); } }
+    .toast.fade-out { animation: toastFadeOut 0.3s ease-in forwards; }
     @keyframes toastFadeOut { to { opacity: 0; transform: translateY(-10px); } }
 
     /* --- UI ELEMENTS --- */
     .form-header { margin-bottom: 25px; text-align: center; }
-    h2 { margin: 0 0 5px 0; font-size: 26px; display: flex; justify-content: center; align-items: center; gap: 12px; font-weight: 800; color: #111827; }
+    h2 { margin: 0 0 5px 0; font-size: 24px; display: flex; justify-content: center; align-items: center; gap: 10px; font-weight: 800; color: #111827; }
     .subtitle { color: var(--text-mid); font-size: 14px; margin-top: 5px; }
     
-    .status-badge { font-size: 11px; padding: 5px 12px; border-radius: 20px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; display: inline-block; vertical-align: middle; }
+    .status-badge { font-size: 10px; padding: 4px 10px; border-radius: 20px; font-weight: 700; text-transform: uppercase; }
     .status-online { background: #dcfce7; color: #166534; }
     .status-offline { background: #fee2e2; color: #991b1b; }
     
-    /* REFRESH BUTTON & LOADER */
+    /* REFRESH BUTTON WITH INTERNAL PROGRESS */
     .refresh-button-header { 
-        background: #eff6ff; 
-        border: 1px solid #bfdbfe; 
-        color: var(--accent-color); 
-        width: 40px; 
-        height: 40px; 
-        border-radius: 50%; 
-        display: inline-flex; 
-        align-items: center; 
-        justify-content: center; 
-        font-size: 18px; 
-        cursor: pointer; 
-        transition: 0.2s; 
-        margin-left: 8px; 
-        position: relative;
+        background: #eff6ff; border: 1px solid #bfdbfe; color: var(--accent-color); 
+        width: 42px; height: 42px; border-radius: 50%; 
+        display: inline-flex; align-items: center; justify-content: center; 
+        font-size: 16px; cursor: pointer; transition: 0.2s; margin-left: 8px; 
+        position: relative; overflow: visible;
     }
     .refresh-button-header:active { transform: scale(0.9); }
-    .refresh-button-header:disabled { opacity: 0.6; cursor: not-allowed; }
+    .refresh-button-header:disabled { cursor: not-allowed; }
 
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    .refresh-button-header.is-loading i {
-        animation: spin 1s linear infinite;
+    /* The Progress Ring SVG */
+    .sync-loader {
+        position: absolute; top: -2px; left: -2px; width: 44px; height: 44px;
+        transform: rotate(-90deg); display: none; pointer-events: none;
     }
+    .sync-loader circle {
+        fill: none; stroke: var(--accent-color); stroke-width: 3;
+        stroke-dasharray: 126; stroke-dashoffset: 126;
+        stroke-linecap: round;
+    }
+    
+    /* Loading States */
+    .refresh-button-header.is-loading .sync-loader { display: block; }
+    .refresh-button-header.is-loading .sync-loader circle {
+        animation: progressAnim 1.5s ease-in-out infinite;
+    }
+    .refresh-button-header.is-loading i {
+        animation: rotateIcon 1.5s linear infinite;
+        color: var(--text-mid);
+    }
+    @keyframes progressAnim {
+        0% { stroke-dashoffset: 126; }
+        50% { stroke-dashoffset: 40; transform: rotate(0deg); }
+        100% { stroke-dashoffset: 126; transform: rotate(270deg); }
+    }
+    @keyframes rotateIcon { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
     .progress-container { margin-bottom: 30px; text-align: center; }
     .progress-bar-bg { width: 100%; height: 6px; background-color: #e5e7eb; border-radius: 3px; overflow: hidden; margin-bottom: 10px; }
     .progress-bar-fill { height: 100%; width: 0%; background-color: var(--accent-color); transition: width 0.4s ease; }
-    .progress-text { font-size: 13px; color: var(--text-mid); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+    .progress-text { font-size: 13px; color: var(--text-mid); font-weight: 600; text-transform: uppercase; }
     
     .form-step { display: none; animation: fadeIn 0.4s ease-out; }
     .form-step.active { display: block; }
@@ -137,47 +137,41 @@
     input, select { 
         width: 100%; padding: 16px 16px 16px 48px; border-radius: 12px; 
         border: 1px solid var(--border-color); background: #ffffff; color: var(--text-dark); 
-        font-size: 16px; appearance: none; -webkit-appearance: none; transition: 0.2s;
+        font-size: 16px; appearance: none; transition: 0.2s;
     }
     input:focus, select:focus { outline: none; border-color: var(--accent-color); box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1); }
     
     select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236b7280'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 16px center; background-size: 20px; padding-right: 40px; }
     
-    #scannerIcon { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--accent-color); font-size: 24px; padding: 8px; cursor: pointer; z-index: 5; transition: 0.2s; }
-    #scannerIcon:active { transform: translateY(-50%) scale(0.9); }
+    #scannerIcon { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--accent-color); font-size: 24px; padding: 8px; cursor: pointer; z-index: 5; }
 
     .item-type-buttons { display: flex; gap: 15px; margin-top: 10px; }
-    .type-button { flex: 1; padding: 16px; border-radius: 12px; border: 2px solid var(--border-color); background: #fff; color: var(--text-mid); font-weight: 700; font-size: 16px; cursor: pointer; transition: all 0.2s; text-align: center; }
+    .type-button { flex: 1; padding: 16px; border-radius: 12px; border: 2px solid var(--border-color); background: #fff; color: var(--text-mid); font-weight: 700; cursor: pointer; transition: all 0.2s; text-align: center; }
     .type-button.selected { background-color: #eff6ff; color: var(--accent-color); border-color: var(--accent-color); }
     
-    .form-actions { display: flex; gap: 15px; margin-top: 40px; padding-bottom: 20px; }
-    .form-actions button { flex: 1; padding: 18px; border-radius: 14px; font-size: 16px; font-weight: 700; border: none; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); transition: 0.2s; }
+    .form-actions { display: flex; gap: 15px; margin-top: 40px; }
+    .form-actions button { flex: 1; padding: 18px; border-radius: 14px; font-size: 16px; font-weight: 700; border: none; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; transition: 0.2s; }
     .prev-button { background-color: #f3f4f6; color: #374151; }
-    .next-button, .log-button { background-color: var(--accent-color); color: white; box-shadow: 0 4px 14px 0 rgba(37, 99, 235, 0.39); }
-    .next-button:active, .log-button:active { transform: scale(0.97); }
-    .form-actions button:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none; }
+    .next-button, .log-button { background-color: var(--accent-color); color: white; }
+    .form-actions button:disabled { opacity: 0.5; cursor: not-allowed; }
     
     .product-details { background-color: #f8fafc; padding: 20px; border-radius: 16px; border: 1px solid #e2e8f0; margin: 20px 0; }
     .product-details .product-name { font-size: 18px; color: var(--accent-color); font-weight: 700; margin-bottom: 10px; display: block; }
-    .detail-row { display: flex; flex-direction: column; gap: 8px; font-size: 14px; color: #64748b; }
-    @media (min-width: 400px) { .detail-row { flex-direction: row; justify-content: space-between; } }
     
     .review-summary { background: #f8fafc; padding: 25px; border-radius: 16px; display: grid; gap: 18px; font-size: 15px; border: 1px solid #e2e8f0; }
-    @media (min-width: 500px) { .review-summary { grid-template-columns: 1fr 1fr; } }
     .review-item i { width: 24px; color: var(--accent-color); text-align: center; margin-right: 10px; }
     
     #scanner-container { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #000; z-index: 10000; flex-direction: column; justify-content: center; }
     #reader { width: 100%; height: 100%; object-fit: cover; }
-    #close-scanner { position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%); background: rgba(255, 255, 255, 0.25); border: 2px solid #fff; color: white; padding: 14px 35px; border-radius: 30px; font-weight: bold; font-size: 16px; backdrop-filter: blur(8px); z-index: 10001; cursor: pointer; }
+    #close-scanner { position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%); background: rgba(255, 255, 255, 0.2); border: 2px solid #fff; color: white; padding: 14px 35px; border-radius: 30px; font-weight: bold; cursor: pointer; }
     
-    .loader-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.9); z-index: 20000; justify-content: center; align-items: center; flex-direction: column; font-weight: 600; color: var(--text-dark); }
+    .loader-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.9); z-index: 20000; justify-content: center; align-items: center; flex-direction: column; font-weight: 600; }
     .loader-overlay.active { display: flex; }
-    .loader-spinner { width: 50px; height: 50px; border: 5px solid #e5e7eb; border-top: 5px solid var(--accent-color); border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 20px; }
+    .loader-spinner { width: 50px; height: 50px; border: 5px solid #e5e7eb; border-top: 5px solid var(--accent-color); border-radius: 50%; animation: rotateIcon 0.8s linear infinite; margin-bottom: 20px; }
   </style>
 </head>
 <body>
 
-  <!-- TOAST CONTAINER -->
   <div id="toast-container"></div>
 
   <div class="form-container">
@@ -185,7 +179,8 @@
       <h2>
         Inventory Logger
         <span id="connectionStatus" class="status-badge status-online">Online</span>
-        <button type="button" id="refreshBtn" class="refresh-button-header" onclick="forceUpdateDB()" title="Check for Updates">
+        <button type="button" id="refreshBtn" class="refresh-button-header" onclick="forceUpdateDB()">
+            <svg class="sync-loader"><circle cx="22" cy="22" r="20"></circle></svg>
             <i class="fas fa-sync-alt"></i>
         </button>
       </h2>
@@ -198,24 +193,20 @@
     </div>
 
     <form id="inventoryForm">
-      
-      <!-- STEP 1: SCAN -->
       <div class="form-step active" id="step1">
         <label for="barcode">Scan Product</label>
         <div class="input-group">
           <i class="fas fa-barcode"></i> 
-          <input type="text" id="barcode" name="barcode" placeholder="Tap cam icon or type code" autocomplete="off" required>
+          <input type="text" id="barcode" name="barcode" placeholder="Scan or type code" autocomplete="off" required>
           <i class="fas fa-camera" id="scannerIcon" title="Open Camera"></i> 
         </div>
       </div>
 
-      <!-- STEP 2: DETAILS -->
       <div class="form-step" id="step2">
         <div class="product-details" id="product-details-display-step2" style="display: none;">
           <div class="product-name" id="product-name-summary2"></div>
-          <div class="detail-row">
-            <div><i class="fas fa-tag"></i> <span id="barcode-summary2"></span></div>
-            <div><i class="fas fa-check-circle"></i> <span id="supplier-summary2"></span></div>
+          <div class="detail-row" style="font-size: 14px; color: #6b7280;">
+            <i class="fas fa-tag"></i> <span id="barcode-summary2"></span>
           </div>
         </div>
         
@@ -251,408 +242,222 @@
         </div>
       </div>
 
-      <!-- STEP 3: LOCATION -->
       <div class="form-step" id="step3">
         <label for="location">Storage Location</label>
         <div class="input-group">
           <i class="fas fa-map-marker-alt"></i>
           <select id="location" name="location" required>
             <option value="">Select Location...</option>
-            <option>Front side</option>
-            <option>Back side</option>
-            <option>On Display</option>
+            <option>Front side</option><option>Back side</option><option>On Display</option>
           </select>
         </div>
       </div>
 
-      <!-- STEP 4: REVIEW -->
       <div class="form-step" id="step4">
         <label>Confirm Details</label>
-        <div class="product-details">
-            <div class="product-name" id="final-product-name"></div>
-        </div>
+        <div class="product-details"><div class="product-name" id="final-product-name"></div></div>
         <div class="review-summary">
             <div class="review-item"><i class="fas fa-barcode"></i> <span id="review-barcode"></span></div>
             <div class="review-item"><i class="fas fa-user"></i> <span id="review-identity"></span></div>
-            <div class="review-item"><i class="fas fa-map-marker-alt"></i> <span id="review-location"></span></div>
-            <div class="review-item"><i class="fas fa-hashtag"></i> <strong>Qty:</strong> <span id="review-quantity"></span></div>
-            <div class="review-item"><i class="fas fa-box"></i> <span id="review-type"></span></div>
+            <div class="review-item"><i class="fas fa-hashtag"></i> Qty: <span id="review-quantity"></span></div>
             <div class="review-item"><i class="fas fa-calendar-alt"></i> <span id="review-expiryDate"></span></div>
         </div>
       </div>
 
       <div class="form-actions">
-        <button type="button" id="prevBtn" class="prev-button" onclick="prevStep()" disabled>
-          <i class="fas fa-arrow-left"></i> Back
-        </button>
-        <button type="button" id="nextBtn" class="next-button" onclick="nextStep()">
-          Next <i class="fas fa-arrow-right"></i>
-        </button>
-        <button type="submit" id="logItemBtn" class="log-button" style="display: none;">
-          <i class="fas fa-check-circle"></i> Submit
-        </button>
+        <button type="button" id="prevBtn" class="prev-button" onclick="prevStep()" disabled><i class="fas fa-arrow-left"></i> Back</button>
+        <button type="button" id="nextBtn" class="next-button" onclick="nextStep()">Next <i class="fas fa-arrow-right"></i></button>
+        <button type="submit" id="logItemBtn" class="log-button" style="display: none;"><i class="fas fa-check-circle"></i> Submit</button>
       </div>
     </form>
   </div>
 
-  <div class="loader-overlay" id="loader">
-      <div class="loader-spinner"></div>
-      <span id="loaderText">Processing...</span>
-  </div>
-  
-  <div id="scanner-container">
-    <div id="reader"></div>
-    <button id="close-scanner" onclick="stopScanner()">Close Camera</button>
-  </div>
+  <div class="loader-overlay" id="loader"><div class="loader-spinner"></div><span>Processing...</span></div>
+  <div id="scanner-container"><div id="reader"></div><button id="close-scanner" onclick="stopScanner()">Close Camera</button></div>
 
   <script>
-    // ==========================================
-    // 🔴 CONFIGURATION
-    // ==========================================
     const API_URL = "https://script.google.com/macros/s/AKfycby__866_Y_0XFiaPPCUaX6U1oZK329Ek6SRg9iU4u-aq5ARhxmkTmIHq6gvTpxXMf-8Lw/exec";
+    const LOCAL_DB_KEY = 'inventory_product_db', DB_VERSION_KEY = 'inventory_db_version', OFFLINE_QUEUE_KEY = 'inventory_offline_queue';
+
+    const form = document.getElementById("inventoryForm"), steps = document.querySelectorAll(".form-step"), prevBtn = document.getElementById("prevBtn"), nextBtn = document.getElementById("nextBtn"), logItemBtn = document.getElementById("logItemBtn"), progressBarFill = document.querySelector(".progress-bar-fill"), currentStepText = document.getElementById("currentStepText"), loader = document.getElementById("loader"), refreshBtn = document.getElementById("refreshBtn"), barcodeInput = document.getElementById("barcode");
     
-    // STORAGE KEYS
-    const LOCAL_DB_KEY = 'inventory_product_db';
-    const DB_VERSION_KEY = 'inventory_db_version';
-    const OFFLINE_QUEUE_KEY = 'inventory_offline_queue';
-
-    // UI ELEMENTS
-    const form = document.getElementById("inventoryForm");
-    const steps = document.querySelectorAll(".form-step");
-    const prevBtn = document.getElementById("prevBtn");
-    const nextBtn = document.getElementById("nextBtn");
-    const logItemBtn = document.getElementById("logItemBtn");
-    const progressBarFill = document.querySelector(".progress-bar-fill");
-    const currentStepText = document.getElementById("currentStepText");
-    const loader = document.getElementById("loader");
-    const scannerIcon = document.getElementById("scannerIcon");
-    const barcodeInput = document.getElementById("barcode");
-    const identitySelect = document.getElementById("identity");
-    const expiryDateInput = document.getElementById("expiryDate");
-    const quantityInput = document.getElementById("quantity");
-    const entryTypeInput = document.getElementById("entryType");
-    const expBtn = document.getElementById("expBtn");
-    const dmgBtn = document.getElementById("dmgBtn");
-    const locationSelect = document.getElementById("location");
-    const refreshBtn = document.getElementById("refreshBtn");
-
-    // DATA VARIABLES
-    let currentStep = 0;
-    let html5QrCodeScanner = null;
-    let isProductFound = false;
-    let productDetails = {};
-    let productMap = {};
+    let currentStep = 0, isProductFound = false, productDetails = {}, productMap = {}, html5QrCodeScanner = null;
     const stepTitles = ["Scan", "Details", "Location", "Review"];
 
-    // ==========================================
-    // NOTIFICATION SYSTEM
-    // ==========================================
-    function showToast(message, type = 'success') {
-      const container = document.getElementById('toast-container');
-      const toast = document.createElement('div');
-      let icon = 'fa-check-circle';
-      if (type === 'error') icon = 'fa-times-circle';
-      if (type === 'warning') icon = 'fa-exclamation-triangle';
-      toast.className = `toast ${type}`;
-      toast.innerHTML = `<i class="fas ${icon}"></i> <span>${message}</span>`;
-      container.appendChild(toast);
-      setTimeout(() => {
-        toast.classList.add('fade-out');
-        toast.addEventListener('animationend', () => toast.remove());
-      }, 3500);
+    function showToast(m, t = 'success') {
+      const c = document.getElementById('toast-container'), toast = document.createElement('div');
+      toast.className = `toast ${t}`;
+      toast.innerHTML = `<i class="fas fa-${t==='success'?'check-circle':t==='error'?'times-circle':'exclamation-triangle'}"></i> <span>${m}</span>`;
+      c.appendChild(toast);
+      setTimeout(() => { toast.classList.add('fade-out'); toast.addEventListener('animationend', () => toast.remove()); }, 3500);
     }
 
-    // ==========================================
-    // INITIALIZATION
-    // ==========================================
     window.onload = function() {
-      showStep(currentStep);
-      expiryDateInput.valueAsDate = new Date();
-      scannerIcon.addEventListener('click', startScanner);
-      
-      const fields = [identitySelect, quantityInput, entryTypeInput, expiryDateInput, locationSelect];
-      fields.forEach(field => field.addEventListener('input', updateNavigationButtons));
-      barcodeInput.addEventListener('input', barcodeInputLookup);
-
+      showStep(0);
+      document.getElementById("expiryDate").valueAsDate = new Date();
+      document.getElementById("scannerIcon").addEventListener('click', startScanner);
+      barcodeInput.addEventListener('input', () => { updateNavigationButtons(); performBarcodeLookup(); });
       loadLocalDB();
       updateQueueDisplay();
       checkOnlineStatus();
-      
       window.addEventListener('online', () => { checkOnlineStatus(); syncQueue(); });
       window.addEventListener('offline', checkOnlineStatus);
-
-      if(navigator.onLine) {
-        forceUpdateDB();
-        syncQueue();
-      }
+      if(navigator.onLine) { forceUpdateDB(); syncQueue(); }
     };
 
     function checkOnlineStatus() {
       const el = document.getElementById('connectionStatus');
-      if(navigator.onLine) {
-        el.className = 'status-badge status-online';
-        el.innerText = 'Online';
-      } else {
-        el.className = 'status-badge status-offline';
-        el.innerText = 'Offline';
-      }
+      el.className = `status-badge status-${navigator.onLine?'online':'offline'}`;
+      el.innerText = navigator.onLine ? 'Online' : 'Offline';
     }
 
-    // ==========================================
-    // DATABASE & OFFLINE LOGIC
-    // ==========================================
     function loadLocalDB() {
       const saved = localStorage.getItem(LOCAL_DB_KEY);
       if (saved) productMap = JSON.parse(saved);
     }
 
     function forceUpdateDB() {
-      if(!navigator.onLine) { showToast("Offline: Cannot update DB", "warning"); return; }
-      
-      // UI: Add loading animation to the refresh button
+      if(!navigator.onLine) return;
       refreshBtn.classList.add('is-loading');
       refreshBtn.disabled = true;
 
       fetch(API_URL + "?action=getProducts")
         .then(res => res.json())
         .then(data => {
-          const localVer = localStorage.getItem(DB_VERSION_KEY);
-          if(String(data.version) !== String(localVer)) {
+          if(String(data.version) !== localStorage.getItem(DB_VERSION_KEY)) {
             localStorage.setItem(LOCAL_DB_KEY, JSON.stringify(data.products));
             localStorage.setItem(DB_VERSION_KEY, data.version);
             productMap = data.products;
-            showToast("Database Updated Successfully!", "success");
-            barcodeInputLookup();
-          } else {
-            showToast("Database is already up to date", "success");
+            showToast("Database Synced");
           }
         })
-        .catch(err => {
-            console.error("Update failed", err);
-            showToast("Failed to fetch updates", "error");
-        })
         .finally(() => {
-            // UI: Remove loading animation
-            refreshBtn.classList.remove('is-loading');
-            refreshBtn.disabled = false;
+          refreshBtn.classList.remove('is-loading');
+          refreshBtn.disabled = false;
         });
     }
 
-    function barcodeInputLookup() {
-      updateNavigationButtons();
-      const barcode = barcodeInput.value.trim();
-      if (currentStep === 0 && barcode.length > 0) {
-        performBarcodeLookup(true);
-      } else {
-        document.getElementById("product-details-display-step2").style.display = 'none';
-      }
-    }
-
-    function performBarcodeLookup(silent) {
-      const barcode = barcodeInput.value.trim();
-      if (productMap[barcode]) {
-        productDetails = { productName: productMap[barcode], barcode: barcode, supplier: "Auto (Sheet)" };
+    function performBarcodeLookup() {
+      const b = barcodeInput.value.trim();
+      if (productMap[b]) {
+        productDetails = { productName: productMap[b], barcode: b };
         isProductFound = true;
       } else {
-        productDetails = { productName: "Unknown Product", barcode: barcode, supplier: "N/A" };
+        productDetails = { productName: "Unknown Product", barcode: b };
         isProductFound = false;
       }
       document.getElementById("product-name-summary2").innerText = productDetails.productName;
       document.getElementById("barcode-summary2").innerText = productDetails.barcode;
-      document.getElementById("supplier-summary2").innerText = productDetails.supplier;
-      document.getElementById("product-details-display-step2").style.display = barcode.length > 0 ? 'block' : 'none';
+      document.getElementById("product-details-display-step2").style.display = b ? 'block' : 'none';
+    }
+
+    function showStep(idx) {
+      steps.forEach((s, i) => s.classList.toggle('active', i === idx));
+      prevBtn.disabled = idx === 0;
+      nextBtn.style.display = idx === steps.length - 1 ? 'none' : 'flex';
+      logItemBtn.style.display = idx === steps.length - 1 ? 'flex' : 'none';
+      progressBarFill.style.width = `${((idx + 1) / steps.length) * 100}%`;
+      currentStepText.innerText = stepTitles[idx];
       updateNavigationButtons();
-    }
-
-    // ==========================================
-    // NAVIGATION
-    // ==========================================
-    function showStep(stepIndex) {
-      steps.forEach((step, index) => step.classList.toggle('active', index === stepIndex));
-      prevBtn.disabled = stepIndex === 0;
-      nextBtn.style.display = stepIndex === steps.length - 1 ? 'none' : 'flex';
-      logItemBtn.style.display = stepIndex === steps.length - 1 ? 'flex' : 'none';
-      updateProgressBar();
-      updateNavigationButtons();
-      if(stepIndex === 1) performBarcodeLookup(true);
-    }
-
-    function updateProgressBar() {
-      const progress = ((currentStep + 1) / steps.length) * 100;
-      progressBarFill.style.width = `${progress}%`;
-      currentStepText.innerHTML = `${stepTitles[currentStep]}`;
-    }
-
-    function updateNavigationButtons() {
-      if (currentStep === 0) {
-        nextBtn.disabled = barcodeInput.value.trim() === '';
-      } else if (currentStep === 1) {
-        nextBtn.disabled = !identitySelect.value || !entryTypeInput.value || !quantityInput.value || !expiryDateInput.value;
-      } else if (currentStep === 2) {
-        nextBtn.disabled = !locationSelect.value;
-      }
     }
 
     function nextStep() {
       if (currentStep === 0) {
-         if(!barcodeInput.value.trim()) { showToast("Enter a barcode", "warning"); return; }
-         performBarcodeLookup(true);
-         if(!isProductFound) {
-            showToast("⛔ Product not found in Database!", "error");
-            return; 
-         }
+        performBarcodeLookup();
+        if(!isProductFound) { showToast("Product not found!", "error"); return; }
       }
-      if (currentStep < steps.length - 1) {
-        currentStep++;
-        showStep(currentStep);
-        if(currentStep === 3) populateReviewDetails();
-      }
+      currentStep++; showStep(currentStep);
+      if(currentStep === 3) populateReview();
     }
 
-    function prevStep() {
-      if (currentStep > 0) { currentStep--; showStep(currentStep); }
-    }
+    function prevStep() { currentStep--; showStep(currentStep); }
 
-    function setType(type) {
-      entryTypeInput.value = type;
-      expBtn.classList.toggle('selected', type === 'Expiry');
-      dmgBtn.classList.toggle('selected', type === 'Damage');
+    function setType(t) {
+      document.getElementById("entryType").value = t;
+      document.getElementById("expBtn").classList.toggle('selected', t === 'Expiry');
+      document.getElementById("dmgBtn").classList.toggle('selected', t === 'Damage');
       updateNavigationButtons();
     }
 
-    function populateReviewDetails() {
-      document.getElementById("final-product-name").innerText = productDetails.productName;
-      document.getElementById("review-barcode").innerText = barcodeInput.value;
-      document.getElementById("review-identity").innerText = identitySelect.value;
-      document.getElementById("review-location").innerText = locationSelect.value;
-      document.getElementById("review-quantity").innerText = quantityInput.value;
-      document.getElementById("review-type").innerText = entryTypeInput.value;
-      document.getElementById("review-expiryDate").innerText = expiryDateInput.value;
+    function updateNavigationButtons() {
+        if(currentStep === 0) nextBtn.disabled = !barcodeInput.value.trim();
+        if(currentStep === 1) nextBtn.disabled = !document.getElementById("identity").value || !document.getElementById("entryType").value;
+        if(currentStep === 2) nextBtn.disabled = !document.getElementById("location").value;
     }
 
-    // ==========================================
-    // SUBMISSION
-    // ==========================================
-    form.addEventListener('submit', function(e) {
-      e.preventDefault();
-      submitItem();
-    });
+    function populateReview() {
+      document.getElementById("final-product-name").innerText = productDetails.productName;
+      document.getElementById("review-barcode").innerText = barcodeInput.value;
+      document.getElementById("review-identity").innerText = document.getElementById("identity").value;
+      document.getElementById("review-quantity").innerText = document.getElementById("quantity").value;
+      document.getElementById("review-expiryDate").innerText = document.getElementById("expiryDate").value;
+    }
 
-    function submitItem() {
+    form.onsubmit = e => {
+      e.preventDefault();
       const item = {
         barcode: barcodeInput.value.trim(),
-        quantity: quantityInput.value.trim(),
-        expiryDate: expiryDateInput.value.trim(),
-        location: locationSelect.value.trim(),
-        identity: identitySelect.value.trim(),
-        type: entryTypeInput.value.trim(),
+        quantity: document.getElementById("quantity").value,
+        expiryDate: document.getElementById("expiryDate").value,
+        location: document.getElementById("location").value,
+        identity: document.getElementById("identity").value,
+        type: document.getElementById("entryType").value,
         productName: productDetails.productName,
         timestamp: new Date().toISOString()
       };
 
       if(navigator.onLine) {
         loader.classList.add('active');
-        fetch(API_URL, {
-          method: 'POST',
-          body: JSON.stringify(item)
-        })
-        .then(res => res.json())
-        .then(data => {
-          loader.classList.remove('active');
-          if(data.status === 'success') {
-            showToast("Success! Item Logged.", "success");
-            resetForm();
-          } else {
-            showToast("Server Error: " + data.message, "error");
-          }
-        })
-        .catch(err => {
-          loader.classList.remove('active');
-          saveOffline(item);
-        });
+        fetch(API_URL, { method: 'POST', body: JSON.stringify(item) })
+          .then(() => { showToast("Logged successfully"); resetForm(); })
+          .catch(() => saveOffline(item))
+          .finally(() => loader.classList.remove('active'));
       } else {
         saveOffline(item);
       }
-    }
+    };
 
     function saveOffline(item) {
-      const queue = JSON.parse(localStorage.getItem(OFFLINE_QUEUE_KEY) || "[]");
-      queue.push(item);
-      localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(queue));
+      const q = JSON.parse(localStorage.getItem(OFFLINE_QUEUE_KEY) || "[]");
+      q.push(item);
+      localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(q));
       updateQueueDisplay();
-      showToast("Saved to Offline Queue", "warning");
+      showToast("Saved offline", "warning");
       resetForm();
     }
 
     function syncQueue() {
-      const queue = JSON.parse(localStorage.getItem(OFFLINE_QUEUE_KEY) || "[]");
-      if(queue.length === 0) return;
-      
-      const item = queue[0];
-      fetch(API_URL, {
-        method: 'POST',
-        body: JSON.stringify(item)
-      })
-      .then(res => res.json())
-      .then(data => {
-         if(data.status === 'success') {
-           queue.shift(); 
-           localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(queue));
-           updateQueueDisplay();
-           if(queue.length > 0) syncQueue(); 
-           else showToast("All offline items synced!", "success");
-         }
-      })
-      .catch(err => console.log("Sync paused"));
+      const q = JSON.parse(localStorage.getItem(OFFLINE_QUEUE_KEY) || "[]");
+      if(!q.length) return;
+      fetch(API_URL, { method: 'POST', body: JSON.stringify(q[0]) })
+        .then(() => { q.shift(); localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(q)); updateQueueDisplay(); syncQueue(); });
     }
 
     function updateQueueDisplay() {
-      const queue = JSON.parse(localStorage.getItem(OFFLINE_QUEUE_KEY) || "[]");
-      document.getElementById("queueCount").innerText = queue.length;
+      document.getElementById("queueCount").innerText = JSON.parse(localStorage.getItem(OFFLINE_QUEUE_KEY) || "[]").length;
     }
 
     function resetForm() {
-      form.reset();
-      productDetails = {};
-      isProductFound = false;
+      form.reset(); currentStep = 0; showStep(0);
       document.getElementById("product-details-display-step2").style.display = 'none';
-      expBtn.classList.remove('selected');
-      dmgBtn.classList.remove('selected');
-      currentStep = 0;
-      showStep(currentStep);
-      expiryDateInput.valueAsDate = new Date();
+      document.querySelectorAll('.type-button').forEach(b => b.classList.remove('selected'));
+      document.getElementById("expiryDate").valueAsDate = new Date();
     }
 
-    // ==========================================
-    // SCANNER
-    // ==========================================
     function startScanner() {
       document.getElementById("scanner-container").style.display = 'flex';
       html5QrCodeScanner = new Html5Qrcode("reader");
-      html5QrCodeScanner.start(
-        { facingMode: "environment" },
-        { fps: 10, qrbox: 250 },
-        decodedText => {
-          barcodeInput.value = decodedText;
-          stopScanner();
-          performBarcodeLookup(true);
-          if(productMap[decodedText]) {
-             nextStep();
-          } else {
-             showToast("Product not found!", "error");
-          }
-        },
-        err => {}
-      );
+      html5QrCodeScanner.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, text => {
+        barcodeInput.value = text; stopScanner(); performBarcodeLookup();
+        if(productMap[text]) nextStep(); else showToast("Not found", "error");
+      });
     }
 
     function stopScanner() {
-      if (html5QrCodeScanner) {
-        html5QrCodeScanner.stop().then(() => {
-          document.getElementById("scanner-container").style.display = 'none';
-          html5QrCodeScanner = null;
-        });
-      }
+      if(html5QrCodeScanner) html5QrCodeScanner.stop().then(() => { 
+          document.getElementById("scanner-container").style.display = 'none'; 
+          html5QrCodeScanner = null; 
+      });
     }
   </script>
 </body>
