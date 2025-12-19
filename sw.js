@@ -1,5 +1,5 @@
 // 🔴 CHANGE v1 TO v2 HERE TO FORCE UPDATE 🔴
-const CACHE_NAME = "inventory-v4"; 
+const CACHE_NAME = "inventory-v5"; 
 const ASSETS_TO_CACHE = [
   "./",
   "./index.html",
@@ -41,5 +41,6 @@ self.addEventListener("activate", (e) => {
   );
   return self.clients.claim();
 });
+
 
 
