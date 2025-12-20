@@ -1,5 +1,4 @@
-// 🔴 CHANGE v1 TO v2 HERE TO FORCE UPDATE 🔴
-const CACHE_NAME = "inventory-v5"; 
+const CACHE_NAME = "inventory-v10"; // Increment this number when you change code
 const ASSETS_TO_CACHE = [
   "./",
   "./index.html",
@@ -9,38 +8,39 @@ const ASSETS_TO_CACHE = [
 
 // 1. Install Event
 self.addEventListener("install", (e) => {
-  self.skipWaiting(); // Force new service worker to activate immediately
+  self.skipWaiting();
   e.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS_TO_CACHE);
-    })
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS_TO_CACHE))
   );
 });
 
-// 2. Fetch Event
-self.addEventListener("fetch", (e) => {
-  e.respondWith(
-    caches.match(e.request).then((response) => {
-      return response || fetch(e.request);
-    })
-  );
-});
-
-// 3. Activate Event (Clean up old cache)
+// 2. Activate Event - Clean up old caches immediately
 self.addEventListener("activate", (e) => {
   e.waitUntil(
-    caches.keys().then((keyList) => {
-      return Promise.all(
-        keyList.map((key) => {
-          if (key !== CACHE_NAME) {
-            return caches.delete(key);
-          }
-        })
-      );
+    caches.keys().then((keys) => {
+      return Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)));
     })
   );
-  return self.clients.claim();
+  self.clients.claim();
 });
 
+// 3. Fetch Event - Network First Strategy for HTML
+self.addEventListener("fetch", (e) => {
+  const url = new URL(e.request.url);
 
+  // DON'T cache API calls to Google Sheets
+  if (url.href.includes("script.google.com")) {
+    return fetch(e.request);
+  }
 
+  e.respondWith(
+    fetch(e.request)
+      .then((res) => {
+        // If successful, update the cache
+        const resClone = res.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put(e.request, resClone));
+        return res;
+      })
+      .catch(() => caches.match(e.request)) // If offline, use cache
+  );
+});
