@@ -1,4 +1,4 @@
-const CACHE_NAME = "inventory-v10"; // Increment this number when you change code
+const CACHE_NAME = "inventory-v11"; // Increment this number when you change code
 const ASSETS_TO_CACHE = [
   "./",
   "./index.html",
@@ -44,3 +44,4 @@ self.addEventListener("fetch", (e) => {
       .catch(() => caches.match(e.request)) // If offline, use cache
   );
 });
+
