@@ -31,93 +31,56 @@
     .toast.success { border-left-color: var(--success-green); } .toast.error { border-left-color: var(--error-red); } .toast.warning { border-left-color: var(--warning-orange); }
     @keyframes toastIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
 
-    /* HEADER & SYNC BUTTON FIX */
+    /* HEADER */
     .form-header { text-align: center; margin-bottom: 20px; padding-top: 10px; }
     .header-title-row { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 5px; }
     h2 { font-size: 24px; color: #111827; font-weight: 800; }
 
     .refresh-button-header { 
-        background: #eff6ff; 
-        border: 1px solid #bfdbfe; 
-        color: var(--accent-color); 
-        width: 42px; 
-        height: 42px; 
-        border-radius: 50%; 
-        display: flex; 
-        align-items: center; 
-        justify-content: center; 
-        cursor: pointer; 
-        position: relative;
-        flex-shrink: 0;
-        transition: transform 0.1s;
-    }
-    .refresh-button-header:active { transform: scale(0.92); }
-
-    /* SVG Loader Ring Fix */
-    .sync-loader {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 42px;
-        height: 42px;
-        display: none;
-        transform: rotate(-90deg);
-        pointer-events: none;
-    }
-    .sync-loader circle {
-        fill: none;
-        stroke: var(--accent-color);
-        stroke-width: 3.5;
-        stroke-linecap: round;
-        /* Perfect circle math for radius 18 inside 42x42 container */
-        stroke-dasharray: 113;
-        stroke-dashoffset: 113;
+        background: #eff6ff; border: 1px solid #bfdbfe; color: var(--accent-color); 
+        width: 42px; height: 42px; border-radius: 50%; display: flex; 
+        align-items: center; justify-content: center; cursor: pointer; position: relative;
     }
 
+    .sync-loader { position: absolute; top: 0; left: 0; width: 42px; height: 42px; display: none; transform: rotate(-90deg); }
+    .sync-loader circle { fill: none; stroke: var(--accent-color); stroke-width: 3.5; stroke-linecap: round; stroke-dasharray: 113; stroke-dashoffset: 113; }
     .is-loading .sync-loader { display: block; }
     .is-loading .sync-loader circle { animation: syncDash 1.5s ease-in-out infinite; }
-    .is-loading i { animation: syncSpin 1.5s linear infinite; color: var(--text-mid); }
+    .is-loading i { animation: syncSpin 1.5s linear infinite; }
 
-    @keyframes syncDash {
-        0% { stroke-dashoffset: 113; }
-        50% { stroke-dashoffset: 30; }
-        100% { stroke-dashoffset: 113; }
-    }
+    @keyframes syncDash { 0% { stroke-dashoffset: 113; } 50% { stroke-dashoffset: 30; } 100% { stroke-dashoffset: 113; } }
     @keyframes syncSpin { to { transform: rotate(360deg); } }
 
     /* UI ELEMENTS */
     .progress-bar-bg { width: 100%; height: 6px; background: #e5e7eb; border-radius: 3px; margin: 20px 0; overflow: hidden; }
-    .progress-bar-fill { height: 100%; width: 0%; background: var(--accent-color); transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-    
+    .progress-bar-fill { height: 100%; width: 0%; background: var(--accent-color); transition: 0.4s; }
     .form-step { display: none; animation: fadeIn 0.3s ease-out; }
     .form-step.active { display: block; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-    label { display: block; margin: 24px 0 8px; font-weight: 600; color: #374151; font-size: 15px; }
+    label { display: block; margin: 24px 0 8px; font-weight: 600; color: #374151; }
     .input-group { position: relative; }
-    .input-group i:not(#scannerIcon) { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #9ca3af; pointer-events: none; }
+    .input-group i:not(#scannerIcon) { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #9ca3af; }
     input, select { width: 100%; padding: 14px 15px 14px 46px; border-radius: 12px; border: 1px solid var(--border-color); font-size: 16px; outline: none; background: #fff; }
-    input:focus, select:focus { border-color: var(--accent-color); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
     
     #scannerIcon { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 22px; color: var(--accent-color); padding: 8px; cursor: pointer; z-index: 10; }
 
     .item-type-buttons { display: flex; gap: 12px; }
-    .type-button { flex: 1; padding: 16px; border-radius: 12px; border: 2px solid var(--border-color); background: white; font-weight: 800; cursor: pointer; text-align: center; color: var(--text-mid); transition: 0.2s; }
+    .type-button { flex: 1; padding: 16px; border-radius: 12px; border: 2px solid var(--border-color); background: white; font-weight: 800; cursor: pointer; text-align: center; color: var(--text-mid); }
     .type-button.selected { border-color: var(--accent-color); color: var(--accent-color); background: #eff6ff; }
 
     .form-actions { display: flex; gap: 12px; margin-top: 35px; }
-    button.action-btn { flex: 1; padding: 18px; border-radius: 14px; font-weight: 700; border: none; cursor: pointer; font-size: 16px; transition: 0.2s; }
+    button.action-btn { flex: 1; padding: 18px; border-radius: 14px; font-weight: 700; border: none; cursor: pointer; font-size: 16px; }
     .prev-button { background: #f3f4f6; color: #374151; }
-    .next-button, .log-button { background: var(--accent-color); color: white; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); }
-    button.action-btn:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
+    .next-button, .log-button { background: var(--accent-color); color: white; }
+    button.action-btn:disabled { opacity: 0.4; }
 
     .product-details { background: #f8fafc; padding: 18px; border-radius: 14px; border: 1px solid #e2e8f0; margin-top: 10px; }
-    .product-name { font-weight: 800; color: var(--accent-color); font-size: 18px; line-height: 1.3; }
+    .product-name { font-weight: 800; color: var(--accent-color); font-size: 18px; }
 
-    /* SCANNER MODAL */
     #scanner-container { display: none; position: fixed; inset: 0; background: black; z-index: 10000; flex-direction: column; }
     #reader { width: 100%; height: 100%; }
-    #close-scanner { position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%); padding: 16px 40px; border-radius: 30px; background: white; font-weight: 800; border: none; z-index: 10001; }
+    #close-scanner { position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%); padding: 16px 40px; border-radius: 30px; background: white; font-weight: 800; border: none; }
     
     .loader-overlay { display: none; position: fixed; inset: 0; background: rgba(255,255,255,0.9); z-index: 20000; flex-direction: column; align-items: center; justify-content: center; }
     .loader-overlay.active { display: flex; }
@@ -132,14 +95,13 @@
     <div class="form-header">
       <div class="header-title-row">
         <h2>Inventory Logger</h2>
-        <button type="button" id="refreshBtn" class="refresh-button-header" onclick="forceUpdateDB()" title="Sync Database">
-            <svg class="sync-loader" viewBox="0 0 42 42">
-                <circle cx="21" cy="21" r="18"></circle>
-            </svg>
+        <button type="button" id="refreshBtn" class="refresh-button-header" onclick="forceUpdateDB()">
+            <svg class="sync-loader" viewBox="0 0 42 42"><circle cx="21" cy="21" r="18"></circle></svg>
             <i class="fas fa-sync-alt"></i>
         </button>
       </div>
-      <p id="connText" style="font-size: 13px; font-weight: 600;">Checking Status...</p>
+      <p id="connText" style="font-size: 13px; font-weight: 600; margin-bottom: 5px;">Checking Status...</p>
+      <p style="font-size: 12px; color: var(--text-mid);">Pending Uploads: <span id="queueCount" style="font-weight: bold; color: var(--warning-orange);">0</span></p>
     </div>
 
     <div class="progress-bar-bg"><div class="progress-bar-fill" id="pBar"></div></div>
@@ -230,6 +192,7 @@
 
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycby__866_Y_0XFiaPPCUaX6U1oZK329Ek6SRg9iU4u-aq5ARhxmkTmIHq6gvTpxXMf-8Lw/exec";
+    const OFFLINE_KEY = "inventory_offline_queue";
     
     let currentStep = 0;
     let productMap = {};
@@ -237,11 +200,9 @@
     const steps = document.querySelectorAll('.form-step');
 
     window.onload = () => {
-      // Load Database from storage
       const saved = localStorage.getItem('inventory_db');
       if (saved) productMap = JSON.parse(saved);
       
-      // Update Listeners for Step Validation
       ['barcode', 'identity', 'location', 'quantity', 'expiryDate', 'entryType'].forEach(id => {
           const el = document.getElementById(id);
           el.addEventListener('input', updateNav);
@@ -253,7 +214,9 @@
       
       checkStatus();
       updateStep();
-      forceUpdateDB(); // Auto-sync
+      updateQueueDisplay();
+      forceUpdateDB();
+      syncQueue();
     };
 
     function showToast(msg, type = 'success') {
@@ -270,8 +233,9 @@
       if(navigator.onLine) {
           txt.innerText = "● System Online";
           txt.style.color = "var(--success-green)";
+          syncQueue();
       } else {
-          txt.innerText = "○ System Offline (Queueing enabled)";
+          txt.innerText = "○ System Offline (Saving locally)";
           txt.style.color = "var(--error-red)";
       }
     }
@@ -282,7 +246,6 @@
       if (!navigator.onLine) return;
       const btn = document.getElementById('refreshBtn');
       btn.classList.add('is-loading');
-      
       try {
         const res = await fetch(`${API_URL}?action=getProducts&_cb=${Date.now()}`);
         const data = await res.json();
@@ -291,11 +254,8 @@
           localStorage.setItem('inventory_db', JSON.stringify(data.products));
           showToast("Database Synced");
         }
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setTimeout(() => btn.classList.remove('is-loading'), 500);
-      }
+      } catch (e) { console.error(e); }
+      finally { setTimeout(() => btn.classList.remove('is-loading'), 500); }
     }
 
     function updateStep() {
@@ -304,7 +264,6 @@
       document.getElementById('prevBtn').disabled = currentStep === 0;
       document.getElementById('nextBtn').style.display = currentStep === 3 ? 'none' : 'block';
       document.getElementById('submitBtn').style.display = currentStep === 3 ? 'block' : 'none';
-      
       if (currentStep === 1) lookupProduct();
       if (currentStep === 3) showReview();
       updateNav();
@@ -313,20 +272,17 @@
     function updateNav() {
       let valid = false;
       const val = (id) => document.getElementById(id).value.trim();
-
       if (currentStep === 0) valid = val('barcode') !== "";
       if (currentStep === 1) valid = val('identity') !== "" && val('entryType') !== "" && val('quantity') > 0 && val('expiryDate') !== "";
       if (currentStep === 2) valid = val('location') !== "";
       if (currentStep === 3) valid = true;
-
       document.getElementById('nextBtn').disabled = !valid;
     }
 
     function changeStep(dir) {
       if (dir === 1 && currentStep === 0) {
-          const b = document.getElementById('barcode').value.trim();
-          if (!productMap[b]) {
-              showToast("Barcode not found in database!", "error");
+          if (!productMap[document.getElementById('barcode').value.trim()]) {
+              showToast("Barcode not found!", "error");
               return;
           }
       }
@@ -354,7 +310,7 @@
         document.getElementById('revDetails').innerHTML = `
             <strong>Staff:</strong> ${document.getElementById('identity').value}<br>
             <strong>Type:</strong> ${document.getElementById('entryType').value}<br>
-            <strong>Quantity:</strong> ${document.getElementById('quantity').value}<br>
+            <strong>Qty:</strong> ${document.getElementById('quantity').value}<br>
             <strong>Expiry:</strong> ${document.getElementById('expiryDate').value}<br>
             <strong>Location:</strong> ${document.getElementById('location').value}
         `;
@@ -376,14 +332,19 @@
         timestamp: new Date().toISOString()
       };
 
+      if (!navigator.onLine) {
+          saveOffline(data);
+          loader.classList.remove('active');
+          return;
+      }
+
       try {
-        if (!navigator.onLine) throw new Error("Offline");
         const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(data) });
         const result = await res.json();
         if (result.status === 'success') {
             showToast("Logged Successfully!");
             resetForm();
-        }
+        } else { throw new Error(); }
       } catch (err) {
         saveOffline(data);
       } finally {
@@ -392,11 +353,35 @@
     };
 
     function saveOffline(data) {
-        const queue = JSON.parse(localStorage.getItem('off_queue') || "[]");
+        const queue = JSON.parse(localStorage.getItem(OFFLINE_KEY) || "[]");
         queue.push(data);
-        localStorage.setItem('off_queue', JSON.stringify(queue));
-        showToast("Saved to offline queue", "warning");
+        localStorage.setItem(OFFLINE_KEY, JSON.stringify(queue));
+        updateQueueDisplay();
+        showToast("Offline: Saved to pending", "warning");
         resetForm();
+    }
+
+    function syncQueue() {
+      if (!navigator.onLine) return;
+      const queue = JSON.parse(localStorage.getItem(OFFLINE_KEY) || "[]");
+      if (queue.length === 0) return;
+
+      const item = queue[0];
+      fetch(API_URL, { method: 'POST', body: JSON.stringify(item) })
+        .then(res => res.json())
+        .then(res => {
+            if(res.status === 'success') {
+                queue.shift();
+                localStorage.setItem(OFFLINE_KEY, JSON.stringify(queue));
+                updateQueueDisplay();
+                syncQueue(); // Process next
+            }
+        }).catch(e => console.log("Sync failed, will retry later"));
+    }
+
+    function updateQueueDisplay() {
+        const queue = JSON.parse(localStorage.getItem(OFFLINE_KEY) || "[]");
+        document.getElementById('queueCount').innerText = queue.length;
     }
 
     function resetForm() {
