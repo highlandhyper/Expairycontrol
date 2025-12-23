@@ -5,110 +5,106 @@
   <title>Inventory Logger</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="theme-color" content="#2563eb">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  
-  <link rel="manifest" href="manifest.json">
-  <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/3144/3144456.png" type="image/png">
-  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js" type="text/javascript"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
   <style>
     :root {
-      --bg-light: #f0f2f5; --card-bg: #ffffff; --text-dark: #1f2937; --text-mid: #6b7280;
-      --accent-color: #2563eb; --border-color: #e5e7eb; --error-red: #ef4444; 
-      --success-green: #10b981; --warning-orange: #f59e0b;
+      --bg: #f0f2f5; --card: #ffffff; --text: #1f2937; --text-mid: #6b7280;
+      --accent: #2563eb; --border: #e5e7eb; --success: #10b981; --error: #ef4444; --warn: #f59e0b;
     }
-
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
-    body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg-light); color: var(--text-dark); display: flex; justify-content: center; min-height: 100vh; }
+    body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--text); display: flex; justify-content: center; min-height: 100vh; }
     
-    .form-container { width: 100%; max-width: 600px; padding: 25px; background: var(--card-bg); min-height: 100vh; position: relative; }
-    @media (min-width: 600px) { body { align-items: center; padding: 20px; } .form-container { min-height: auto; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid var(--border-color); } }
+    .container { width: 100%; max-width: 600px; padding: 25px; background: var(--card); min-height: 100vh; position: relative; }
+    @media (min-width: 600px) { body { align-items: center; padding: 20px; } .container { min-height: auto; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid var(--border); } }
 
-    /* TOASTS */
-    #toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 99999; width: 90%; max-width: 400px; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
-    .toast { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 12px; font-weight: 600; animation: toastIn 0.3s forwards; border-left: 5px solid transparent; pointer-events: auto; }
-    .toast.success { border-left-color: var(--success-green); } .toast.error { border-left-color: var(--error-red); } .toast.warning { border-left-color: var(--warning-orange); }
-    @keyframes toastIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
-
-    /* HEADER */
-    .form-header { text-align: center; margin-bottom: 20px; padding-top: 10px; }
-    .header-title-row { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 5px; }
-    h2 { font-size: 24px; color: #111827; font-weight: 800; }
-
-    .refresh-button-header { 
-        background: #eff6ff; border: 1px solid #bfdbfe; color: var(--accent-color); 
+    /* HEADER & SYNC */
+    .header { text-align: center; margin-bottom: 20px; }
+    .header-row { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 5px; }
+    h2 { font-size: 24px; font-weight: 800; color: #111827; }
+    .sync-btn { 
+        background: #eff6ff; border: 1px solid #bfdbfe; color: var(--accent); 
         width: 42px; height: 42px; border-radius: 50%; display: flex; 
         align-items: center; justify-content: center; cursor: pointer; position: relative;
     }
-
-    .sync-loader { position: absolute; top: 0; left: 0; width: 42px; height: 42px; display: none; transform: rotate(-90deg); }
-    .sync-loader circle { fill: none; stroke: var(--accent-color); stroke-width: 3.5; stroke-linecap: round; stroke-dasharray: 113; stroke-dashoffset: 113; }
+    .sync-loader { position: absolute; inset: 0; display: none; transform: rotate(-90deg); }
+    .sync-loader circle { fill: none; stroke: var(--accent); stroke-width: 3.5; stroke-dasharray: 113; stroke-dashoffset: 113; stroke-linecap: round; }
     .is-loading .sync-loader { display: block; }
-    .is-loading .sync-loader circle { animation: syncDash 1.5s ease-in-out infinite; }
-    .is-loading i { animation: syncSpin 1.5s linear infinite; }
+    .is-loading .sync-loader circle { animation: dash 1.5s ease-in-out infinite; }
+    @keyframes dash { 0% { stroke-dashoffset: 113; } 50% { stroke-dashoffset: 30; } 100% { stroke-dashoffset: 113; } }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .is-loading i { animation: spin 1.5s linear infinite; }
 
-    @keyframes syncDash { 0% { stroke-dashoffset: 113; } 50% { stroke-dashoffset: 30; } 100% { stroke-dashoffset: 113; } }
-    @keyframes syncSpin { to { transform: rotate(360deg); } }
+    /* PROGRESS BAR */
+    .progress-container { margin: 20px 0; }
+    .progress-bg { width: 100%; height: 6px; background: #e5e7eb; border-radius: 3px; overflow: hidden; }
+    .progress-fill { height: 100%; width: 0%; background: var(--accent); transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
 
-    /* UI ELEMENTS */
-    .progress-bar-bg { width: 100%; height: 6px; background: #e5e7eb; border-radius: 3px; margin: 20px 0; overflow: hidden; }
-    .progress-bar-fill { height: 100%; width: 0%; background: var(--accent-color); transition: 0.4s; }
-    .form-step { display: none; animation: fadeIn 0.3s ease-out; }
-    .form-step.active { display: block; }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    /* STEPS & INPUTS */
+    .step { display: none; animation: fadeIn 0.3s ease-out; }
+    .step.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-    label { display: block; margin: 24px 0 8px; font-weight: 600; color: #374151; }
+    label { display: block; margin: 24px 0 8px; font-weight: 600; font-size: 15px; color: #374151; }
     .input-group { position: relative; }
-    .input-group i:not(#scannerIcon) { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #9ca3af; }
-    input, select { width: 100%; padding: 14px 15px 14px 46px; border-radius: 12px; border: 1px solid var(--border-color); font-size: 16px; outline: none; background: #fff; }
-    
-    #scannerIcon { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 22px; color: var(--accent-color); padding: 8px; cursor: pointer; z-index: 10; }
+    .input-group i:not(#scannerIcon) { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #9ca3af; pointer-events: none; }
+    input, select { width: 100%; padding: 14px 15px 14px 46px; border-radius: 12px; border: 1px solid var(--border); font-size: 16px; outline: none; background: #fff; transition: 0.2s; }
+    input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+    #scannerIcon { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 22px; color: var(--accent); padding: 5px; cursor: pointer; z-index: 10; }
 
-    .item-type-buttons { display: flex; gap: 12px; }
-    .type-button { flex: 1; padding: 16px; border-radius: 12px; border: 2px solid var(--border-color); background: white; font-weight: 800; cursor: pointer; text-align: center; color: var(--text-mid); }
-    .type-button.selected { border-color: var(--accent-color); color: var(--accent-color); background: #eff6ff; }
+    .type-buttons { display: flex; gap: 12px; }
+    .type-btn { flex: 1; padding: 16px; border-radius: 12px; border: 2px solid var(--border); background: white; font-weight: 800; cursor: pointer; text-align: center; color: var(--text-mid); transition: 0.2s; }
+    .type-btn.selected { border-color: var(--accent); color: var(--accent); background: #eff6ff; }
 
-    .form-actions { display: flex; gap: 12px; margin-top: 35px; }
-    button.action-btn { flex: 1; padding: 18px; border-radius: 14px; font-weight: 700; border: none; cursor: pointer; font-size: 16px; }
-    .prev-button { background: #f3f4f6; color: #374151; }
-    .next-button, .log-button { background: var(--accent-color); color: white; }
-    button.action-btn:disabled { opacity: 0.4; }
+    .actions { display: flex; gap: 12px; margin-top: 35px; }
+    .btn { flex: 1; padding: 18px; border-radius: 14px; font-weight: 700; border: none; cursor: pointer; font-size: 16px; transition: 0.2s; }
+    .btn-prev { background: #f3f4f6; color: #374151; }
+    .btn-next { background: var(--accent); color: white; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2); }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-    .product-details { background: #f8fafc; padding: 18px; border-radius: 14px; border: 1px solid #e2e8f0; margin-top: 10px; }
-    .product-name { font-weight: 800; color: var(--accent-color); font-size: 18px; }
+    /* REVIEW CARD */
+    .review-card { background: #f8fafc; padding: 20px; border-radius: 14px; border: 1px solid #e2e8f0; line-height: 1.8; color: #4b5563; }
+    .review-item { display: flex; justify-content: space-between; border-bottom: 1px solid #edf2f7; padding: 5px 0; }
+    .review-item b { color: var(--text); }
 
-    #scanner-container { display: none; position: fixed; inset: 0; background: black; z-index: 10000; flex-direction: column; }
+    /* MODAL */
+    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 30000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(4px); }
+    .modal-content { background: white; width: 100%; max-width: 400px; padding: 25px; border-radius: 20px; position: relative; }
+    .modal-close { position: absolute; top: 15px; right: 20px; font-size: 28px; cursor: pointer; color: var(--text-mid); }
+
+    /* TOAST */
+    #toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 99999; width: 90%; max-width: 400px; }
+    .toast { background: white; padding: 16px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); margin-bottom: 10px; font-weight: 600; display: flex; align-items: center; gap: 10px; border-left: 6px solid var(--accent); animation: slideIn 0.3s forwards; }
+    @keyframes slideIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    #scanner-container { display: none; position: fixed; inset: 0; background: black; z-index: 10000; }
     #reader { width: 100%; height: 100%; }
-    #close-scanner { position: absolute; bottom: 50px; left: 50%; transform: translateX(-50%); padding: 16px 40px; border-radius: 30px; background: white; font-weight: 800; border: none; }
-    
-    .loader-overlay { display: none; position: fixed; inset: 0; background: rgba(255,255,255,0.9); z-index: 20000; flex-direction: column; align-items: center; justify-content: center; }
-    .loader-overlay.active { display: flex; }
-    .loader-spinner { width: 45px; height: 45px; border: 5px solid #e5e7eb; border-top-color: var(--accent-color); border-radius: 50%; animation: syncSpin 0.8s linear infinite; margin-bottom: 15px; }
   </style>
 </head>
 <body>
 
   <div id="toast-container"></div>
 
-  <div class="form-container">
-    <div class="form-header">
-      <div class="header-title-row">
+  <div class="container">
+    <button onclick="openAddModal()" style="position: absolute; top: 20px; right: 20px; background: var(--success); color: white; border: none; width: 38px; height: 38px; border-radius: 50%; font-size: 22px; cursor: pointer; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3); z-index: 5;">+</button>
+
+    <div class="header">
+      <div class="header-row">
         <h2>Inventory Logger</h2>
-        <button type="button" id="refreshBtn" class="refresh-button-header" onclick="forceUpdateDB()">
-            <svg class="sync-loader" viewBox="0 0 42 42"><circle cx="21" cy="21" r="18"></circle></svg>
-            <i class="fas fa-sync-alt"></i>
+        <button id="refreshBtn" class="sync-btn" onclick="forceUpdateDB()">
+          <svg class="sync-loader" viewBox="0 0 42 42"><circle cx="21" cy="21" r="18"></circle></svg>
+          <i class="fas fa-sync-alt"></i>
         </button>
       </div>
-      <p id="connText" style="font-size: 13px; font-weight: 600; margin-bottom: 5px;">Checking Status...</p>
-      <p style="font-size: 12px; color: var(--text-mid);">Pending Uploads: <span id="queueCount" style="font-weight: bold; color: var(--warning-orange);">0</span></p>
+      <p id="statusTxt" style="font-size: 13px; font-weight: 600;">Checking Status...</p>
+      <p style="font-size: 11px; color: var(--text-mid); margin-top: 4px;">Pending Uploads: <span id="qCount" style="font-weight: 800; color: var(--warn);">0</span></p>
     </div>
 
-    <div class="progress-bar-bg"><div class="progress-bar-fill" id="pBar"></div></div>
+    <div class="progress-container"><div class="progress-bg"><div class="progress-fill" id="pFill"></div></div></div>
 
     <form id="inventoryForm">
       <!-- STEP 1 -->
-      <div class="form-step active">
+      <div class="step active">
         <label>Scan Product Barcode</label>
         <div class="input-group">
           <i class="fas fa-barcode"></i>
@@ -118,15 +114,13 @@
       </div>
 
       <!-- STEP 2 -->
-      <div class="form-step">
-        <div class="product-details" id="pDetails" style="display:none">
-          <div class="product-name" id="detName"></div>
-          <div style="font-size: 13px; color: var(--text-mid); margin-top: 4px;" id="detBarcode"></div>
+      <div class="step">
+        <div id="pReview" style="background:#f8fafc; padding:15px; border-radius:12px; border:1px solid #e2e8f0; margin-bottom:15px; display:none;">
+            <div id="detName" style="font-weight:800; color:var(--accent); font-size:18px;"></div>
+            <div id="detBarcode" style="font-size:13px; color:var(--text-mid); margin-top:2px;"></div>
         </div>
-
         <label>Staff Name</label>
-        <div class="input-group">
-          <i class="fas fa-user"></i>
+        <div class="input-group"><i class="fas fa-user"></i>
           <select id="identity">
             <option value="">Select Staff...</option>
             <option>SATTAR</option><option>ANAS</option><option>KUMAR</option>
@@ -135,281 +129,204 @@
             <option>RAMSHAD</option><option>ANWAR</option><option>MANIK</option>
           </select>
         </div>
-
-        <label>Entry Type</label>
-        <div class="item-type-buttons">
-          <div class="type-button" id="expBtn" onclick="setType('Expiry')">Expiry</div>
-          <div class="type-button" id="dmgBtn" onclick="setType('Damage')">Damage</div>
+        <label>Item Type</label>
+        <div class="type-buttons">
+          <div class="type-btn" id="btnExp" onclick="setType('Expiry')">Expiry</div>
+          <div class="type-btn" id="btnDmg" onclick="setType('Damage')">Damage</div>
         </div>
         <input type="hidden" id="entryType">
-
         <label>Quantity</label>
-        <div class="input-group">
-          <i class="fas fa-hashtag"></i>
-          <input type="number" id="quantity" value="1" min="1" inputmode="numeric">
-        </div>
-
+        <div class="input-group"><i class="fas fa-hashtag"></i><input type="number" id="qty" value="1" min="1"></div>
         <label>Expiry Date</label>
-        <div class="input-group">
-          <i class="fas fa-calendar-alt"></i>
-          <input type="date" id="expiryDate">
-        </div>
+        <div class="input-group"><i class="fas fa-calendar-alt"></i><input type="date" id="expDate"></div>
       </div>
 
       <!-- STEP 3 -->
-      <div class="form-step">
+      <div class="step">
         <label>Storage Location</label>
-        <div class="input-group">
-          <i class="fas fa-map-marker-alt"></i>
+        <div class="input-group"><i class="fas fa-map-marker-alt"></i>
           <select id="location">
             <option value="">Select Location...</option>
-            <option>Front side</option>
-            <option>Back side</option>
-            <option>On Display</option>
+            <option>Front side</option><option>Back side</option><option>On Display</option>
           </select>
         </div>
       </div>
 
       <!-- STEP 4 -->
-      <div class="form-step">
+      <div class="step">
         <label>Review Entry Details</label>
-        <div class="product-details">
-            <div class="product-name" id="revName"></div>
-            <div id="revDetails" style="font-size: 15px; line-height: 1.8; margin-top: 12px; color: #4b5563;"></div>
-        </div>
+        <div class="review-card" id="finalRev"></div>
       </div>
 
-      <div class="form-actions">
-        <button type="button" id="prevBtn" class="action-btn prev-button" onclick="changeStep(-1)">Back</button>
-        <button type="button" id="nextBtn" class="action-btn next-button" onclick="changeStep(1)">Next</button>
-        <button type="submit" id="submitBtn" class="action-btn log-button" style="display:none">Confirm & Submit</button>
+      <div class="actions">
+        <button type="button" class="btn btn-prev" id="prevBtn" onclick="move(-1)">Back</button>
+        <button type="button" class="btn btn-next" id="nextBtn" onclick="move(1)">Next</button>
+        <button type="submit" class="btn btn-next" id="subBtn" style="display:none">Confirm & Submit</button>
       </div>
     </form>
   </div>
 
-  <div class="loader-overlay" id="loader"><div class="loader-spinner"></div><p style="font-weight: 700;">Submitting...</p></div>
-  <div id="scanner-container"><div id="reader"></div><button id="close-scanner" onclick="stopScanner()">Cancel Scan</button></div>
+  <!-- ADD PRODUCT MODAL -->
+  <div id="addModal" class="modal">
+    <div class="modal-content">
+        <span class="modal-close" onclick="closeAddModal()">&times;</span>
+        <h3 style="font-weight:800; margin-bottom:15px;">Add New Product</h3>
+        <label>Barcode</label><input type="text" id="nb" style="padding-left:15px;">
+        <label>Name</label><input type="text" id="nn" style="padding-left:15px;">
+        <label>Supplier</label><input type="text" id="ns" list="supOptions" style="padding-left:15px;" placeholder="Search or Type..."><datalist id="supOptions"></datalist>
+        <label>Admin Password</label><input type="password" id="ap" style="padding-left:15px;">
+        <button onclick="saveNew()" class="btn btn-next" style="width:100%; margin-top:20px;">Authorize & Save</button>
+    </div>
+  </div>
+
+  <div id="loader" style="display:none; position:fixed; inset:0; background:rgba(255,255,255,0.8); z-index:40000; align-items:center; justify-content:center; flex-direction:column; font-weight:800;">
+    <div style="width:45px; height:45px; border:5px solid #ddd; border-top-color:var(--accent); border-radius:50%; animation:spin 0.8s linear infinite; margin-bottom:10px;"></div>
+    Submitting...
+  </div>
+
+  <div id="scanner-container">
+    <div id="reader"></div>
+    <button onclick="stopScan()" style="position:absolute; bottom:50px; left:50%; transform:translateX(-50%); padding:16px 40px; border-radius:30px; border:none; font-weight:800; background:white;">Cancel Scan</button>
+  </div>
 
   <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycby__866_Y_0XFiaPPCUaX6U1oZK329Ek6SRg9iU4u-aq5ARhxmkTmIHq6gvTpxXMf-8Lw/exec";
-    const OFFLINE_KEY = "inventory_offline_queue";
-    
-    let currentStep = 0;
-    let productMap = {};
-    let scanner = null;
-    const steps = document.querySelectorAll('.form-step');
+    const API = "https://script.google.com/macros/s/AKfycby__866_Y_0XFiaPPCUaX6U1oZK329Ek6SRg9iU4u-aq5ARhxmkTmIHq6gvTpxXMf-8Lw/exec";
+    const OFF_KEY = "inventory_offline_queue";
+    let step = 0, pMap = {}, scanner = null;
+    const steps = document.querySelectorAll('.step');
 
     window.onload = () => {
-      const saved = localStorage.getItem('inventory_db');
-      if (saved) productMap = JSON.parse(saved);
-      
-      ['barcode', 'identity', 'location', 'quantity', 'expiryDate', 'entryType'].forEach(id => {
-          const el = document.getElementById(id);
-          el.addEventListener('input', updateNav);
-          el.addEventListener('change', updateNav);
+      const saved = localStorage.getItem('inventory_db'); if(saved) pMap = JSON.parse(saved);
+      ['barcode','identity','location','qty','expDate','entryType'].forEach(id => {
+        const el = document.getElementById(id); el.oninput = el.onchange = updateNav;
       });
-
-      document.getElementById('scannerIcon').onclick = startScanner;
-      document.getElementById('expiryDate').valueAsDate = new Date();
-      
-      checkStatus();
-      updateStep();
-      updateQueueDisplay();
-      forceUpdateDB();
-      syncQueue();
+      document.getElementById('scannerIcon').onclick = startScan;
+      document.getElementById('expDate').valueAsDate = new Date();
+      updateStatus(); updateStep(); updateQC(); forceUpdateDB();
     };
 
-    function showToast(msg, type = 'success') {
-      const container = document.getElementById('toast-container');
-      const t = document.createElement('div');
-      t.className = `toast ${type}`;
-      t.innerHTML = `<i class="fas fa-${type==='success'?'check-circle':'exclamation-triangle'}"></i><span>${msg}</span>`;
-      container.appendChild(t);
-      setTimeout(() => { t.classList.add('fade-out'); setTimeout(() => t.remove(), 400); }, 3000);
+    function showToast(m, t='success') {
+      const c = document.getElementById('toast-container'), toast = document.createElement('div');
+      toast.className = `toast ${t}`;
+      toast.innerHTML = `<i class="fas fa-${t==='success'?'check-circle':'exclamation-triangle'}" style="color:${t==='success'?'var(--success)':'var(--error)'}"></i><span>${m}</span>`;
+      c.appendChild(toast);
+      setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 400); }, 3000);
     }
 
-    function checkStatus() {
-      const txt = document.getElementById('connText');
-      if(navigator.onLine) {
-          txt.innerText = "● System Online";
-          txt.style.color = "var(--success-green)";
-          syncQueue();
-      } else {
-          txt.innerText = "○ System Offline (Saving locally)";
-          txt.style.color = "var(--error-red)";
-      }
+    function updateStatus() {
+      const o = navigator.onLine, e = document.getElementById('statusTxt');
+      e.innerText = o ? "● System Online" : "○ System Offline"; e.style.color = o ? "var(--success)" : "var(--error)";
+      if(o) sync();
     }
-    window.addEventListener('online', checkStatus);
-    window.addEventListener('offline', checkStatus);
+    window.ononline = window.onoffline = updateStatus;
 
     async function forceUpdateDB() {
-      if (!navigator.onLine) return;
-      const btn = document.getElementById('refreshBtn');
-      btn.classList.add('is-loading');
+      if(!navigator.onLine) return;
+      const b = document.getElementById('refreshBtn'); b.classList.add('is-loading');
       try {
-        const res = await fetch(`${API_URL}?action=getProducts&_cb=${Date.now()}`);
-        const data = await res.json();
-        if (data.products) {
-          productMap = data.products;
-          localStorage.setItem('inventory_db', JSON.stringify(data.products));
-          showToast("Database Synced");
-        }
-      } catch (e) { console.error(e); }
-      finally { setTimeout(() => btn.classList.remove('is-loading'), 500); }
+        const r = await fetch(`${API}?action=getProducts&_cb=${Date.now()}`), d = await r.json();
+        pMap = d.products; localStorage.setItem('inventory_db', JSON.stringify(d.products));
+        const l = document.getElementById('supOptions'); l.innerHTML = "";
+        if(d.suppliers) d.suppliers.forEach(s => { const o = document.createElement('option'); o.value = s; l.appendChild(o); });
+        showToast("Database Synced");
+      } catch(e) { console.error(e); }
+      finally { setTimeout(() => b.classList.remove('is-loading'), 500); }
     }
 
     function updateStep() {
-      steps.forEach((s, i) => s.classList.toggle('active', i === currentStep));
-      document.getElementById('pBar').style.width = `${((currentStep + 1) / steps.length) * 100}%`;
-      document.getElementById('prevBtn').disabled = currentStep === 0;
-      document.getElementById('nextBtn').style.display = currentStep === 3 ? 'none' : 'block';
-      document.getElementById('submitBtn').style.display = currentStep === 3 ? 'block' : 'none';
-      if (currentStep === 1) lookupProduct();
-      if (currentStep === 3) showReview();
+      steps.forEach((s, i) => s.classList.toggle('active', i === step));
+      document.getElementById('pFill').style.width = `${((step + 1) / steps.length) * 100}%`;
+      document.getElementById('prevBtn').disabled = step === 0;
+      document.getElementById('nextBtn').style.display = step === 3 ? 'none' : 'block';
+      document.getElementById('subBtn').style.display = step === 3 ? 'block' : 'none';
+      
+      if(step === 1) {
+        const b = document.getElementById('barcode').value.trim();
+        document.getElementById('detName').innerText = pMap[b] || "Unknown Item";
+        document.getElementById('detBarcode').innerText = `Barcode: ${b}`;
+        document.getElementById('pReview').style.display = 'block';
+      }
+      if(step === 3) {
+        const b = document.getElementById('barcode').value.trim();
+        document.getElementById('finalRev').innerHTML = `
+            <div class="review-item"><b>Item:</b> <span>${pMap[b]}</span></div>
+            <div class="review-item"><b>Staff:</b> <span>${document.getElementById('identity').value}</span></div>
+            <div class="review-item"><b>Type:</b> <span>${document.getElementById('entryType').value}</span></div>
+            <div class="review-item"><b>Quantity:</b> <span>${document.getElementById('qty').value}</span></div>
+            <div class="review-item"><b>Expiry:</b> <span>${document.getElementById('expDate').value}</span></div>
+            <div class="review-item" style="border:none"><b>Location:</b> <span>${document.getElementById('location').value}</span></div>`;
+      }
       updateNav();
     }
 
     function updateNav() {
-      let valid = false;
-      const val = (id) => document.getElementById(id).value.trim();
-      if (currentStep === 0) valid = val('barcode') !== "";
-      if (currentStep === 1) valid = val('identity') !== "" && val('entryType') !== "" && val('quantity') > 0 && val('expiryDate') !== "";
-      if (currentStep === 2) valid = val('location') !== "";
-      if (currentStep === 3) valid = true;
-      document.getElementById('nextBtn').disabled = !valid;
+      const v = (id) => document.getElementById(id).value.trim(); let ok = false;
+      if(step === 0) ok = v('barcode') !== "";
+      if(step === 1) ok = v('identity') !== "" && v('entryType') !== "" && v('qty') > 0 && v('expDate') !== "";
+      if(step === 2) ok = v('location') !== "";
+      if(step === 3) ok = true;
+      document.getElementById('nextBtn').disabled = !ok;
     }
 
-    function changeStep(dir) {
-      if (dir === 1 && currentStep === 0) {
-          if (!productMap[document.getElementById('barcode').value.trim()]) {
-              showToast("Barcode not found!", "error");
-              return;
-          }
-      }
-      currentStep += dir;
-      updateStep();
+    function move(d) {
+      if(d === 1 && step === 0 && !pMap[document.getElementById('barcode').value.trim()]) return showToast("Product not in DB!", "error");
+      step += d; updateStep();
     }
 
     function setType(t) {
       document.getElementById('entryType').value = t;
-      document.getElementById('expBtn').classList.toggle('selected', t === 'Expiry');
-      document.getElementById('dmgBtn').classList.toggle('selected', t === 'Damage');
+      document.getElementById('btnExp').classList.toggle('selected', t === 'Expiry');
+      document.getElementById('btnDmg').classList.toggle('selected', t === 'Damage');
       updateNav();
-    }
-
-    function lookupProduct() {
-      const b = document.getElementById('barcode').value.trim();
-      document.getElementById('detName').innerText = productMap[b] || "Unknown Item";
-      document.getElementById('detBarcode').innerText = `Barcode: ${b}`;
-      document.getElementById('pDetails').style.display = 'block';
-    }
-
-    function showReview() {
-        const b = document.getElementById('barcode').value.trim();
-        document.getElementById('revName').innerText = productMap[b];
-        document.getElementById('revDetails').innerHTML = `
-            <strong>Staff:</strong> ${document.getElementById('identity').value}<br>
-            <strong>Type:</strong> ${document.getElementById('entryType').value}<br>
-            <strong>Qty:</strong> ${document.getElementById('quantity').value}<br>
-            <strong>Expiry:</strong> ${document.getElementById('expiryDate').value}<br>
-            <strong>Location:</strong> ${document.getElementById('location').value}
-        `;
     }
 
     document.getElementById('inventoryForm').onsubmit = async (e) => {
       e.preventDefault();
-      const loader = document.getElementById('loader');
-      loader.classList.add('active');
-
-      const data = {
-        barcode: document.getElementById('barcode').value,
-        identity: document.getElementById('identity').value,
-        type: document.getElementById('entryType').value,
-        quantity: document.getElementById('quantity').value,
-        expiryDate: document.getElementById('expiryDate').value,
-        location: document.getElementById('location').value,
-        productName: productMap[document.getElementById('barcode').value],
-        timestamp: new Date().toISOString()
+      document.getElementById('loader').style.display = 'flex';
+      const d = { 
+          barcode: document.getElementById('barcode').value, 
+          identity: document.getElementById('identity').value, 
+          type: document.getElementById('entryType').value, 
+          quantity: document.getElementById('qty').value, 
+          expiryDate: document.getElementById('expDate').value, 
+          location: document.getElementById('location').value, 
+          productName: pMap[document.getElementById('barcode').value], 
+          timestamp: new Date().toISOString() 
       };
-
-      if (!navigator.onLine) {
-          saveOffline(data);
-          loader.classList.remove('active');
-          return;
-      }
-
-      try {
-        const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(data) });
-        const result = await res.json();
-        if (result.status === 'success') {
-            showToast("Logged Successfully!");
-            resetForm();
-        } else { throw new Error(); }
-      } catch (err) {
-        saveOffline(data);
-      } finally {
-        loader.classList.remove('active');
-      }
+      if(!navigator.onLine) { q(d); document.getElementById('loader').style.display = 'none'; return; }
+      try { 
+          const r = await fetch(API, { method:'POST', body:JSON.stringify(d) }); 
+          const res = await r.json();
+          if(res.status === 'success') { showToast("Logged Successfully!"); reset(); } 
+      } catch(e) { q(d); }
+      finally { document.getElementById('loader').style.display = 'none'; }
     };
 
-    function saveOffline(data) {
-        const queue = JSON.parse(localStorage.getItem(OFFLINE_KEY) || "[]");
-        queue.push(data);
-        localStorage.setItem(OFFLINE_KEY, JSON.stringify(queue));
-        updateQueueDisplay();
-        showToast("Offline: Saved to pending", "warning");
-        resetForm();
+    function q(d) { const l = JSON.parse(localStorage.getItem(OFF_KEY) || "[]"); l.push(d); localStorage.setItem(OFF_KEY, JSON.stringify(l)); updateQC(); showToast("Offline saved to queue", "warning"); reset(); }
+    function sync() { const l = JSON.parse(localStorage.getItem(OFF_KEY) || "[]"); if(!l.length) return; fetch(API, {method:'POST', body:JSON.stringify(l[0])}).then(r=>r.json()).then(r=>{ if(r.status==='success') { l.shift(); localStorage.setItem(OFF_KEY, JSON.stringify(l)); updateQC(); sync(); } }); }
+    function updateQC() { document.getElementById('qCount').innerText = JSON.parse(localStorage.getItem(OFF_KEY) || "[]").length; }
+    function reset() { document.getElementById('inventoryForm').reset(); document.getElementById('entryType').value = ""; document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('selected')); step = 0; updateStep(); }
+    
+    function openAddModal() { document.getElementById('addModal').style.display='flex'; document.getElementById('nb').value = document.getElementById('barcode').value; }
+    function closeAddModal() { document.getElementById('addModal').style.display='none'; document.getElementById('ap').value = ""; }
+    
+    async function saveNew() {
+      const b = document.getElementById('nb').value, n = document.getElementById('nn').value, s = document.getElementById('ns').value, p = document.getElementById('ap').value;
+      if(!b || !n || !p) return showToast("Fields required", "error");
+      document.getElementById('loader').style.display = 'flex';
+      try { 
+          const r = await fetch(API, {method:'POST', body:JSON.stringify({action:'addProduct', barcode:b, name:n, supplier:s, password:p})}); 
+          const res = await r.json(); 
+          if(res.status==='success') { showToast("Product Added!"); closeAddModal(); forceUpdateDB(); } else showToast(res.message, "error"); 
+      } catch(e) { showToast("Error connecting", "error"); }
+      finally { document.getElementById('loader').style.display = 'none'; }
     }
-
-    function syncQueue() {
-      if (!navigator.onLine) return;
-      const queue = JSON.parse(localStorage.getItem(OFFLINE_KEY) || "[]");
-      if (queue.length === 0) return;
-
-      const item = queue[0];
-      fetch(API_URL, { method: 'POST', body: JSON.stringify(item) })
-        .then(res => res.json())
-        .then(res => {
-            if(res.status === 'success') {
-                queue.shift();
-                localStorage.setItem(OFFLINE_KEY, JSON.stringify(queue));
-                updateQueueDisplay();
-                syncQueue(); // Process next
-            }
-        }).catch(e => console.log("Sync failed, will retry later"));
+    
+    function startScan() {
+      document.getElementById('scanner-container').style.display = 'flex'; scanner = new Html5Qrcode("reader");
+      scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (t) => { document.getElementById('barcode').value = t; stopScan(); if(pMap[t]) move(1); else showToast("Not in DB", "error"); });
     }
-
-    function updateQueueDisplay() {
-        const queue = JSON.parse(localStorage.getItem(OFFLINE_KEY) || "[]");
-        document.getElementById('queueCount').innerText = queue.length;
-    }
-
-    function resetForm() {
-      document.getElementById('inventoryForm').reset();
-      document.getElementById('entryType').value = "";
-      document.querySelectorAll('.type-button').forEach(b => b.classList.remove('selected'));
-      currentStep = 0;
-      updateStep();
-    }
-
-    function startScanner() {
-      document.getElementById('scanner-container').style.display = 'flex';
-      scanner = new Html5Qrcode("reader");
-      scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (text) => {
-        document.getElementById('barcode').value = text;
-        stopScanner();
-        if(productMap[text]) changeStep(1); else showToast("Not in database", "error");
-      }).catch(() => showToast("Camera permission denied", "error"));
-    }
-
-    function stopScanner() {
-      if (scanner) {
-        scanner.stop().then(() => {
-          document.getElementById('scanner-container').style.display = 'none';
-          scanner = null;
-        });
-      }
-    }
+    function stopScan() { if(scanner) scanner.stop().then(() => { document.getElementById('scanner-container').style.display = 'none'; scanner = null; }); }
   </script>
 </body>
 </html>
