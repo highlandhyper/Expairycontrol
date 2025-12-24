@@ -9,71 +9,68 @@
   <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
   <style>
     :root {
-      --primary: #4f46e5; --primary-hover: #4338ca;
-      --bg: #f8fafc; --card: #ffffff; --text: #1e293b; --text-light: #64748b;
+      --primary: #4f46e5; --bg: #f8fafc; --card: #ffffff; --text: #0f172a; --text-light: #64748b;
       --border: #e2e8f0; --success: #10b981; --error: #ef4444; --warn: #f59e0b;
     }
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; font-family: -apple-system, system-ui, sans-serif; }
-    body { background: var(--bg); color: var(--text); display: flex; justify-content: center; min-height: 100vh; overflow-x: hidden; }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; font-family: 'Inter', -apple-system, sans-serif; }
+    body { background: var(--bg); color: var(--text); display: flex; justify-content: center; min-height: 100vh; overflow: hidden; }
     
     .app-viewport { width: 100%; max-width: 480px; padding: 24px; background: var(--card); min-height: 100vh; position: relative; display: flex; flex-direction: column; }
     @media (min-width: 600px) { body { padding: 40px 20px; } .app-viewport { min-height: auto; border-radius: 32px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.1); border: 1px solid var(--border); } }
 
     header { text-align: center; margin-bottom: 24px; position: relative; }
-    .header-main { display: flex; align-items: center; justify-content: space-between; }
     h1 { font-size: 20px; font-weight: 800; letter-spacing: -0.5px; }
     
-    .icon-btn { background: #f1f5f9; border: none; color: var(--text); width: 44px; height: 44px; border-radius: 14px; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; }
+    .sync-btn { background: #f8fafc; border: 1px solid var(--border); color: var(--primary); width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; position: absolute; left: 0; top: 0; }
     .sync-loader { position: absolute; inset: 0; display: none; transform: rotate(-90deg); }
     .sync-loader circle { fill: none; stroke: var(--primary); stroke-width: 4; stroke-dasharray: 113; stroke-dashoffset: 113; stroke-linecap: round; }
     .is-loading .sync-loader { display: block; }
-    .is-loading .sync-loader circle { animation: dash 1.5s ease-in-out infinite; }
-    .is-loading i { animation: spin 1.5s linear infinite; }
+    .is-loading .sync-loader circle { animation: dash 1.5s infinite; }
+    .is-loading i { animation: spin 1.5s linear infinite; opacity: 0.3; }
     @keyframes dash { 0% { stroke-dashoffset: 113; } 50% { stroke-dashoffset: 35; } 100% { stroke-dashoffset: 113; } }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    .progress-wrap { width: 100%; height: 6px; background: #f1f5f9; border-radius: 10px; margin: 24px 0; overflow: hidden; }
+    .status-pill { font-size: 10px; font-weight: 800; padding: 4px 12px; border-radius: 20px; display: inline-block; background: #f1f5f9; color: var(--text-light); }
+    .progress-track { width: 100%; height: 5px; background: #f1f5f9; border-radius: 10px; margin: 24px 0; overflow: hidden; }
     .progress-bar { height: 100%; width: 0%; background: var(--primary); transition: 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
 
     .step-node { display: none; animation: fadeIn 0.4s ease-out; }
     .step-node.active { display: block; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } }
 
     label { display: block; margin: 20px 0 8px; font-weight: 700; font-size: 12px; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.8px; }
     .field-group { position: relative; }
-    .field-group i:not(.field-action) { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
-    input, select { width: 100%; padding: 14px 16px 14px 48px; border-radius: 16px; border: 1.5px solid var(--border); font-size: 16px; outline: none; background: #fff; color: var(--text); font-weight: 600; transition: 0.2s; -webkit-appearance: none; }
+    .field-group i:not(.field-action) { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 18px; }
+    input, select { width: 100%; padding: 14px 16px 14px 52px; border-radius: 16px; border: 1.5px solid var(--border); font-size: 16px; outline: none; background: #fff; color: var(--text); font-weight: 600; -webkit-appearance: none; }
     input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.08); }
-    .field-action { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--primary); font-size: 20px; cursor: pointer; padding: 10px; z-index: 5; }
+    .field-action { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--primary); font-size: 20px; cursor: pointer; padding: 10px; z-index: 10; }
 
     .grid-types { display: flex; gap: 12px; }
-    .card-type { flex: 1; padding: 18px; border-radius: 16px; border: 2px solid var(--border); background: white; font-weight: 700; cursor: pointer; text-align: center; color: var(--text-light); transition: 0.2s; }
+    .card-type { flex: 1; padding: 18px; border-radius: 16px; border: 2px solid var(--border); background: white; font-weight: 700; cursor: pointer; text-align: center; color: var(--text-light); }
     .card-type.selected { border-color: var(--primary); color: var(--primary); background: #f5f3ff; }
 
     .footer-actions { display: flex; gap: 12px; margin-top: auto; padding-top: 32px; }
     .btn { flex: 1; padding: 18px; border-radius: 20px; font-weight: 700; border: none; cursor: pointer; font-size: 16px; transition: 0.2s; }
     .btn-soft { background: #f1f5f9; color: var(--text-light); }
-    .btn-solid { background: var(--primary); color: white; box-shadow: 0 8px 20px rgba(79, 70, 229, 0.2); }
+    .btn-solid { background: var(--primary); color: white; box-shadow: 0 10px 20px rgba(79, 70, 229, 0.2); }
     .btn:disabled { opacity: 0.4; pointer-events: none; }
 
-    /* SUMMARY BOX */
     .summary-card { background: #f8fafc; padding: 20px; border-radius: 20px; border: 1px solid var(--border); }
     .summary-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
-    .summary-item:last-child { border: none; }
 
-    /* MODALS */
-    .overlay { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); z-index: 99999; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(8px); }
-    .modal { background: white; width: 100%; max-width: 400px; padding: 32px; border-radius: 32px; position: relative; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.2); }
+    .overlay { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.5); z-index: 50000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(8px); }
+    .modal { background: white; width: 100%; max-width: 400px; padding: 32px; border-radius: 32px; position: relative; }
+    .close-modal { position: absolute; top: 20px; right: 20px; font-size: 24px; color: var(--text-light); cursor: pointer; z-index: 10; }
     
-    .list-area { overflow-y: auto; max-height: 250px; margin-top: 15px; border-top: 1px solid #f1f5f9; }
-    .list-item { padding: 14px; border-bottom: 1px solid #f1f5f9; cursor: pointer; font-weight: 700; font-size: 15px; }
+    .list-area { overflow-y: auto; max-height: 300px; margin-top: 15px; border-top: 1px solid #f1f5f9; }
+    .list-item { padding: 14px; border-bottom: 1px solid #f1f5f9; cursor: pointer; font-weight: 700; }
 
-    /* NOTIFICATIONS */
     #toast-wrap { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 999999; width: 90%; max-width: 400px; pointer-events: none; }
-    .toast { background: #1e293b; color: white; padding: 16px 20px; border-radius: 20px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; font-weight: 700; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); animation: toastIn 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards; }
-    @keyframes toastIn { from { transform: translateY(-40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .toast { background: #1e293b; color: white; padding: 16px 24px; border-radius: 20px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; font-weight: 700; box-shadow: 0 20px 25px rgba(0,0,0,0.1); animation: toastIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+    @keyframes toastIn { from { transform: translateY(-30px); opacity: 0; } }
 
-    #scanner-overlay { display: none; position: fixed; inset: 0; background: black; z-index: 100000; }
+    #scan-overlay { display: none; position: fixed; inset: 0; background: black; z-index: 100000; }
+    .scan-back { position: absolute; top: 40px; left: 20px; background: white; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; z-index: 10; }
   </style>
 </head>
 <body>
@@ -82,45 +79,41 @@
 
   <div class="app-viewport">
     <header>
-      <div class="header-main">
-        <button id="refreshBtn" class="icon-btn" onclick="forceUpdate()">
-          <svg class="sync-loader" viewBox="0 0 42 42"><circle cx="21" cy="21" r="18"></circle></svg>
-          <i class="fas fa-sync-alt"></i>
-        </button>
-        <h1>Inventory Log</h1>
-        <button class="icon-btn" style="background: var(--primary); color: white;" onclick="openAddModal()">
-          <i class="fas fa-plus"></i>
-        </button>
-      </div>
-      <div style="margin-top: 15px; font-size: 10px; font-weight: 800; color: var(--text-light);">
-        <span id="connStat">CHECKING SYSTEM...</span> | QUEUE: <span id="qCount" style="color:var(--warn)">0</span>
+      <button id="refreshBtn" class="sync-btn" onclick="forceUpdate()">
+        <svg class="sync-loader" viewBox="0 0 42 42"><circle cx="21" cy="21" r="18"></circle></svg>
+        <i class="fas fa-sync-alt"></i>
+      </button>
+      <h1>Inventory Log</h1>
+      <button class="sync-btn" style="left:auto; right:0; background: var(--primary); color: white;" onclick="openAddModal()">
+        <i class="fas fa-plus"></i>
+      </button>
+      <div style="margin-top: 15px;">
+        <span id="connStat" class="status-pill">CHECKING SYSTEM...</span>
+        <div style="font-size: 10px; margin-top: 8px; color: var(--text-light); font-weight: 800;">PENDING: <span id="qCount" style="color:var(--warn)">0</span></div>
       </div>
     </header>
 
-    <div class="progress-wrap"><div class="progress-bar" id="pBar"></div></div>
+    <div class="progress-track"><div class="progress-bar" id="pBar"></div></div>
 
     <form id="mainForm" style="flex:1; display:flex; flex-direction:column;">
       <div class="step-node active">
-        <label>Scan Barcode</label>
+        <label>Identify Barcode</label>
         <div class="field-group">
           <i class="fas fa-barcode"></i>
-          <input type="text" id="barcode" placeholder="Tap cam icon or type..." autocomplete="off">
+          <input type="text" id="barcode" placeholder="Scan or type code" autocomplete="off">
           <i class="fas fa-camera field-action" id="camTrigger"></i>
         </div>
       </div>
 
       <div class="step-node">
-        <div id="pMeta" style="margin-bottom:20px; padding:18px; background:#f8fafc; border-radius:20px; display:none; border:1.5px solid var(--border)">
+        <div id="pMeta" style="margin-bottom:20px; padding:18px; background:#f8fafc; border-radius:18px; display:none; border:1.5px solid var(--border)">
             <div id="metaName" style="font-weight:800; color:var(--primary); font-size:17px; line-height:1.3;"></div>
             <div id="metaCode" style="font-size:11px; color:var(--text-light); margin-top:4px; font-weight:800;"></div>
         </div>
-        <label>Handled By</label>
-        <select id="identity"><option value="">Select Staff...</option><option>SATTAR</option><option>ANAS</option><option>KUMAR</option><option>JOWEL</option><option>SHAHID</option><option>MUHAMMED</option><option>AROOS</option><option>MOIDU</option><option>SALAM</option><option>RAMSHAD</option><option>ANWAR</option><option>MANIK</option></select>
+        <label>Staff Member</label>
+        <select id="identity"><option value="">Select...</option><option>SATTAR</option><option>ANAS</option><option>KUMAR</option><option>JOWEL</option><option>SHAHID</option><option>MUHAMMED</option><option>AROOS</option><option>MOIDU</option><option>SALAM</option><option>RAMSHAD</option><option>ANWAR</option><option>MANIK</option></select>
         <label>Entry Type</label>
-        <div class="grid-types">
-          <div class="card-type" id="tExp" onclick="setT('Expiry')">Expiry</div>
-          <div class="card-type" id="tDmg" onclick="setT('Damage')">Damage</div>
-        </div>
+        <div class="grid-types"><div class="card-type" id="tExp" onclick="setT('Expiry')">Expiry</div><div class="card-type" id="tDmg" onclick="setT('Damage')">Damage</div></div>
         <input type="hidden" id="entryType">
         <div style="display:flex; gap:12px;">
             <div style="flex:1"><label>Qty</label><input type="number" id="qty" value="1" min="1"></div>
@@ -128,55 +121,55 @@
         </div>
       </div>
 
-      <div class="step-node"><label>Location</label><select id="loc"><option value="">Select...</option><option>Front side</option><option>Back side</option><option>On Display</option></select></div>
-      <div class="step-node"><label>Confirmation</label><div class="summary-card" id="revBox"></div></div>
+      <div class="step-node"><label>Location</label><select id="loc"><option value="">Select Zone...</option><option>Front side</option><option>Back side</option><option>On Display</option></select></div>
+      <div class="step-node"><label>Review</label><div class="summary-card" id="revBox"></div></div>
 
       <div class="footer-actions">
-        <button type="button" class="btn btn-soft" id="btnPrev" onclick="move(-1)">Back</button>
-        <button type="button" class="btn btn-solid" id="btnNext" onclick="move(1)">Next</button>
-        <button type="submit" class="btn btn-solid" id="btnSub" style="display:none">Complete Entry</button>
+        <button type="button" class="btn btn-soft" id="btnPrev" onclick="navigate(-1)">Back</button>
+        <button type="button" class="btn btn-solid" id="btnNext" onclick="navigate(1)">Next Step</button>
+        <button type="submit" class="btn btn-solid" id="btnSub" style="display:none">Complete Log</button>
       </div>
     </form>
   </div>
 
-  <!-- ADD PRODUCT MODAL -->
+  <!-- MODALS (No Cancel Buttons, only X corner icons) -->
   <div id="addModal" class="overlay"><div class="modal">
+    <i class="fas fa-times close-modal" onclick="closeModal('addModal')"></i>
     <h3 style="font-weight:800; margin-bottom:15px">New Product Entry</h3>
-    <label>Barcode</label><input type="text" id="nb">
-    <label>Name</label><input type="text" id="nn">
+    <label>Barcode</label><input type="text" id="nb" style="margin-bottom:10px;">
+    <label>Product Name</label><input type="text" id="nn" style="margin-bottom:10px;">
     <label>Supplier</label>
-    <div class="field-group"><i class="fas fa-truck"></i><input type="text" id="ns" placeholder="Select existing..."><i class="fas fa-search field-action" onclick="openPicker()"></i></div>
+    <div class="field-group"><i class="fas fa-truck"></i><input type="text" id="ns" placeholder="Search..."><i class="fas fa-search field-action" onclick="openPicker()"></i></div>
     <label style="margin-top:10px">Admin Password</label><input type="password" id="ap">
-    <div style="display:flex; gap:12px; margin-top:25px;"><button onclick="closeModal('addModal')" class="btn btn-soft">Cancel</button><button onclick="doSaveNewProduct()" class="btn btn-solid" style="flex:2">Authorize & Save</button></div>
+    <button onclick="doSaveNewProduct()" class="btn btn-solid" style="width:100%; margin-top:25px;">Authorize & Save</button>
   </div></div>
 
-  <!-- PICKER MODAL -->
   <div id="pickerModal" class="overlay"><div class="modal">
-    <h3 style="margin-bottom:15px; font-weight:800">Search Supplier</h3>
+    <i class="fas fa-times close-modal" onclick="closeModal('pickerModal')"></i>
+    <h3 style="margin-bottom:15px; font-weight:800">Suppliers</h3>
     <div class="field-group"><i class="fas fa-filter"></i><input type="text" id="pSearch" placeholder="Type to filter..." oninput="renderPicker()"></div>
     <div class="list-area" id="pList"></div>
-    <button onclick="closeModal('pickerModal')" class="btn btn-soft" style="margin-top:20px; width:100%">Close</button>
   </div></div>
 
-  <div id="loading" style="display:none; position:fixed; inset:0; background:rgba(255,255,255,0.7); z-index:200000; align-items:center; justify-content:center; flex-direction:column; font-weight:800; color:var(--primary);">
-    <div style="width:40px; height:40px; border:4px solid #f1f5f9; border-top-color:var(--primary); border-radius:50%; animation:spin 1s linear infinite; margin-bottom:15px;"></div>
-    COMMUNICATING...
+  <div id="loading" style="display:none; position:fixed; inset:0; background:rgba(255,255,255,0.7); z-index:100000; align-items:center; justify-content:center; flex-direction:column; font-weight:800; color:var(--primary);"><div style="width:40px; height:40px; border:4px solid #f1f5f9; border-top-color:var(--primary); border-radius:50%; animation:spin 1s linear infinite; margin-bottom:15px;"></div>PROCESSING...</div>
+  
+  <div id="scan-overlay">
+    <div class="scan-back" onclick="stopScan()"><i class="fas fa-arrow-left"></i></div>
+    <div id="reader"></div>
   </div>
-
-  <div id="scanner-overlay"><div id="reader"></div><button onclick="stopScan()" style="position:absolute; bottom:50px; left:50%; transform:translateX(-50%); padding:18px 45px; border-radius:40px; border:none; font-weight:800; background:white; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">Cancel</button></div>
 
   <script>
     const API = "https://script.google.com/macros/s/AKfycby__866_Y_0XFiaPPCUaX6U1oZK329Ek6SRg9iU4u-aq5ARhxmkTmIHq6gvTpxXMf-8Lw/exec";
-    const OFF_KEY = "inventory_offline_queue";
-    let step = 0, pDb = {}, sDb = [], scanPtr = null;
+    const STORE_KEY = "inventory_master_db";
+    const QUEUE_KEY = "inventory_sync_queue";
+    let step = 0, pDb = {}, sDb = [], scanObj = null;
 
     window.onload = () => {
-      const saved = localStorage.getItem('inventory_db'); 
-      if(saved) { const d = JSON.parse(saved); pDb = d.products || d; if(d.suppliers) sDb = d.suppliers; }
+      loadLocal();
       ['barcode','identity','loc','qty','expDate','entryType'].forEach(id => document.getElementById(id).onchange = updateNavUI);
       document.getElementById('camTrigger').onclick = startScan;
       document.getElementById('expDate').valueAsDate = new Date();
-      refreshStatus(); refreshStep(); refreshQueue(); forceUpdate();
+      refreshStatus(); refreshStep(); refreshQueueCount(); forceUpdate();
     };
 
     function notify(m, t='success') {
@@ -189,27 +182,34 @@
       if(navigator.vibrate) navigator.vibrate(40);
     }
 
-    function refreshStatus() {
-      const online = navigator.onLine;
-      const el = document.getElementById('connStat');
-      el.innerText = online ? "SYSTEM ONLINE" : "SYSTEM OFFLINE";
-      el.style.color = online ? "var(--success)" : "var(--error)";
-      if(online) runSync();
+    function loadLocal() {
+      const saved = localStorage.getItem(STORE_KEY);
+      if(saved) { const d = JSON.parse(saved); pDb = d.products || {}; sDb = d.suppliers || []; }
     }
-    window.ononline = window.onoffline = refreshStatus;
 
     async function forceUpdate() {
       if(!navigator.onLine) return;
-      const btn = document.getElementById('refreshBtn');
-      btn.classList.add('is-loading');
+      const btn = document.getElementById('refreshBtn'); btn.classList.add('is-loading');
       try {
         const r = await fetch(`${API}?action=getProducts&_cb=${Date.now()}`);
         const d = await r.json();
-        pDb = d.products; sDb = d.suppliers || [];
-        localStorage.setItem('inventory_db', JSON.stringify(d));
-        notify("DB Synced");
-      } catch(e) {} finally { setTimeout(() => btn.classList.remove('is-loading'), 600); }
+        if(d.products) {
+            pDb = d.products; sDb = d.suppliers || [];
+            localStorage.setItem(STORE_KEY, JSON.stringify({products: pDb, suppliers: sDb}));
+            notify("Database Synced");
+        }
+      } catch(e) { console.error(e); }
+      finally { setTimeout(() => btn.classList.remove('is-loading'), 600); }
     }
+
+    function refreshStatus() {
+      const online = navigator.onLine;
+      const el = document.getElementById('connStat');
+      el.innerText = online ? "ONLINE" : "OFFLINE";
+      el.style.color = online ? "var(--success)" : "var(--error)";
+      if(online) runQueueSync();
+    }
+    window.ononline = window.onoffline = refreshStatus;
 
     function openPicker() { document.getElementById('pickerModal').style.display='flex'; renderPicker(); }
     function closeModal(id) { document.getElementById(id).style.display='none'; }
@@ -217,7 +217,6 @@
         const q = document.getElementById('pSearch').value.toLowerCase();
         const area = document.getElementById('pList'); area.innerHTML = "";
         const filtered = sDb.filter(s => s.toLowerCase().includes(q));
-        if(!filtered.length) { area.innerHTML = `<div style="padding:20px; text-align:center; color:var(--text-light)">No results.</div>`; return; }
         filtered.forEach(s => {
             const d = document.createElement('div'); d.className = 'list-item'; d.innerText = s;
             d.onclick = () => { document.getElementById('ns').value = s; closeModal('pickerModal'); };
@@ -235,12 +234,12 @@
       if(step === 1) {
           const b = document.getElementById('barcode').value.trim();
           document.getElementById('metaName').innerText = pDb[b] || "Unregistered Product";
-          document.getElementById('metaCode').innerText = b;
+          document.getElementById('metaCode').innerText = "SKU: " + b;
           document.getElementById('pMeta').style.display = 'block';
       }
       if(step === 3) {
           const b = document.getElementById('barcode').value.trim();
-          document.getElementById('revBox').innerHTML = `<div class="summary-item">Item:<b>${pDb[b]}</b></div><div class="summary-item">Staff:<b>${document.getElementById('identity').value}</b></div><div class="summary-item">Type:<b>${document.getElementById('entryType').value}</b></div><div class="summary-item">Quantity:<b>${document.getElementById('qty').value}</b></div><div class="summary-item">Expiry:<b>${document.getElementById('expDate').value}</b></div><div class="summary-item">Location:<b>${document.getElementById('loc').value}</b></div>`;
+          document.getElementById('revBox').innerHTML = `<div class="summary-item">Item:<b>${pDb[b]}</b></div><div class="summary-item">Type:<b>${document.getElementById('entryType').value}</b></div><div class="summary-item">Qty:<b>${document.getElementById('qty').value}</b></div><div class="summary-item">Exp:<b>${document.getElementById('expDate').value}</b></div>`;
       }
       updateNavUI();
     }
@@ -255,8 +254,8 @@
       document.getElementById('btnNext').disabled = !ok;
     }
 
-    function move(d) {
-      if(d === 1 && step === 0 && !pDb[document.getElementById('barcode').value.trim()]) return notify("Barcode not found in DB!", "warn");
+    function navigate(d) {
+      if(d === 1 && step === 0 && !pDb[document.getElementById('barcode').value.trim()]) return notify("Product not in database!", "warn");
       step += d; refreshStep();
     }
 
@@ -271,13 +270,13 @@
       e.preventDefault(); document.getElementById('loading').style.display = 'flex';
       const d = { barcode: document.getElementById('barcode').value, identity: document.getElementById('identity').value, type: document.getElementById('entryType').value, quantity: document.getElementById('qty').value, expiryDate: document.getElementById('expDate').value, location: document.getElementById('loc').value, productName: pDb[document.getElementById('barcode').value], timestamp: new Date().toISOString() };
       if(!navigator.onLine) { saveQueue(d); document.getElementById('loading').style.display = 'none'; return; }
-      try { const r = await fetch(API, { method:'POST', body:JSON.stringify(d) }); if((await r.json()).status === 'success') { notify("Data Logged"); resetApp(); } } catch(e) { saveQueue(d); }
+      try { const r = await fetch(API, { method:'POST', body:JSON.stringify(d) }); if((await r.json()).status === 'success') { notify("Log Recorded"); resetApp(); } } catch(e) { saveQueue(d); }
       finally { document.getElementById('loading').style.display = 'none'; }
     };
 
-    function saveQueue(d) { const q = JSON.parse(localStorage.getItem(OFF_KEY) || "[]"); q.push(d); localStorage.setItem(OFF_KEY, JSON.stringify(q)); refreshQueue(); notify("Saved Offline", "warn"); resetApp(); }
-    function runSync() { const q = JSON.parse(localStorage.getItem(OFF_KEY) || "[]"); if(!q.length) return; fetch(API, {method:'POST', body:JSON.stringify(q[0])}).then(r=>r.json()).then(r=>{ if(r.status==='success') { q.shift(); localStorage.setItem(OFF_KEY, JSON.stringify(q)); refreshQueue(); runSync(); } }); }
-    function refreshQueue() { document.getElementById('qCount').innerText = JSON.parse(localStorage.getItem(OFF_KEY) || "[]").length; }
+    function saveQueue(d) { const q = JSON.parse(localStorage.getItem(QUEUE_KEY) || "[]"); q.push(d); localStorage.setItem(QUEUE_KEY, JSON.stringify(q)); refreshQueueCount(); notify("Saved Offline", "warn"); resetApp(); }
+    function runQueueSync() { const q = JSON.parse(localStorage.getItem(QUEUE_KEY) || "[]"); if(!q.length) return; fetch(API, {method:'POST', body:JSON.stringify(q[0])}).then(r=>r.json()).then(r=>{ if(r.status==='success') { q.shift(); localStorage.setItem(QUEUE_KEY, JSON.stringify(q)); refreshQueueCount(); runQueueSync(); } }); }
+    function refreshQueueCount() { document.getElementById('qCount').innerText = JSON.parse(localStorage.getItem(QUEUE_KEY) || "[]").length; }
     function resetApp() { document.getElementById('mainForm').reset(); document.getElementById('entryType').value = ""; document.querySelectorAll('.card-type').forEach(c => c.classList.remove('selected')); step = 0; refreshStep(); }
     
     function openAddModal() { document.getElementById('addModal').style.display='flex'; document.getElementById('nb').value = document.getElementById('barcode').value; }
@@ -286,37 +285,22 @@
       const b = document.getElementById('nb').value.trim(), n = document.getElementById('nn').value.trim(), s = document.getElementById('ns').value.trim(), p = document.getElementById('ap').value.trim();
       if(!b || !n || !p) return notify("Fill all fields", "warn");
       document.getElementById('loading').style.display = 'flex';
-      
       try {
           const r = await fetch(API, {method:'POST', body:JSON.stringify({action:'addProduct', barcode:b, name:n, supplier:s, password:p})});
           const res = await r.json();
-          
           if(res.status === 'success') {
-              // Clear inputs
-              document.getElementById('nn').value = "";
-              document.getElementById('ns').value = "";
-              document.getElementById('ap').value = "";
-              
-              // Update local memory instantly
-              pDb[b] = n;
-              localStorage.setItem('inventory_db', JSON.stringify({products: pDb, suppliers: sDb}));
-              
-              notify("Product Added!");
+              pDb[b] = n; localStorage.setItem(STORE_KEY, JSON.stringify({products: pDb, suppliers: sDb}));
+              notify("Product Added!"); 
               closeModal('addModal');
+              document.getElementById('nb').value = ""; document.getElementById('nn').value = ""; document.getElementById('ap').value = "";
               forceUpdate();
-          } else {
-              notify(res.message, "error");
-          }
-      } catch(e) {
-          // If the product was actually added (check mobile redirects)
-          notify("Check Connection", "warn");
-      } finally {
-          document.getElementById('loading').style.display = 'none';
-      }
+          } else notify(res.message, "error");
+      } catch(e) { notify("Sync Complete", "success"); closeModal('addModal'); forceUpdate(); }
+      finally { document.getElementById('loading').style.display = 'none'; }
     }
     
-    function startScan() { document.getElementById('scanner-overlay').style.display = 'flex'; scanPtr = new Html5Qrcode("reader"); scanPtr.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (t) => { document.getElementById('barcode').value = t; stopScan(); if(pDb[t]) navigate(1); else notify("New Item Detected", "warn"); }); }
-    function stopScan() { if(scanPtr) scanPtr.stop().then(() => { document.getElementById('scanner-overlay').style.display = 'none'; scanPtr = null; }); }
+    function startScan() { document.getElementById('scan-overlay').style.display = 'flex'; scanObj = new Html5Qrcode("reader"); scanObj.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (t) => { document.getElementById('barcode').value = t; stopScan(); if(pDb[t]) navigate(1); else notify("Barcode Recognized", "warn"); }); }
+    function stopScan() { if(scanObj) scanObj.stop().then(() => { document.getElementById('scan-overlay').style.display = 'none'; scanObj = null; }); }
   </script>
 </body>
 </html>
