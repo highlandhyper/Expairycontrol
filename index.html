@@ -13,29 +13,25 @@
       --bg: #f8fafc; --card: #ffffff; --text: #1e293b; --text-light: #64748b;
       --border: #e2e8f0; --success: #10b981; --error: #ef4444; --warn: #f59e0b;
     }
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; font-family: 'Inter', -apple-system, sans-serif; }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; font-family: -apple-system, system-ui, sans-serif; }
     body { background: var(--bg); color: var(--text); display: flex; justify-content: center; min-height: 100vh; overflow-x: hidden; }
     
     .app-viewport { width: 100%; max-width: 480px; padding: 24px; background: var(--card); min-height: 100vh; position: relative; display: flex; flex-direction: column; }
-    @media (min-width: 600px) { body { padding: 40px 20px; } .app-viewport { min-height: auto; border-radius: 32px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.08); border: 1px solid var(--border); } }
+    @media (min-width: 600px) { body { padding: 40px 20px; } .app-viewport { min-height: auto; border-radius: 32px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.1); border: 1px solid var(--border); } }
 
-    /* HEADER & SYNC */
-    header { text-align: center; margin-bottom: 28px; }
+    header { text-align: center; margin-bottom: 24px; position: relative; }
     .header-main { display: flex; align-items: center; justify-content: space-between; }
-    h1 { font-size: 20px; font-weight: 800; letter-spacing: -0.5px; color: var(--text); }
+    h1 { font-size: 20px; font-weight: 800; letter-spacing: -0.5px; }
     
-    .icon-btn { background: #f1f5f9; border: none; color: var(--text); width: 44px; height: 44px; border-radius: 14px; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; transition: 0.2s; }
-    .icon-btn:active { transform: scale(0.9); background: #e2e8f0; }
-
+    .icon-btn { background: #f1f5f9; border: none; color: var(--text); width: 44px; height: 44px; border-radius: 14px; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; }
     .sync-loader { position: absolute; inset: 0; display: none; transform: rotate(-90deg); }
     .sync-loader circle { fill: none; stroke: var(--primary); stroke-width: 4; stroke-dasharray: 113; stroke-dashoffset: 113; stroke-linecap: round; }
     .is-loading .sync-loader { display: block; }
     .is-loading .sync-loader circle { animation: dash 1.5s ease-in-out infinite; }
-    .is-loading i { animation: spin 1.5s linear infinite; color: var(--text-light); }
+    .is-loading i { animation: spin 1.5s linear infinite; }
     @keyframes dash { 0% { stroke-dashoffset: 113; } 50% { stroke-dashoffset: 35; } 100% { stroke-dashoffset: 113; } }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* STEPPER */
     .progress-wrap { width: 100%; height: 6px; background: #f1f5f9; border-radius: 10px; margin: 24px 0; overflow: hidden; }
     .progress-bar { height: 100%; width: 0%; background: var(--primary); transition: 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
 
@@ -43,12 +39,11 @@
     .step-node.active { display: block; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } }
 
-    /* FORMS */
-    label { display: block; margin: 20px 0 8px; font-weight: 700; font-size: 12px; color: var(--text-light); text-transform: uppercase; letter-spacing: 1px; }
+    label { display: block; margin: 20px 0 8px; font-weight: 700; font-size: 12px; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.8px; }
     .field-group { position: relative; }
-    .field-group i:not(.field-action) { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 18px; }
-    input, select { width: 100%; padding: 15px 16px 15px 52px; border-radius: 16px; border: 1.5px solid var(--border); font-size: 16px; outline: none; background: #fff; color: var(--text); font-weight: 600; transition: 0.2s; -webkit-appearance: none; }
-    input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1); }
+    .field-group i:not(.field-action) { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
+    input, select { width: 100%; padding: 14px 16px 14px 48px; border-radius: 16px; border: 1.5px solid var(--border); font-size: 16px; outline: none; background: #fff; color: var(--text); font-weight: 600; transition: 0.2s; -webkit-appearance: none; }
+    input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.08); }
     .field-action { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--primary); font-size: 20px; cursor: pointer; padding: 10px; z-index: 5; }
 
     .grid-types { display: flex; gap: 12px; }
@@ -58,34 +53,32 @@
     .footer-actions { display: flex; gap: 12px; margin-top: auto; padding-top: 32px; }
     .btn { flex: 1; padding: 18px; border-radius: 20px; font-weight: 700; border: none; cursor: pointer; font-size: 16px; transition: 0.2s; }
     .btn-soft { background: #f1f5f9; color: var(--text-light); }
-    .btn-solid { background: var(--primary); color: white; box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.3); }
+    .btn-solid { background: var(--primary); color: white; box-shadow: 0 8px 20px rgba(79, 70, 229, 0.2); }
     .btn:disabled { opacity: 0.4; pointer-events: none; }
 
+    /* SUMMARY BOX */
     .summary-card { background: #f8fafc; padding: 20px; border-radius: 20px; border: 1px solid var(--border); }
     .summary-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
     .summary-item:last-child { border: none; }
-    .summary-item b { color: var(--primary); }
 
     /* MODALS */
     .overlay { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); z-index: 99999; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(8px); }
-    .modal { background: white; width: 100%; max-width: 400px; padding: 32px; border-radius: 32px; position: relative; animation: modalUp 0.3s ease-out; }
-    @keyframes modalUp { from { transform: scale(0.9); opacity: 0; } }
+    .modal { background: white; width: 100%; max-width: 400px; padding: 32px; border-radius: 32px; position: relative; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.2); }
     
-    .list-area { overflow-y: auto; max-height: 280px; margin-top: 15px; border-top: 1px solid #f1f5f9; }
-    .list-item { padding: 16px; border-bottom: 1px solid #f1f5f9; cursor: pointer; font-weight: 700; font-size: 15px; transition: 0.2s; }
-    .list-item:active { background: #f5f3ff; color: var(--primary); }
+    .list-area { overflow-y: auto; max-height: 250px; margin-top: 15px; border-top: 1px solid #f1f5f9; }
+    .list-item { padding: 14px; border-bottom: 1px solid #f1f5f9; cursor: pointer; font-weight: 700; font-size: 15px; }
 
-    /* NOTIFICATION (THE FIX) */
-    #toast-container { position: fixed; top: env(safe-area-inset-top, 20px); left: 50%; transform: translateX(-50%); z-index: 2147483647; width: 90%; max-width: 380px; pointer-events: none; }
-    .toast { background: #1e293b; color: white; padding: 18px 24px; border-radius: 20px; margin-bottom: 12px; display: flex; align-items: center; gap: 14px; font-weight: 700; font-size: 15px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); animation: toastPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; pointer-events: auto; }
-    @keyframes toastPop { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    /* NOTIFICATIONS */
+    #toast-wrap { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 999999; width: 90%; max-width: 400px; pointer-events: none; }
+    .toast { background: #1e293b; color: white; padding: 16px 20px; border-radius: 20px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; font-weight: 700; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); animation: toastIn 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards; }
+    @keyframes toastIn { from { transform: translateY(-40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-    #scan-overlay { display: none; position: fixed; inset: 0; background: black; z-index: 100000; }
+    #scanner-overlay { display: none; position: fixed; inset: 0; background: black; z-index: 100000; }
   </style>
 </head>
 <body>
 
-  <div id="toast-container"></div>
+  <div id="toast-wrap"></div>
 
   <div class="app-viewport">
     <header>
@@ -99,81 +92,48 @@
           <i class="fas fa-plus"></i>
         </button>
       </div>
-      <div style="margin-top: 15px;">
-        <span id="connStat" class="status-pill">CHECKING SYSTEM...</span>
-        <div style="font-size: 10px; margin-top: 8px; color: var(--text-light); font-weight: 800;">QUEUE: <span id="qCount" style="color:var(--warn)">0</span></div>
+      <div style="margin-top: 15px; font-size: 10px; font-weight: 800; color: var(--text-light);">
+        <span id="connStat">CHECKING SYSTEM...</span> | QUEUE: <span id="qCount" style="color:var(--warn)">0</span>
       </div>
     </header>
 
     <div class="progress-wrap"><div class="progress-bar" id="pBar"></div></div>
 
     <form id="mainForm" style="flex:1; display:flex; flex-direction:column;">
-      <!-- STEP 1 -->
       <div class="step-node active">
-        <label>Item Barcode</label>
+        <label>Scan Barcode</label>
         <div class="field-group">
           <i class="fas fa-barcode"></i>
-          <input type="text" id="barcode" placeholder="Scan or type..." autocomplete="off">
+          <input type="text" id="barcode" placeholder="Tap cam icon or type..." autocomplete="off">
           <i class="fas fa-camera field-action" id="camTrigger"></i>
         </div>
       </div>
 
-      <!-- STEP 2 -->
       <div class="step-node">
         <div id="pMeta" style="margin-bottom:20px; padding:18px; background:#f8fafc; border-radius:20px; display:none; border:1.5px solid var(--border)">
             <div id="metaName" style="font-weight:800; color:var(--primary); font-size:17px; line-height:1.3;"></div>
-            <div id="metaCode" style="font-size:11px; color:var(--text-light); margin-top:4px; font-weight:800; letter-spacing:1px;"></div>
+            <div id="metaCode" style="font-size:11px; color:var(--text-light); margin-top:4px; font-weight:800;"></div>
         </div>
-        <label>Staff Member</label>
-        <div class="field-group">
-          <i class="fas fa-user-tie"></i>
-          <select id="identity">
-            <option value="">Choose Staff...</option>
-            <option>SATTAR</option><option>ANAS</option><option>KUMAR</option>
-            <option>JOWEL</option><option>SHAHID</option><option>MUHAMMED</option>
-            <option>AROOS</option><option>MOIDU</option><option>SALAM</option>
-            <option>RAMSHAD</option><option>ANWAR</option><option>MANIK</option>
-          </select>
-        </div>
-        <label>Log Type</label>
+        <label>Handled By</label>
+        <select id="identity"><option value="">Select Staff...</option><option>SATTAR</option><option>ANAS</option><option>KUMAR</option><option>JOWEL</option><option>SHAHID</option><option>MUHAMMED</option><option>AROOS</option><option>MOIDU</option><option>SALAM</option><option>RAMSHAD</option><option>ANWAR</option><option>MANIK</option></select>
+        <label>Entry Type</label>
         <div class="grid-types">
-          <div class="card-type" id="tExp" onclick="setEntryType('Expiry')">Expiry</div>
-          <div class="card-type" id="tDmg" onclick="setEntryType('Damage')">Damage</div>
+          <div class="card-type" id="tExp" onclick="setT('Expiry')">Expiry</div>
+          <div class="card-type" id="tDmg" onclick="setT('Damage')">Damage</div>
         </div>
         <input type="hidden" id="entryType">
-        <div style="display:flex; gap:15px;">
-            <div style="flex:1">
-                <label>Quantity</label>
-                <div class="field-group"><i class="fas fa-hashtag"></i><input type="number" id="qty" value="1" min="1" style="padding-left:45px"></div>
-            </div>
-            <div style="flex:2">
-                <label>Expiry Date</label>
-                <div class="field-group"><i class="fas fa-calendar-day"></i><input type="date" id="expDate" style="padding-left:45px"></div>
-            </div>
+        <div style="display:flex; gap:12px;">
+            <div style="flex:1"><label>Qty</label><input type="number" id="qty" value="1" min="1"></div>
+            <div style="flex:2"><label>Expiry Date</label><input type="date" id="expDate"></div>
         </div>
       </div>
 
-      <!-- STEP 3 -->
-      <div class="step-node">
-        <label>Storage Location</label>
-        <div class="field-group">
-            <i class="fas fa-map-marker-alt"></i>
-            <select id="loc">
-                <option value="">Select Location...</option>
-                <option>Front side</option><option>Back side</option><option>On Display</option>
-            </select>
-        </div>
-      </div>
-
-      <!-- STEP 4 -->
-      <div class="step-node">
-        <label>Confirmation</label>
-        <div class="summary-card" id="revBox"></div>
-      </div>
+      <div class="step-node"><label>Location</label><select id="loc"><option value="">Select...</option><option>Front side</option><option>Back side</option><option>On Display</option></select></div>
+      <div class="step-node"><label>Confirmation</label><div class="summary-card" id="revBox"></div></div>
 
       <div class="footer-actions">
-        <button type="button" class="btn btn-soft" id="btnPrev" onclick="navigate(-1)">Back</button>
-        <button type="button" class="btn btn-solid" id="btnNext" onclick="navigate(1)">Next Step</button>
+        <button type="button" class="btn btn-soft" id="btnPrev" onclick="move(-1)">Back</button>
+        <button type="button" class="btn btn-solid" id="btnNext" onclick="move(1)">Next</button>
         <button type="submit" class="btn btn-solid" id="btnSub" style="display:none">Complete Entry</button>
       </div>
     </form>
@@ -181,30 +141,29 @@
 
   <!-- ADD PRODUCT MODAL -->
   <div id="addModal" class="overlay"><div class="modal">
-    <h3 style="font-weight:800; margin-bottom:5px">New Product</h3>
-    <p style="font-size:11px; color:var(--text-light); margin-bottom:20px; font-weight:700">ADMIN AUTHORIZATION REQUIRED</p>
-    <label>Barcode</label><input type="text" id="nb" style="padding-left:16px; margin-bottom:10px;">
-    <label>Product Name</label><input type="text" id="nn" style="padding-left:16px; margin-bottom:10px;">
+    <h3 style="font-weight:800; margin-bottom:15px">New Product Entry</h3>
+    <label>Barcode</label><input type="text" id="nb">
+    <label>Name</label><input type="text" id="nn">
     <label>Supplier</label>
-    <div class="field-group"><i class="fas fa-truck"></i><input type="text" id="ns" placeholder="Select existing..." style="padding-left:48px;"><i class="fas fa-search field-action" onclick="openPicker()"></i></div>
-    <label style="margin-top:10px">Admin Password</label><input type="password" id="ap" style="padding-left:16px;">
+    <div class="field-group"><i class="fas fa-truck"></i><input type="text" id="ns" placeholder="Select existing..."><i class="fas fa-search field-action" onclick="openPicker()"></i></div>
+    <label style="margin-top:10px">Admin Password</label><input type="password" id="ap">
     <div style="display:flex; gap:12px; margin-top:25px;"><button onclick="closeModal('addModal')" class="btn btn-soft">Cancel</button><button onclick="doSaveNewProduct()" class="btn btn-solid" style="flex:2">Authorize & Save</button></div>
   </div></div>
 
   <!-- PICKER MODAL -->
   <div id="pickerModal" class="overlay"><div class="modal">
-    <h3 style="margin-bottom:15px; font-weight:800">Suppliers</h3>
-    <div class="field-group"><i class="fas fa-filter"></i><input type="text" id="pSearch" placeholder="Search suppliers..." oninput="renderPicker()"></div>
+    <h3 style="margin-bottom:15px; font-weight:800">Search Supplier</h3>
+    <div class="field-group"><i class="fas fa-filter"></i><input type="text" id="pSearch" placeholder="Type to filter..." oninput="renderPicker()"></div>
     <div class="list-area" id="pList"></div>
     <button onclick="closeModal('pickerModal')" class="btn btn-soft" style="margin-top:20px; width:100%">Close</button>
   </div></div>
 
-  <div id="loading" style="display:none; position:fixed; inset:0; background:rgba(255,255,255,0.8); z-index:200000; align-items:center; justify-content:center; flex-direction:column; font-weight:900; color:var(--primary);">
-    <div style="width:48px; height:48px; border:5px solid #f1f5f9; border-top-color:var(--primary); border-radius:50%; animation:spin 1s linear infinite; margin-bottom:15px;"></div>
+  <div id="loading" style="display:none; position:fixed; inset:0; background:rgba(255,255,255,0.7); z-index:200000; align-items:center; justify-content:center; flex-direction:column; font-weight:800; color:var(--primary);">
+    <div style="width:40px; height:40px; border:4px solid #f1f5f9; border-top-color:var(--primary); border-radius:50%; animation:spin 1s linear infinite; margin-bottom:15px;"></div>
     COMMUNICATING...
   </div>
 
-  <div id="scan-overlay"><div id="reader"></div><button onclick="stopScan()" style="position:absolute; bottom:50px; left:50%; transform:translateX(-50%); padding:18px 45px; border-radius:40px; border:none; font-weight:800; background:white; color:black; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">Cancel Scan</button></div>
+  <div id="scanner-overlay"><div id="reader"></div><button onclick="stopScan()" style="position:absolute; bottom:50px; left:50%; transform:translateX(-50%); padding:18px 45px; border-radius:40px; border:none; font-weight:800; background:white; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">Cancel</button></div>
 
   <script>
     const API = "https://script.google.com/macros/s/AKfycby__866_Y_0XFiaPPCUaX6U1oZK329Ek6SRg9iU4u-aq5ARhxmkTmIHq6gvTpxXMf-8Lw/exec";
@@ -220,23 +179,13 @@
       refreshStatus(); refreshStep(); refreshQueue(); forceUpdate();
     };
 
-    // FIXED NOTIFICATION LOGIC
     function notify(m, t='success') {
-      const wrap = document.getElementById('toast-container');
+      const wrap = document.getElementById('toast-wrap');
       const toast = document.createElement('div');
       toast.className = 'toast';
-      const icon = t === 'success' ? 'check-circle' : 'exclamation-circle';
-      const color = t === 'success' ? 'var(--success)' : 'var(--warn)';
-      toast.innerHTML = `<i class="fas fa-${icon}" style="color:${color}"></i><span>${m}</span>`;
+      toast.innerHTML = `<i class="fas fa-${t==='success'?'check-circle':'exclamation-circle'}" style="color:${t==='success'?'var(--success)':'var(--warn)'}"></i><span>${m}</span>`;
       wrap.appendChild(toast);
-      
-      setTimeout(() => {
-        toast.style.opacity = '0';
-        toast.style.transform = 'translateY(-20px)';
-        toast.style.transition = '0.4s';
-        setTimeout(() => toast.remove(), 400);
-      }, 3500);
-      
+      setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = '0.4s'; setTimeout(() => toast.remove(), 400); }, 3500);
       if(navigator.vibrate) navigator.vibrate(40);
     }
 
@@ -244,8 +193,7 @@
       const online = navigator.onLine;
       const el = document.getElementById('connStat');
       el.innerText = online ? "SYSTEM ONLINE" : "SYSTEM OFFLINE";
-      el.style.background = online ? "#dcfce7" : "#fee2e2";
-      el.style.color = online ? "#166534" : "#991b1b";
+      el.style.color = online ? "var(--success)" : "var(--error)";
       if(online) runSync();
     }
     window.ononline = window.onoffline = refreshStatus;
@@ -259,9 +207,8 @@
         const d = await r.json();
         pDb = d.products; sDb = d.suppliers || [];
         localStorage.setItem('inventory_db', JSON.stringify(d));
-        notify("Database Synced Successfully");
-      } catch(e) { console.error(e); }
-      finally { setTimeout(() => btn.classList.remove('is-loading'), 600); }
+        notify("DB Synced");
+      } catch(e) {} finally { setTimeout(() => btn.classList.remove('is-loading'), 600); }
     }
 
     function openPicker() { document.getElementById('pickerModal').style.display='flex'; renderPicker(); }
@@ -308,12 +255,12 @@
       document.getElementById('btnNext').disabled = !ok;
     }
 
-    function navigate(d) {
+    function move(d) {
       if(d === 1 && step === 0 && !pDb[document.getElementById('barcode').value.trim()]) return notify("Barcode not found in DB!", "warn");
       step += d; refreshStep();
     }
 
-    function setEntryType(t) {
+    function setT(t) {
       document.getElementById('entryType').value = t;
       document.getElementById('tExp').classList.toggle('selected', t === 'Expiry');
       document.getElementById('tDmg').classList.toggle('selected', t === 'Damage');
@@ -324,33 +271,52 @@
       e.preventDefault(); document.getElementById('loading').style.display = 'flex';
       const d = { barcode: document.getElementById('barcode').value, identity: document.getElementById('identity').value, type: document.getElementById('entryType').value, quantity: document.getElementById('qty').value, expiryDate: document.getElementById('expDate').value, location: document.getElementById('loc').value, productName: pDb[document.getElementById('barcode').value], timestamp: new Date().toISOString() };
       if(!navigator.onLine) { saveQueue(d); document.getElementById('loading').style.display = 'none'; return; }
-      try { const r = await fetch(API, { method:'POST', body:JSON.stringify(d) }); if((await r.json()).status === 'success') { notify("Log Recorded"); resetApp(); } } catch(e) { saveQueue(d); }
+      try { const r = await fetch(API, { method:'POST', body:JSON.stringify(d) }); if((await r.json()).status === 'success') { notify("Data Logged"); resetApp(); } } catch(e) { saveQueue(d); }
       finally { document.getElementById('loading').style.display = 'none'; }
     };
 
-    function saveQueue(d) { const q = JSON.parse(localStorage.getItem(OFF_KEY) || "[]"); q.push(d); localStorage.setItem(OFF_KEY, JSON.stringify(q)); refreshQueue(); notify("Saved to Pending Sync", "warn"); resetApp(); }
+    function saveQueue(d) { const q = JSON.parse(localStorage.getItem(OFF_KEY) || "[]"); q.push(d); localStorage.setItem(OFF_KEY, JSON.stringify(q)); refreshQueue(); notify("Saved Offline", "warn"); resetApp(); }
     function runSync() { const q = JSON.parse(localStorage.getItem(OFF_KEY) || "[]"); if(!q.length) return; fetch(API, {method:'POST', body:JSON.stringify(q[0])}).then(r=>r.json()).then(r=>{ if(r.status==='success') { q.shift(); localStorage.setItem(OFF_KEY, JSON.stringify(q)); refreshQueue(); runSync(); } }); }
     function refreshQueue() { document.getElementById('qCount').innerText = JSON.parse(localStorage.getItem(OFF_KEY) || "[]").length; }
     function resetApp() { document.getElementById('mainForm').reset(); document.getElementById('entryType').value = ""; document.querySelectorAll('.card-type').forEach(c => c.classList.remove('selected')); step = 0; refreshStep(); }
     
     function openAddModal() { document.getElementById('addModal').style.display='flex'; document.getElementById('nb').value = document.getElementById('barcode').value; }
+
     async function doSaveNewProduct() {
       const b = document.getElementById('nb').value.trim(), n = document.getElementById('nn').value.trim(), s = document.getElementById('ns').value.trim(), p = document.getElementById('ap').value.trim();
-      if(!b || !n || !p) return notify("Please fill all required fields", "warn");
+      if(!b || !n || !p) return notify("Fill all fields", "warn");
       document.getElementById('loading').style.display = 'flex';
+      
       try {
           const r = await fetch(API, {method:'POST', body:JSON.stringify({action:'addProduct', barcode:b, name:n, supplier:s, password:p})});
           const res = await r.json();
-          if(res.status==='success') {
-              pDb[b] = n; localStorage.setItem('inventory_db', JSON.stringify({products: pDb, suppliers: sDb}));
-              notify("Product Added Instantly"); closeModal('addModal'); forceUpdate();
-          } else notify(res.message, "warn");
-      } catch(e) { notify("Verification Failed", "warn"); }
-      finally { document.getElementById('loading').style.display = 'none'; }
+          
+          if(res.status === 'success') {
+              // Clear inputs
+              document.getElementById('nn').value = "";
+              document.getElementById('ns').value = "";
+              document.getElementById('ap').value = "";
+              
+              // Update local memory instantly
+              pDb[b] = n;
+              localStorage.setItem('inventory_db', JSON.stringify({products: pDb, suppliers: sDb}));
+              
+              notify("Product Added!");
+              closeModal('addModal');
+              forceUpdate();
+          } else {
+              notify(res.message, "error");
+          }
+      } catch(e) {
+          // If the product was actually added (check mobile redirects)
+          notify("Check Connection", "warn");
+      } finally {
+          document.getElementById('loading').style.display = 'none';
+      }
     }
     
-    function startScan() { document.getElementById('scan-overlay').style.display = 'flex'; scanPtr = new Html5Qrcode("reader"); scanPtr.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (t) => { document.getElementById('barcode').value = t; stopScan(); if(pDb[t]) navigate(1); else notify("Unrecognized Barcode", "warn"); }); }
-    function stopScan() { if(scanPtr) scanPtr.stop().then(() => { document.getElementById('scan-overlay').style.display = 'none'; scanPtr = null; }); }
+    function startScan() { document.getElementById('scanner-overlay').style.display = 'flex'; scanPtr = new Html5Qrcode("reader"); scanPtr.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (t) => { document.getElementById('barcode').value = t; stopScan(); if(pDb[t]) navigate(1); else notify("New Item Detected", "warn"); }); }
+    function stopScan() { if(scanPtr) scanPtr.stop().then(() => { document.getElementById('scanner-overlay').style.display = 'none'; scanPtr = null; }); }
   </script>
 </body>
 </html>
