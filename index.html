@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Inventory Logger Pro</title>
+  <title>Inventory Pro Logger</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="theme-color" content="#2563eb">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -12,19 +12,18 @@
       --bg: #f8fafc; --card: #ffffff; --text: #0f172a; --text-light: #64748b;
       --accent: #2563eb; --border: #e2e8f0; --success: #10b981; --error: #ef4444; --warn: #f59e0b;
     }
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); display: flex; justify-content: center; min-height: 100vh; }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; font-family: -apple-system, system-ui, sans-serif; }
+    body { background: var(--bg); color: var(--text); display: flex; justify-content: center; min-height: 100vh; }
     
     .app-container { width: 100%; max-width: 500px; padding: 24px; background: var(--card); min-height: 100vh; position: relative; display: flex; flex-direction: column; }
-    @media (min-width: 600px) { body { padding: 40px 20px; } .app-container { min-height: auto; border-radius: 24px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05); border: 1px solid var(--border); } }
+    @media (min-width: 600px) { body { padding: 40px 20px; } .app-container { min-height: auto; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border: 1px solid var(--border); } }
 
     /* HEADER */
-    header { text-align: center; margin-bottom: 24px; padding-top: 10px; }
-    .header-top { display: flex; align-items: center; justify-content: center; gap: 12px; }
-    h1 { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+    header { text-align: center; margin-bottom: 24px; }
+    .header-row { display: flex; align-items: center; justify-content: center; gap: 12px; }
+    h1 { font-size: 22px; font-weight: 800; }
     
-    .sync-btn { background: #f1f5f9; border: none; color: var(--accent); width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; transition: 0.3s; }
-    .sync-btn:active { transform: scale(0.9); }
+    .sync-btn { background: #f1f5f9; border: none; color: var(--accent); width: 44px; height: 44px; border-radius: 14px; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; transition: 0.3s; }
     .sync-loader { position: absolute; inset: 0; display: none; transform: rotate(-90deg); }
     .sync-loader circle { fill: none; stroke: var(--accent); stroke-width: 4; stroke-dasharray: 113; stroke-dashoffset: 113; stroke-linecap: round; }
     .is-loading .sync-loader { display: block; }
@@ -34,48 +33,49 @@
     .is-loading i { animation: spin 1.2s linear infinite; }
 
     /* UI ELEMENTS */
-    .status-pill { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px; margin-top: 8px; display: inline-block; }
+    .status-pill { font-size: 11px; font-weight: 800; padding: 5px 12px; border-radius: 20px; margin-top: 10px; display: inline-block; }
     .progress-track { width: 100%; height: 6px; background: #f1f5f9; border-radius: 10px; margin: 24px 0; overflow: hidden; }
     .progress-bar { height: 100%; width: 0%; background: var(--accent); transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
 
-    .step-content { display: none; animation: slideIn 0.3s ease-out; }
+    .step-content { display: none; animation: slideUp 0.3s ease-out; }
     .step-content.active { display: block; }
-    @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } }
 
-    label { display: block; margin: 20px 0 8px; font-weight: 600; font-size: 14px; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; }
+    label { display: block; margin: 20px 0 8px; font-weight: 700; font-size: 13px; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; }
     .input-wrapper { position: relative; }
-    .input-wrapper i:not(#scanTrigger) { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
-    input, select { width: 100%; padding: 14px 16px 14px 48px; border-radius: 14px; border: 1px solid var(--border); font-size: 16px; outline: none; background: #fff; transition: 0.2s; color: var(--text); font-weight: 500; }
-    input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.08); }
-    #scanTrigger { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--accent); font-size: 20px; cursor: pointer; padding: 8px; }
+    .input-wrapper i:not(.right-icon) { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
+    input, select { width: 100%; padding: 14px 16px 14px 48px; border-radius: 14px; border: 1px solid var(--border); font-size: 16px; outline: none; background: #fff; transition: 0.2s; font-weight: 500; }
+    input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.08); }
+    .right-icon { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--accent); font-size: 20px; cursor: pointer; padding: 8px; }
 
     .type-grid { display: flex; gap: 12px; }
-    .type-card { flex: 1; padding: 16px; border-radius: 14px; border: 2px solid var(--border); background: white; font-weight: 700; cursor: pointer; text-align: center; color: var(--text-light); transition: 0.2s; }
+    .type-card { flex: 1; padding: 16px; border-radius: 14px; border: 2px solid var(--border); background: white; font-weight: 800; cursor: pointer; text-align: center; color: var(--text-light); transition: 0.2s; }
     .type-card.selected { border-color: var(--accent); color: var(--accent); background: #eff6ff; }
 
     .action-row { display: flex; gap: 12px; margin-top: auto; padding-top: 30px; }
     .btn { flex: 1; padding: 16px; border-radius: 16px; font-weight: 700; border: none; cursor: pointer; font-size: 16px; transition: 0.2s; }
     .btn-secondary { background: #f1f5f9; color: var(--text-light); }
-    .btn-primary { background: var(--accent); color: white; box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.2); }
+    .btn-primary { background: var(--accent); color: white; box-shadow: 0 8px 20px rgba(37, 99, 235, 0.2); }
     .btn:disabled { opacity: 0.4; pointer-events: none; }
 
     /* SUMMARY */
     .summary-box { background: #f8fafc; padding: 20px; border-radius: 18px; border: 1px solid var(--border); }
     .summary-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f1f5f9; }
-    .summary-row:last-child { border: none; }
-    .summary-label { color: var(--text-light); font-size: 14px; }
-    .summary-val { font-weight: 700; text-align: right; }
 
-    /* TOAST */
-    #toast-wrap { position: fixed; top: 24px; left: 50%; transform: translateX(-50%); z-index: 99999; width: 90%; max-width: 400px; }
-    .toast { background: var(--text); color: white; padding: 16px 20px; border-radius: 16px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; font-weight: 600; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); animation: toastIn 0.3s forwards; }
-    @keyframes toastIn { from { transform: translateY(-20px); opacity: 0; } }
+    /* MODALS */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); z-index: 50000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(4px); }
+    .modal-card { background: white; width: 100%; max-width: 400px; padding: 28px; border-radius: 24px; position: relative; display: flex; flex-direction: column; max-height: 90vh; }
+    
+    .picker-list { overflow-y: auto; flex: 1; margin-top: 15px; border-top: 1px solid #f1f5f9; }
+    .picker-item { padding: 14px 16px; border-bottom: 1px solid #f1f5f9; cursor: pointer; font-weight: 600; border-radius: 12px; margin: 4px 0; }
+    .picker-item:active { background: #eff6ff; color: var(--accent); }
 
-    /* MODAL */
-    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); z-index: 30000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(4px); }
-    .modal-card { background: white; width: 100%; max-width: 400px; padding: 30px; border-radius: 24px; position: relative; }
+    /* NOTIFICATION TOAST (FIXED FOR MOBILE) */
+    #toast-wrap { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 999999; width: 90%; max-width: 400px; pointer-events: none; }
+    .toast { background: #1e293b; color: white; padding: 16px 20px; border-radius: 16px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; font-weight: 700; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); animation: toastIn 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards; }
+    @keyframes toastIn { from { transform: translateY(-40px); opacity: 0; } }
 
-    #scanner-wrap { display: none; position: fixed; inset: 0; background: black; z-index: 40000; }
+    #scanner-wrap { display: none; position: fixed; inset: 0; background: black; z-index: 60000; }
     #reader { width: 100%; height: 100%; }
   </style>
 </head>
@@ -84,42 +84,40 @@
   <div id="toast-wrap"></div>
 
   <div class="app-container">
-    <button onclick="openAdd()" style="position: absolute; top: 30px; right: 24px; background: var(--success); color: white; border: none; width: 40px; height: 40px; border-radius: 12px; font-size: 20px; cursor: pointer; box-shadow: 0 8px 15px rgba(16, 185, 129, 0.2);">+</button>
+    <button onclick="openAdd()" style="position: absolute; top: 28px; right: 24px; background: var(--success); color: white; border: none; width: 42px; height: 42px; border-radius: 14px; font-size: 22px; cursor: pointer; box-shadow: 0 10px 15px rgba(16, 185, 129, 0.2); z-index: 10;">+</button>
 
     <header>
-      <div class="header-top">
-        <h1>Inventory Log</h1>
+      <div class="header-row">
+        <h1>Inventory Logger</h1>
         <button id="refreshBtn" class="sync-btn" onclick="forceUpdate()">
           <svg class="sync-loader" viewBox="0 0 42 42"><circle cx="21" cy="21" r="18"></circle></svg>
           <i class="fas fa-sync-alt"></i>
         </button>
       </div>
       <div id="connStat" class="status-pill">Checking...</div>
-      <div style="font-size: 11px; margin-top: 5px; color: var(--text-light);">PENDING: <span id="qCount" style="color:var(--warn); font-weight:800">0</span></div>
+      <div style="font-size: 11px; margin-top: 8px; color: var(--text-light);">PENDING SYNC: <span id="qCount" style="font-weight:900; color:var(--warn)">0</span></div>
     </header>
 
     <div class="progress-track"><div class="progress-bar" id="pBar"></div></div>
 
     <form id="mainForm" style="flex:1; display:flex; flex-direction:column;">
-      <!-- STEP 1 -->
       <div class="step-content active">
-        <label>Barcode Identity</label>
+        <label>Identity / Barcode</label>
         <div class="input-wrapper">
           <i class="fas fa-barcode"></i>
-          <input type="text" id="barcode" placeholder="Scan or enter code" autocomplete="off">
-          <i class="fas fa-camera" id="scanTrigger"></i>
+          <input type="text" id="barcode" placeholder="Scan or type barcode" autocomplete="off">
+          <i class="fas fa-camera right-icon" id="scanTrigger"></i>
         </div>
       </div>
 
-      <!-- STEP 2 -->
       <div class="step-content">
-        <div id="pMeta" style="margin-bottom:20px; padding:15px; background:#f1f5f9; border-radius:14px; display:none;">
+        <div id="pMeta" style="margin-bottom:20px; padding:15px; background:#f1f5f9; border-radius:14px; display:none; border:1px solid var(--border)">
             <div id="metaName" style="font-weight:800; color:var(--accent); font-size:17px;"></div>
             <div id="metaCode" style="font-size:12px; color:var(--text-light); margin-top:2px;"></div>
         </div>
-        <label>Handled By</label>
+        <label>Staff Name</label>
         <select id="identity"><option value="">Select Staff...</option><option>SATTAR</option><option>ANAS</option><option>KUMAR</option><option>JOWEL</option><option>SHAHID</option><option>MUHAMMED</option><option>AROOS</option><option>MOIDU</option><option>SALAM</option><option>RAMSHAD</option><option>ANWAR</option><option>MANIK</option></select>
-        <label>Record Type</label>
+        <label>Entry Type</label>
         <div class="type-grid"><div class="type-card" id="tExp" onclick="setT('Expiry')">Expiry</div><div class="type-card" id="tDmg" onclick="setT('Damage')">Damage</div></div>
         <input type="hidden" id="entryType">
         <label>Quantity</label>
@@ -128,92 +126,137 @@
         <input type="date" id="expDate">
       </div>
 
-      <!-- STEP 3 -->
-      <div class="step-content"><label>Zone / Location</label><select id="loc"><option value="">Select Location...</option><option>Front side</option><option>Back side</option><option>On Display</option></select></div>
-
-      <!-- STEP 4 -->
-      <div class="step-content"><label>Verification Summary</label><div class="summary-box" id="revBox"></div></div>
+      <div class="step-content"><label>Storage Location</label><select id="loc"><option value="">Select Location...</option><option>Front side</option><option>Back side</option><option>On Display</option></select></div>
+      <div class="step-content"><label>Confirmation</label><div class="summary-box" id="revBox"></div></div>
 
       <div class="action-row">
-        <button type="button" class="btn btn-secondary" id="btnPrev" onclick="stepMove(-1)">Back</button>
-        <button type="button" class="btn btn-primary" id="btnNext" onclick="stepMove(1)">Next</button>
-        <button type="submit" class="btn btn-primary" id="btnSub" style="display:none">Submit Data</button>
+        <button type="button" class="btn btn-secondary" id="btnPrev" onclick="move(-1)">Back</button>
+        <button type="button" class="btn btn-primary" id="btnNext" onclick="move(1)">Next</button>
+        <button type="submit" class="btn btn-primary" id="btnSub" style="display:none">Log Item</button>
       </div>
     </form>
   </div>
 
-  <!-- ADMIN ADD MODAL -->
+  <!-- ADD PRODUCT MODAL -->
   <div id="addModal" class="modal-overlay"><div class="modal-card">
-    <h3 style="font-weight:800; margin-bottom:5px;">New Product</h3>
-    <p style="font-size:12px; color:var(--text-light); margin-bottom:20px;">Admin Authentication Required</p>
+    <h3 style="font-weight:800; margin-bottom:15px">New Product Entry</h3>
     <label>Barcode</label><input type="text" id="nb" style="padding-left:16px; margin-bottom:10px;">
-    <label>Name</label><input type="text" id="nn" style="padding-left:16px; margin-bottom:10px;">
-    <label>Supplier</label><input type="text" id="ns" list="sList" style="padding-left:16px; margin-bottom:10px;" placeholder="Search..."><datalist id="sList"></datalist>
-    <label>Passcode</label><input type="password" id="ap" style="padding-left:16px;">
-    <div style="display:flex; gap:10px; margin-top:25px;">
+    <label>Product Name</label><input type="text" id="nn" style="padding-left:16px; margin-bottom:10px;">
+    <label>Supplier Source</label>
+    <div class="input-wrapper">
+        <i class="fas fa-truck"></i>
+        <input type="text" id="ns" placeholder="Type or click search..." style="padding-left:48px;">
+        <i class="fas fa-search right-icon" onclick="openPicker()"></i>
+    </div>
+    <label style="margin-top:12px">Auth Passcode</label><input type="password" id="ap" style="padding-left:16px;">
+    <div style="display:flex; gap:12px; margin-top:25px;">
         <button onclick="closeAdd()" class="btn btn-secondary">Cancel</button>
-        <button onclick="doSave()" class="btn btn-primary" style="flex:2">Save Product</button>
+        <button onclick="doSave()" class="btn btn-primary" style="flex:2">Save to DB</button>
     </div>
   </div></div>
 
-  <div id="loading" style="display:none; position:fixed; inset:0; background:rgba(255,255,255,0.8); z-index:50000; align-items:center; justify-content:center; flex-direction:column;">
-    <div style="width:40px; height:40px; border:4px solid #f1f5f9; border-top-color:var(--accent); border-radius:50%; animation:spin 1s linear infinite;"></div>
+  <!-- SUPPLIER SEARCH MODAL -->
+  <div id="pickerModal" class="modal-overlay">
+    <div class="modal-card">
+        <h3 style="margin-bottom:15px">Select Supplier</h3>
+        <div class="input-wrapper">
+            <i class="fas fa-filter"></i>
+            <input type="text" id="pickerSearch" placeholder="Type letters to filter..." oninput="filterSup()">
+        </div>
+        <div class="picker-list" id="pickerList"></div>
+        <button onclick="closePicker()" class="btn btn-secondary" style="margin-top:15px">Close</button>
+    </div>
   </div>
 
-  <div id="scanner-wrap"><div id="reader"></div><button onclick="stopScan()" style="position:absolute; bottom:50px; left:50%; transform:translateX(-50%); padding:18px 40px; border-radius:20px; border:none; font-weight:800; background:white;">Cancel</button></div>
+  <div id="loading" style="display:none; position:fixed; inset:0; background:rgba(255,255,255,0.8); z-index:100000; align-items:center; justify-content:center; flex-direction:column;">
+    <div style="width:45px; height:45px; border:5px solid #f1f5f9; border-top-color:var(--accent); border-radius:50%; animation:spin 1s linear infinite;"></div>
+  </div>
+
+  <div id="scanner-wrap"><div id="reader"></div><button onclick="stopScan()" style="position:absolute; bottom:50px; left:50%; transform:translateX(-50%); padding:18px 45px; border-radius:30px; border:none; font-weight:800; background:white; color:black; box-shadow: 0 10px 20px rgba(0,0,0,0.3);">Cancel</button></div>
 
   <script>
     const ENDPOINT = "https://script.google.com/macros/s/AKfycby__866_Y_0XFiaPPCUaX6U1oZK329Ek6SRg9iU4u-aq5ARhxmkTmIHq6gvTpxXMf-8Lw/exec";
-    const OFF_STORAGE = "inventory_offline_queue";
-    let curStep = 0, productDb = {}, scanObj = null;
+    const STORE_KEY = "inventory_offline_queue";
+    let curStep = 0, pDb = {}, sDb = [], scanObj = null;
 
     window.onload = () => {
-      const stored = localStorage.getItem('inventory_db'); if(stored) { const p = JSON.parse(stored); productDb = p.products || p; if(p.suppliers) refreshSup(p.suppliers); }
-      ['barcode','identity','loc','qty','expDate','entryType'].forEach(id => document.getElementById(id).onchange = valCheck);
+      const stored = localStorage.getItem('inventory_db'); 
+      if(stored) { const d = JSON.parse(stored); pDb = d.products || d; if(d.suppliers) sDb = d.suppliers; }
+      ['barcode','identity','loc','qty','expDate','entryType'].forEach(id => document.getElementById(id).onchange = checkNav);
       document.getElementById('scanTrigger').onclick = startScan;
       document.getElementById('expDate').valueAsDate = new Date();
-      netStat(); stepRef(); qRef(); forceUpdate();
+      updateNet(); stepRef(); qRef(); forceUpdate();
     };
 
     function notify(m, t='success') {
       const w = document.getElementById('toast-wrap'), e = document.createElement('div');
-      e.className = 'toast'; e.innerHTML = `<i class="fas fa-${t==='success'?'check-circle':'exclamation-triangle'}" style="color:${t==='success'?'var(--success)':'var(--warn)'}"></i><span>${m}</span>`;
-      w.appendChild(e); setTimeout(() => { e.style.opacity = '0'; setTimeout(() => e.remove(), 400); }, 3000);
+      e.className = 'toast'; 
+      e.innerHTML = `<i class="fas fa-${t==='success'?'check-circle':'exclamation-circle'}" style="color:${t==='success'?'var(--success)':'var(--warn)'}"></i><span>${m}</span>`;
+      w.appendChild(e); 
+      setTimeout(() => { e.style.opacity = '0'; e.style.transform = 'translateY(-20px)'; setTimeout(() => e.remove(), 400); }, 3500);
+      if(navigator.vibrate) navigator.vibrate(50);
     }
 
-    function netStat() {
+    function updateNet() {
       const o = navigator.onLine, e = document.getElementById('connStat');
-      e.innerText = o ? "ONLINE" : "OFFLINE"; e.style.background = o ? "#dcfce7" : "#fee2e2"; e.style.color = o ? "#166534" : "#991b1b";
-      if(o) syncQ();
+      e.innerText = o ? "SYSTEM ONLINE" : "SYSTEM OFFLINE"; e.style.background = o ? "#dcfce7" : "#fee2e2"; e.style.color = o ? "#166534" : "#991b1b";
+      if(o) sync();
     }
-    window.ononline = window.onoffline = netStat;
+    window.ononline = window.onoffline = updateNet;
 
     async function forceUpdate() {
       if(!navigator.onLine) return;
       const b = document.getElementById('refreshBtn'); b.classList.add('is-loading');
       try {
         const r = await fetch(`${ENDPOINT}?action=getProducts&_cb=${Date.now()}`), d = await r.json();
-        productDb = d.products; localStorage.setItem('inventory_db', JSON.stringify(d));
-        if(d.suppliers) refreshSup(d.suppliers);
-        notify("Sync Complete");
-      } catch(e) {} finally { setTimeout(() => b.classList.remove('is-loading'), 500); }
+        pDb = d.products; sDb = d.suppliers || [];
+        localStorage.setItem('inventory_db', JSON.stringify(d));
+        notify("Database Sync Complete");
+      } catch(e) {} finally { setTimeout(() => b.classList.remove('is-loading'), 600); }
     }
 
-    function refreshSup(l) { const d = document.getElementById('sList'); d.innerHTML = ""; l.forEach(s => { const o = document.createElement('option'); o.value = s; d.appendChild(o); }); }
+    // PICKER MODAL
+    function openPicker() {
+        const q = document.getElementById('ns').value.toLowerCase();
+        document.getElementById('pickerSearch').value = q;
+        document.getElementById('pickerModal').style.display = 'flex';
+        filterSup();
+    }
+    function closePicker() { document.getElementById('pickerModal').style.display = 'none'; }
+    function filterSup() {
+        const q = document.getElementById('pickerSearch').value.toLowerCase();
+        const l = document.getElementById('pickerList'); l.innerHTML = "";
+        const filtered = sDb.filter(s => s.toLowerCase().includes(q));
+        if(!filtered.length) { l.innerHTML = `<div style="padding:20px; text-align:center; color:var(--text-light)">No existing supplier matches.</div>`; return; }
+        filtered.forEach(s => {
+            const d = document.createElement('div'); d.className = 'picker-item'; d.innerHTML = `<i class="fas fa-truck"></i> ${s}`;
+            d.onclick = () => { document.getElementById('ns').value = s; closePicker(); };
+            l.appendChild(d);
+        });
+    }
 
+    // NAVIGATION
     function stepRef() {
-      const contents = document.querySelectorAll('.step-content');
-      contents.forEach((s, i) => s.classList.toggle('active', i === curStep));
+      const steps = document.querySelectorAll('.step-content');
+      steps.forEach((s, i) => s.classList.toggle('active', i === curStep));
       document.getElementById('pBar').style.width = `${((curStep + 1) / 4) * 100}%`;
       document.getElementById('btnPrev').disabled = curStep === 0;
       document.getElementById('btnNext').style.display = curStep === 3 ? 'none' : 'block';
       document.getElementById('btnSub').style.display = curStep === 3 ? 'block' : 'none';
-      if(curStep === 1) { const b = document.getElementById('barcode').value.trim(); document.getElementById('metaName').innerText = productDb[b] || "Unknown Item"; document.getElementById('metaCode').innerText = b; document.getElementById('pMeta').style.display = 'block'; }
-      if(curStep === 3) { const b = document.getElementById('barcode').value.trim(); document.getElementById('revBox').innerHTML = `<div class="summary-row"><span class="summary-label">Product</span><span class="summary-val">${productDb[b]}</span></div><div class="summary-row"><span class="summary-label">Staff</span><span class="summary-val">${document.getElementById('identity').value}</span></div><div class="summary-row"><span class="summary-label">Type</span><span class="summary-val">${document.getElementById('entryType').value}</span></div><div class="summary-row"><span class="summary-label">Quantity</span><span class="summary-val">${document.getElementById('qty').value}</span></div><div class="summary-row"><span class="summary-label">Expiry</span><span class="summary-val">${document.getElementById('expDate').value}</span></div><div class="summary-row"><span class="summary-label">Location</span><span class="summary-val">${document.getElementById('loc').value}</span></div>`; }
-      valCheck();
+      if(curStep === 1) { 
+          const b = document.getElementById('barcode').value.trim(); 
+          document.getElementById('metaName').innerText = pDb[b] || "Unknown Item"; 
+          document.getElementById('metaCode').innerText = b; 
+          document.getElementById('pMeta').style.display = 'block'; 
+      }
+      if(curStep === 3) {
+        const b = document.getElementById('barcode').value.trim();
+        document.getElementById('revBox').innerHTML = `<div class="summary-row"><span style="color:var(--text-light)">Item</span><b>${pDb[b]}</b></div><div class="summary-row"><span style="color:var(--text-light)">Staff</span><b>${document.getElementById('identity').value}</b></div><div class="summary-row"><span style="color:var(--text-light)">Type</span><b>${document.getElementById('entryType').value}</b></div><div class="summary-row"><span style="color:var(--text-light)">Qty</span><b>${document.getElementById('qty').value}</b></div><div class="summary-row"><span style="color:var(--text-light)">Exp</span><b>${document.getElementById('expDate').value}</b></div><div class="summary-row" style="border:none"><span style="color:var(--text-light)">Zone</span><b>${document.getElementById('loc').value}</b></div>`;
+      }
+      checkNav();
     }
 
-    function valCheck() {
+    function checkNav() {
       const v = (id) => document.getElementById(id).value.trim(); let ok = false;
       if(curStep === 0) ok = v('barcode') !== "";
       if(curStep === 1) ok = v('identity') !== "" && v('entryType') !== "" && v('qty') > 0 && v('expDate') !== "";
@@ -222,8 +265,8 @@
       document.getElementById('btnNext').disabled = !ok;
     }
 
-    function stepMove(d) {
-      if(d === 1 && curStep === 0 && !productDb[document.getElementById('barcode').value.trim()]) return notify("Not in Database!", "warn");
+    function move(d) {
+      if(d === 1 && curStep === 0 && !pDb[document.getElementById('barcode').value.trim()]) return notify("Barcode not in Database!", "warn");
       curStep += d; stepRef();
     }
 
@@ -231,30 +274,39 @@
       document.getElementById('entryType').value = t;
       document.getElementById('tExp').classList.toggle('selected', t === 'Expiry');
       document.getElementById('tDmg').classList.toggle('selected', t === 'Damage');
-      valCheck();
+      checkNav();
     }
 
+    // SUBMIT
     document.getElementById('mainForm').onsubmit = async (e) => {
       e.preventDefault(); document.getElementById('loading').style.display = 'flex';
-      const d = { barcode: document.getElementById('barcode').value, identity: document.getElementById('identity').value, type: document.getElementById('entryType').value, quantity: document.getElementById('qty').value, expiryDate: document.getElementById('expDate').value, location: document.getElementById('loc').value, productName: productDb[document.getElementById('barcode').value], timestamp: new Date().toISOString() };
-      if(!navigator.onLine) { qAdd(d); document.getElementById('loading').style.display = 'none'; return; }
-      try { const r = await fetch(ENDPOINT, { method:'POST', body:JSON.stringify(d) }); if((await r.json()).status === 'success') { notify("Data Logged"); reset(); } } catch(e) { qAdd(d); }
+      const d = { barcode: document.getElementById('barcode').value, identity: document.getElementById('identity').value, type: document.getElementById('entryType').value, quantity: document.getElementById('qty').value, expiryDate: document.getElementById('expDate').value, location: document.getElementById('loc').value, productName: pDb[document.getElementById('barcode').value], timestamp: new Date().toISOString() };
+      if(!navigator.onLine) { q(d); document.getElementById('loading').style.display = 'none'; return; }
+      try { const r = await fetch(ENDPOINT, { method:'POST', body:JSON.stringify(d) }); if((await r.json()).status === 'success') { notify("Logged Successfully"); reset(); } } catch(e) { q(d); }
       finally { document.getElementById('loading').style.display = 'none'; }
     };
 
-    function qAdd(d) { const l = JSON.parse(localStorage.getItem(OFF_STORAGE) || "[]"); l.push(d); localStorage.setItem(OFF_STORAGE, JSON.stringify(l)); qRef(); notify("Saved Offline", "warn"); reset(); }
-    function syncQ() { const l = JSON.parse(localStorage.getItem(OFF_STORAGE) || "[]"); if(!l.length) return; fetch(ENDPOINT, {method:'POST', body:JSON.stringify(l[0])}).then(r=>r.json()).then(r=>{ if(r.status==='success') { l.shift(); localStorage.setItem(OFF_STORAGE, JSON.stringify(l)); qRef(); syncQ(); } }); }
-    function qRef() { document.getElementById('qCount').innerText = JSON.parse(localStorage.getItem(OFF_STORAGE) || "[]").length; }
+    function q(d) { const l = JSON.parse(localStorage.getItem(STORE_KEY) || "[]"); l.push(d); localStorage.setItem(STORE_KEY, JSON.stringify(l)); qRef(); notify("Saved Offline", "warn"); reset(); }
+    function sync() { const l = JSON.parse(localStorage.getItem(STORE_KEY) || "[]"); if(!l.length) return; fetch(ENDPOINT, {method:'POST', body:JSON.stringify(l[0])}).then(r=>r.json()).then(r=>{ if(r.status==='success') { l.shift(); localStorage.setItem(STORE_KEY, JSON.stringify(l)); qRef(); sync(); } }); }
+    function qRef() { document.getElementById('qCount').innerText = JSON.parse(localStorage.getItem(STORE_KEY) || "[]").length; }
     function reset() { document.getElementById('mainForm').reset(); document.getElementById('entryType').value = ""; document.querySelectorAll('.type-card').forEach(b => b.classList.remove('selected')); curStep = 0; stepRef(); }
+    
+    // ADMIN FUNCTIONS
     function openAdd() { document.getElementById('addModal').style.display='flex'; document.getElementById('nb').value = document.getElementById('barcode').value; }
     function closeAdd() { document.getElementById('addModal').style.display='none'; }
     async function doSave() {
       const b = document.getElementById('nb').value, n = document.getElementById('nn').value, s = document.getElementById('ns').value, p = document.getElementById('ap').value;
-      if(!b || !n || !p) return notify("Fill required fields", "warn"); document.getElementById('loading').style.display = 'flex';
-      try { const r = await fetch(ENDPOINT, {method:'POST', body:JSON.stringify({action:'addProduct', barcode:b, name:n, supplier:s, password:p})}); const res = await r.json(); if(res.status==='success') { notify("Product Added"); closeAdd(); forceUpdate(); } else notify(res.message, "warn"); } catch(e) { notify("Error", "warn"); }
+      if(!b || !n || !p) return notify("Fill all fields", "warn"); document.getElementById('loading').style.display = 'flex';
+      try { 
+          const r = await fetch(ENDPOINT, {method:'POST', body:JSON.stringify({action:'addProduct', barcode:b, name:n, supplier:s, password:p})}); 
+          const res = await r.json(); 
+          if(res.status==='success') { notify("Authenticated & Saved"); closeAdd(); forceUpdate(); } else notify(res.message, "warn"); 
+      } catch(e) { notify("Error connecting", "warn"); }
       finally { document.getElementById('loading').style.display = 'none'; }
     }
-    function startScan() { document.getElementById('scanner-wrap').style.display = 'flex'; scanObj = new Html5Qrcode("reader"); scanObj.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (t) => { document.getElementById('barcode').value = t; stopScan(); if(productDb[t]) stepMove(1); else notify("New Item Scanned", "warn"); }); }
+    
+    // SCANNER
+    function startScan() { document.getElementById('scanner-wrap').style.display = 'flex'; scanObj = new Html5Qrcode("reader"); scanObj.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (t) => { document.getElementById('barcode').value = t; stopScan(); if(pDb[t]) move(1); else notify("New Item Detected", "warn"); }); }
     function stopScan() { if(scanObj) scanObj.stop().then(() => { document.getElementById('scanner-wrap').style.display = 'none'; scanObj = null; }); }
   </script>
 </body>
