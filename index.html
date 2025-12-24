@@ -2,312 +2,355 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Inventory Pro Logger</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="theme-color" content="#2563eb">
+  <title>Inventory Manager Pro</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#4f46e5">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
   <style>
     :root {
-      --bg: #f8fafc; --card: #ffffff; --text: #0f172a; --text-light: #64748b;
-      --accent: #2563eb; --border: #e2e8f0; --success: #10b981; --error: #ef4444; --warn: #f59e0b;
+      --primary: #4f46e5; --primary-hover: #4338ca;
+      --bg: #f8fafc; --card: #ffffff; --text: #1e293b; --text-light: #64748b;
+      --border: #e2e8f0; --success: #10b981; --error: #ef4444; --warn: #f59e0b;
     }
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; font-family: -apple-system, system-ui, sans-serif; }
-    body { background: var(--bg); color: var(--text); display: flex; justify-content: center; min-height: 100vh; }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; font-family: 'Inter', -apple-system, sans-serif; }
+    body { background: var(--bg); color: var(--text); display: flex; justify-content: center; min-height: 100vh; overflow-x: hidden; }
     
-    .app-container { width: 100%; max-width: 500px; padding: 24px; background: var(--card); min-height: 100vh; position: relative; display: flex; flex-direction: column; }
-    @media (min-width: 600px) { body { padding: 40px 20px; } .app-container { min-height: auto; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border: 1px solid var(--border); } }
+    .app-viewport { width: 100%; max-width: 480px; padding: 24px; background: var(--card); min-height: 100vh; position: relative; display: flex; flex-direction: column; }
+    @media (min-width: 600px) { body { padding: 40px 20px; } .app-viewport { min-height: auto; border-radius: 32px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.08); border: 1px solid var(--border); } }
 
-    /* HEADER */
-    header { text-align: center; margin-bottom: 24px; }
-    .header-row { display: flex; align-items: center; justify-content: center; gap: 12px; }
-    h1 { font-size: 22px; font-weight: 800; }
+    /* HEADER & SYNC */
+    header { text-align: center; margin-bottom: 28px; }
+    .header-main { display: flex; align-items: center; justify-content: space-between; }
+    h1 { font-size: 20px; font-weight: 800; letter-spacing: -0.5px; color: var(--text); }
     
-    .sync-btn { background: #f1f5f9; border: none; color: var(--accent); width: 44px; height: 44px; border-radius: 14px; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; transition: 0.3s; }
+    .icon-btn { background: #f1f5f9; border: none; color: var(--text); width: 44px; height: 44px; border-radius: 14px; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; transition: 0.2s; }
+    .icon-btn:active { transform: scale(0.9); background: #e2e8f0; }
+
     .sync-loader { position: absolute; inset: 0; display: none; transform: rotate(-90deg); }
-    .sync-loader circle { fill: none; stroke: var(--accent); stroke-width: 4; stroke-dasharray: 113; stroke-dashoffset: 113; stroke-linecap: round; }
+    .sync-loader circle { fill: none; stroke: var(--primary); stroke-width: 4; stroke-dasharray: 113; stroke-dashoffset: 113; stroke-linecap: round; }
     .is-loading .sync-loader { display: block; }
-    .is-loading .sync-loader circle { animation: dash 1.2s ease-in-out infinite; }
+    .is-loading .sync-loader circle { animation: dash 1.5s ease-in-out infinite; }
+    .is-loading i { animation: spin 1.5s linear infinite; color: var(--text-light); }
     @keyframes dash { 0% { stroke-dashoffset: 113; } 50% { stroke-dashoffset: 35; } 100% { stroke-dashoffset: 113; } }
     @keyframes spin { to { transform: rotate(360deg); } }
-    .is-loading i { animation: spin 1.2s linear infinite; }
 
-    /* UI ELEMENTS */
-    .status-pill { font-size: 11px; font-weight: 800; padding: 5px 12px; border-radius: 20px; margin-top: 10px; display: inline-block; }
-    .progress-track { width: 100%; height: 6px; background: #f1f5f9; border-radius: 10px; margin: 24px 0; overflow: hidden; }
-    .progress-bar { height: 100%; width: 0%; background: var(--accent); transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+    /* STEPPER */
+    .progress-wrap { width: 100%; height: 6px; background: #f1f5f9; border-radius: 10px; margin: 24px 0; overflow: hidden; }
+    .progress-bar { height: 100%; width: 0%; background: var(--primary); transition: 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
 
-    .step-content { display: none; animation: slideUp 0.3s ease-out; }
-    .step-content.active { display: block; }
-    @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } }
+    .step-node { display: none; animation: fadeIn 0.4s ease-out; }
+    .step-node.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } }
 
-    label { display: block; margin: 20px 0 8px; font-weight: 700; font-size: 13px; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; }
-    .input-wrapper { position: relative; }
-    .input-wrapper i:not(.right-icon) { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
-    input, select { width: 100%; padding: 14px 16px 14px 48px; border-radius: 14px; border: 1px solid var(--border); font-size: 16px; outline: none; background: #fff; transition: 0.2s; font-weight: 500; }
-    input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.08); }
-    .right-icon { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--accent); font-size: 20px; cursor: pointer; padding: 8px; }
+    /* FORMS */
+    label { display: block; margin: 20px 0 8px; font-weight: 700; font-size: 12px; color: var(--text-light); text-transform: uppercase; letter-spacing: 1px; }
+    .field-group { position: relative; }
+    .field-group i:not(.field-action) { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 18px; }
+    input, select { width: 100%; padding: 15px 16px 15px 52px; border-radius: 16px; border: 1.5px solid var(--border); font-size: 16px; outline: none; background: #fff; color: var(--text); font-weight: 600; transition: 0.2s; -webkit-appearance: none; }
+    input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1); }
+    .field-action { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--primary); font-size: 20px; cursor: pointer; padding: 10px; z-index: 5; }
 
-    .type-grid { display: flex; gap: 12px; }
-    .type-card { flex: 1; padding: 16px; border-radius: 14px; border: 2px solid var(--border); background: white; font-weight: 800; cursor: pointer; text-align: center; color: var(--text-light); transition: 0.2s; }
-    .type-card.selected { border-color: var(--accent); color: var(--accent); background: #eff6ff; }
+    .grid-types { display: flex; gap: 12px; }
+    .card-type { flex: 1; padding: 18px; border-radius: 16px; border: 2px solid var(--border); background: white; font-weight: 700; cursor: pointer; text-align: center; color: var(--text-light); transition: 0.2s; }
+    .card-type.selected { border-color: var(--primary); color: var(--primary); background: #f5f3ff; }
 
-    .action-row { display: flex; gap: 12px; margin-top: auto; padding-top: 30px; }
-    .btn { flex: 1; padding: 16px; border-radius: 16px; font-weight: 700; border: none; cursor: pointer; font-size: 16px; transition: 0.2s; }
-    .btn-secondary { background: #f1f5f9; color: var(--text-light); }
-    .btn-primary { background: var(--accent); color: white; box-shadow: 0 8px 20px rgba(37, 99, 235, 0.2); }
+    .footer-actions { display: flex; gap: 12px; margin-top: auto; padding-top: 32px; }
+    .btn { flex: 1; padding: 18px; border-radius: 20px; font-weight: 700; border: none; cursor: pointer; font-size: 16px; transition: 0.2s; }
+    .btn-soft { background: #f1f5f9; color: var(--text-light); }
+    .btn-solid { background: var(--primary); color: white; box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.3); }
     .btn:disabled { opacity: 0.4; pointer-events: none; }
 
-    /* SUMMARY */
-    .summary-box { background: #f8fafc; padding: 20px; border-radius: 18px; border: 1px solid var(--border); }
-    .summary-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f1f5f9; }
+    .summary-card { background: #f8fafc; padding: 20px; border-radius: 20px; border: 1px solid var(--border); }
+    .summary-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+    .summary-item:last-child { border: none; }
+    .summary-item b { color: var(--primary); }
 
     /* MODALS */
-    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); z-index: 50000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(4px); }
-    .modal-card { background: white; width: 100%; max-width: 400px; padding: 28px; border-radius: 24px; position: relative; display: flex; flex-direction: column; max-height: 90vh; }
+    .overlay { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.6); z-index: 99999; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(8px); }
+    .modal { background: white; width: 100%; max-width: 400px; padding: 32px; border-radius: 32px; position: relative; animation: modalUp 0.3s ease-out; }
+    @keyframes modalUp { from { transform: scale(0.9); opacity: 0; } }
     
-    .picker-list { overflow-y: auto; flex: 1; margin-top: 15px; border-top: 1px solid #f1f5f9; }
-    .picker-item { padding: 14px 16px; border-bottom: 1px solid #f1f5f9; cursor: pointer; font-weight: 600; border-radius: 12px; margin: 4px 0; }
-    .picker-item:active { background: #eff6ff; color: var(--accent); }
+    .list-area { overflow-y: auto; max-height: 280px; margin-top: 15px; border-top: 1px solid #f1f5f9; }
+    .list-item { padding: 16px; border-bottom: 1px solid #f1f5f9; cursor: pointer; font-weight: 700; font-size: 15px; transition: 0.2s; }
+    .list-item:active { background: #f5f3ff; color: var(--primary); }
 
-    /* NOTIFICATION TOAST (FIXED FOR MOBILE) */
-    #toast-wrap { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 999999; width: 90%; max-width: 400px; pointer-events: none; }
-    .toast { background: #1e293b; color: white; padding: 16px 20px; border-radius: 16px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; font-weight: 700; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); animation: toastIn 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards; }
-    @keyframes toastIn { from { transform: translateY(-40px); opacity: 0; } }
+    /* NOTIFICATION (THE FIX) */
+    #toast-container { position: fixed; top: env(safe-area-inset-top, 20px); left: 50%; transform: translateX(-50%); z-index: 2147483647; width: 90%; max-width: 380px; pointer-events: none; }
+    .toast { background: #1e293b; color: white; padding: 18px 24px; border-radius: 20px; margin-bottom: 12px; display: flex; align-items: center; gap: 14px; font-weight: 700; font-size: 15px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2); animation: toastPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; pointer-events: auto; }
+    @keyframes toastPop { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-    #scanner-wrap { display: none; position: fixed; inset: 0; background: black; z-index: 60000; }
-    #reader { width: 100%; height: 100%; }
+    #scan-overlay { display: none; position: fixed; inset: 0; background: black; z-index: 100000; }
   </style>
 </head>
 <body>
 
-  <div id="toast-wrap"></div>
+  <div id="toast-container"></div>
 
-  <div class="app-container">
-    <button onclick="openAdd()" style="position: absolute; top: 28px; right: 24px; background: var(--success); color: white; border: none; width: 42px; height: 42px; border-radius: 14px; font-size: 22px; cursor: pointer; box-shadow: 0 10px 15px rgba(16, 185, 129, 0.2); z-index: 10;">+</button>
-
+  <div class="app-viewport">
     <header>
-      <div class="header-row">
-        <h1>Inventory Logger</h1>
-        <button id="refreshBtn" class="sync-btn" onclick="forceUpdate()">
+      <div class="header-main">
+        <button id="refreshBtn" class="icon-btn" onclick="forceUpdate()">
           <svg class="sync-loader" viewBox="0 0 42 42"><circle cx="21" cy="21" r="18"></circle></svg>
           <i class="fas fa-sync-alt"></i>
         </button>
+        <h1>Inventory Log</h1>
+        <button class="icon-btn" style="background: var(--primary); color: white;" onclick="openAddModal()">
+          <i class="fas fa-plus"></i>
+        </button>
       </div>
-      <div id="connStat" class="status-pill">Checking...</div>
-      <div style="font-size: 11px; margin-top: 8px; color: var(--text-light);">PENDING SYNC: <span id="qCount" style="font-weight:900; color:var(--warn)">0</span></div>
+      <div style="margin-top: 15px;">
+        <span id="connStat" class="status-pill">CHECKING SYSTEM...</span>
+        <div style="font-size: 10px; margin-top: 8px; color: var(--text-light); font-weight: 800;">QUEUE: <span id="qCount" style="color:var(--warn)">0</span></div>
+      </div>
     </header>
 
-    <div class="progress-track"><div class="progress-bar" id="pBar"></div></div>
+    <div class="progress-wrap"><div class="progress-bar" id="pBar"></div></div>
 
     <form id="mainForm" style="flex:1; display:flex; flex-direction:column;">
-      <div class="step-content active">
-        <label>Identity / Barcode</label>
-        <div class="input-wrapper">
+      <!-- STEP 1 -->
+      <div class="step-node active">
+        <label>Item Barcode</label>
+        <div class="field-group">
           <i class="fas fa-barcode"></i>
-          <input type="text" id="barcode" placeholder="Scan or type barcode" autocomplete="off">
-          <i class="fas fa-camera right-icon" id="scanTrigger"></i>
+          <input type="text" id="barcode" placeholder="Scan or type..." autocomplete="off">
+          <i class="fas fa-camera field-action" id="camTrigger"></i>
         </div>
       </div>
 
-      <div class="step-content">
-        <div id="pMeta" style="margin-bottom:20px; padding:15px; background:#f1f5f9; border-radius:14px; display:none; border:1px solid var(--border)">
-            <div id="metaName" style="font-weight:800; color:var(--accent); font-size:17px;"></div>
-            <div id="metaCode" style="font-size:12px; color:var(--text-light); margin-top:2px;"></div>
+      <!-- STEP 2 -->
+      <div class="step-node">
+        <div id="pMeta" style="margin-bottom:20px; padding:18px; background:#f8fafc; border-radius:20px; display:none; border:1.5px solid var(--border)">
+            <div id="metaName" style="font-weight:800; color:var(--primary); font-size:17px; line-height:1.3;"></div>
+            <div id="metaCode" style="font-size:11px; color:var(--text-light); margin-top:4px; font-weight:800; letter-spacing:1px;"></div>
         </div>
-        <label>Staff Name</label>
-        <select id="identity"><option value="">Select Staff...</option><option>SATTAR</option><option>ANAS</option><option>KUMAR</option><option>JOWEL</option><option>SHAHID</option><option>MUHAMMED</option><option>AROOS</option><option>MOIDU</option><option>SALAM</option><option>RAMSHAD</option><option>ANWAR</option><option>MANIK</option></select>
-        <label>Entry Type</label>
-        <div class="type-grid"><div class="type-card" id="tExp" onclick="setT('Expiry')">Expiry</div><div class="type-card" id="tDmg" onclick="setT('Damage')">Damage</div></div>
+        <label>Staff Member</label>
+        <div class="field-group">
+          <i class="fas fa-user-tie"></i>
+          <select id="identity">
+            <option value="">Choose Staff...</option>
+            <option>SATTAR</option><option>ANAS</option><option>KUMAR</option>
+            <option>JOWEL</option><option>SHAHID</option><option>MUHAMMED</option>
+            <option>AROOS</option><option>MOIDU</option><option>SALAM</option>
+            <option>RAMSHAD</option><option>ANWAR</option><option>MANIK</option>
+          </select>
+        </div>
+        <label>Log Type</label>
+        <div class="grid-types">
+          <div class="card-type" id="tExp" onclick="setEntryType('Expiry')">Expiry</div>
+          <div class="card-type" id="tDmg" onclick="setEntryType('Damage')">Damage</div>
+        </div>
         <input type="hidden" id="entryType">
-        <label>Quantity</label>
-        <input type="number" id="qty" value="1" min="1">
-        <label>Expiration Date</label>
-        <input type="date" id="expDate">
+        <div style="display:flex; gap:15px;">
+            <div style="flex:1">
+                <label>Quantity</label>
+                <div class="field-group"><i class="fas fa-hashtag"></i><input type="number" id="qty" value="1" min="1" style="padding-left:45px"></div>
+            </div>
+            <div style="flex:2">
+                <label>Expiry Date</label>
+                <div class="field-group"><i class="fas fa-calendar-day"></i><input type="date" id="expDate" style="padding-left:45px"></div>
+            </div>
+        </div>
       </div>
 
-      <div class="step-content"><label>Storage Location</label><select id="loc"><option value="">Select Location...</option><option>Front side</option><option>Back side</option><option>On Display</option></select></div>
-      <div class="step-content"><label>Confirmation</label><div class="summary-box" id="revBox"></div></div>
+      <!-- STEP 3 -->
+      <div class="step-node">
+        <label>Storage Location</label>
+        <div class="field-group">
+            <i class="fas fa-map-marker-alt"></i>
+            <select id="loc">
+                <option value="">Select Location...</option>
+                <option>Front side</option><option>Back side</option><option>On Display</option>
+            </select>
+        </div>
+      </div>
 
-      <div class="action-row">
-        <button type="button" class="btn btn-secondary" id="btnPrev" onclick="move(-1)">Back</button>
-        <button type="button" class="btn btn-primary" id="btnNext" onclick="move(1)">Next</button>
-        <button type="submit" class="btn btn-primary" id="btnSub" style="display:none">Log Item</button>
+      <!-- STEP 4 -->
+      <div class="step-node">
+        <label>Confirmation</label>
+        <div class="summary-card" id="revBox"></div>
+      </div>
+
+      <div class="footer-actions">
+        <button type="button" class="btn btn-soft" id="btnPrev" onclick="navigate(-1)">Back</button>
+        <button type="button" class="btn btn-solid" id="btnNext" onclick="navigate(1)">Next Step</button>
+        <button type="submit" class="btn btn-solid" id="btnSub" style="display:none">Complete Entry</button>
       </div>
     </form>
   </div>
 
   <!-- ADD PRODUCT MODAL -->
-  <div id="addModal" class="modal-overlay"><div class="modal-card">
-    <h3 style="font-weight:800; margin-bottom:15px">New Product Entry</h3>
+  <div id="addModal" class="overlay"><div class="modal">
+    <h3 style="font-weight:800; margin-bottom:5px">New Product</h3>
+    <p style="font-size:11px; color:var(--text-light); margin-bottom:20px; font-weight:700">ADMIN AUTHORIZATION REQUIRED</p>
     <label>Barcode</label><input type="text" id="nb" style="padding-left:16px; margin-bottom:10px;">
     <label>Product Name</label><input type="text" id="nn" style="padding-left:16px; margin-bottom:10px;">
-    <label>Supplier Source</label>
-    <div class="input-wrapper">
-        <i class="fas fa-truck"></i>
-        <input type="text" id="ns" placeholder="Type or click search..." style="padding-left:48px;">
-        <i class="fas fa-search right-icon" onclick="openPicker()"></i>
-    </div>
-    <label style="margin-top:12px">Auth Passcode</label><input type="password" id="ap" style="padding-left:16px;">
-    <div style="display:flex; gap:12px; margin-top:25px;">
-        <button onclick="closeAdd()" class="btn btn-secondary">Cancel</button>
-        <button onclick="doSave()" class="btn btn-primary" style="flex:2">Save to DB</button>
-    </div>
+    <label>Supplier</label>
+    <div class="field-group"><i class="fas fa-truck"></i><input type="text" id="ns" placeholder="Select existing..." style="padding-left:48px;"><i class="fas fa-search field-action" onclick="openPicker()"></i></div>
+    <label style="margin-top:10px">Admin Password</label><input type="password" id="ap" style="padding-left:16px;">
+    <div style="display:flex; gap:12px; margin-top:25px;"><button onclick="closeModal('addModal')" class="btn btn-soft">Cancel</button><button onclick="doSaveNewProduct()" class="btn btn-solid" style="flex:2">Authorize & Save</button></div>
   </div></div>
 
-  <!-- SUPPLIER SEARCH MODAL -->
-  <div id="pickerModal" class="modal-overlay">
-    <div class="modal-card">
-        <h3 style="margin-bottom:15px">Select Supplier</h3>
-        <div class="input-wrapper">
-            <i class="fas fa-filter"></i>
-            <input type="text" id="pickerSearch" placeholder="Type letters to filter..." oninput="filterSup()">
-        </div>
-        <div class="picker-list" id="pickerList"></div>
-        <button onclick="closePicker()" class="btn btn-secondary" style="margin-top:15px">Close</button>
-    </div>
+  <!-- PICKER MODAL -->
+  <div id="pickerModal" class="overlay"><div class="modal">
+    <h3 style="margin-bottom:15px; font-weight:800">Suppliers</h3>
+    <div class="field-group"><i class="fas fa-filter"></i><input type="text" id="pSearch" placeholder="Search suppliers..." oninput="renderPicker()"></div>
+    <div class="list-area" id="pList"></div>
+    <button onclick="closeModal('pickerModal')" class="btn btn-soft" style="margin-top:20px; width:100%">Close</button>
+  </div></div>
+
+  <div id="loading" style="display:none; position:fixed; inset:0; background:rgba(255,255,255,0.8); z-index:200000; align-items:center; justify-content:center; flex-direction:column; font-weight:900; color:var(--primary);">
+    <div style="width:48px; height:48px; border:5px solid #f1f5f9; border-top-color:var(--primary); border-radius:50%; animation:spin 1s linear infinite; margin-bottom:15px;"></div>
+    COMMUNICATING...
   </div>
 
-  <div id="loading" style="display:none; position:fixed; inset:0; background:rgba(255,255,255,0.8); z-index:100000; align-items:center; justify-content:center; flex-direction:column;">
-    <div style="width:45px; height:45px; border:5px solid #f1f5f9; border-top-color:var(--accent); border-radius:50%; animation:spin 1s linear infinite;"></div>
-  </div>
-
-  <div id="scanner-wrap"><div id="reader"></div><button onclick="stopScan()" style="position:absolute; bottom:50px; left:50%; transform:translateX(-50%); padding:18px 45px; border-radius:30px; border:none; font-weight:800; background:white; color:black; box-shadow: 0 10px 20px rgba(0,0,0,0.3);">Cancel</button></div>
+  <div id="scan-overlay"><div id="reader"></div><button onclick="stopScan()" style="position:absolute; bottom:50px; left:50%; transform:translateX(-50%); padding:18px 45px; border-radius:40px; border:none; font-weight:800; background:white; color:black; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">Cancel Scan</button></div>
 
   <script>
-    const ENDPOINT = "https://script.google.com/macros/s/AKfycby__866_Y_0XFiaPPCUaX6U1oZK329Ek6SRg9iU4u-aq5ARhxmkTmIHq6gvTpxXMf-8Lw/exec";
-    const STORE_KEY = "inventory_offline_queue";
-    let curStep = 0, pDb = {}, sDb = [], scanObj = null;
+    const API = "https://script.google.com/macros/s/AKfycby__866_Y_0XFiaPPCUaX6U1oZK329Ek6SRg9iU4u-aq5ARhxmkTmIHq6gvTpxXMf-8Lw/exec";
+    const OFF_KEY = "inventory_offline_queue";
+    let step = 0, pDb = {}, sDb = [], scanPtr = null;
 
     window.onload = () => {
-      const stored = localStorage.getItem('inventory_db'); 
-      if(stored) { const d = JSON.parse(stored); pDb = d.products || d; if(d.suppliers) sDb = d.suppliers; }
-      ['barcode','identity','loc','qty','expDate','entryType'].forEach(id => document.getElementById(id).onchange = checkNav);
-      document.getElementById('scanTrigger').onclick = startScan;
+      const saved = localStorage.getItem('inventory_db'); 
+      if(saved) { const d = JSON.parse(saved); pDb = d.products || d; if(d.suppliers) sDb = d.suppliers; }
+      ['barcode','identity','loc','qty','expDate','entryType'].forEach(id => document.getElementById(id).onchange = updateNavUI);
+      document.getElementById('camTrigger').onclick = startScan;
       document.getElementById('expDate').valueAsDate = new Date();
-      updateNet(); stepRef(); qRef(); forceUpdate();
+      refreshStatus(); refreshStep(); refreshQueue(); forceUpdate();
     };
 
+    // FIXED NOTIFICATION LOGIC
     function notify(m, t='success') {
-      const w = document.getElementById('toast-wrap'), e = document.createElement('div');
-      e.className = 'toast'; 
-      e.innerHTML = `<i class="fas fa-${t==='success'?'check-circle':'exclamation-circle'}" style="color:${t==='success'?'var(--success)':'var(--warn)'}"></i><span>${m}</span>`;
-      w.appendChild(e); 
-      setTimeout(() => { e.style.opacity = '0'; e.style.transform = 'translateY(-20px)'; setTimeout(() => e.remove(), 400); }, 3500);
-      if(navigator.vibrate) navigator.vibrate(50);
+      const wrap = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      const icon = t === 'success' ? 'check-circle' : 'exclamation-circle';
+      const color = t === 'success' ? 'var(--success)' : 'var(--warn)';
+      toast.innerHTML = `<i class="fas fa-${icon}" style="color:${color}"></i><span>${m}</span>`;
+      wrap.appendChild(toast);
+      
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(-20px)';
+        toast.style.transition = '0.4s';
+        setTimeout(() => toast.remove(), 400);
+      }, 3500);
+      
+      if(navigator.vibrate) navigator.vibrate(40);
     }
 
-    function updateNet() {
-      const o = navigator.onLine, e = document.getElementById('connStat');
-      e.innerText = o ? "SYSTEM ONLINE" : "SYSTEM OFFLINE"; e.style.background = o ? "#dcfce7" : "#fee2e2"; e.style.color = o ? "#166534" : "#991b1b";
-      if(o) sync();
+    function refreshStatus() {
+      const online = navigator.onLine;
+      const el = document.getElementById('connStat');
+      el.innerText = online ? "SYSTEM ONLINE" : "SYSTEM OFFLINE";
+      el.style.background = online ? "#dcfce7" : "#fee2e2";
+      el.style.color = online ? "#166534" : "#991b1b";
+      if(online) runSync();
     }
-    window.ononline = window.onoffline = updateNet;
+    window.ononline = window.onoffline = refreshStatus;
 
     async function forceUpdate() {
       if(!navigator.onLine) return;
-      const b = document.getElementById('refreshBtn'); b.classList.add('is-loading');
+      const btn = document.getElementById('refreshBtn');
+      btn.classList.add('is-loading');
       try {
-        const r = await fetch(`${ENDPOINT}?action=getProducts&_cb=${Date.now()}`), d = await r.json();
+        const r = await fetch(`${API}?action=getProducts&_cb=${Date.now()}`);
+        const d = await r.json();
         pDb = d.products; sDb = d.suppliers || [];
         localStorage.setItem('inventory_db', JSON.stringify(d));
-        notify("Database Sync Complete");
-      } catch(e) {} finally { setTimeout(() => b.classList.remove('is-loading'), 600); }
+        notify("Database Synced Successfully");
+      } catch(e) { console.error(e); }
+      finally { setTimeout(() => btn.classList.remove('is-loading'), 600); }
     }
 
-    // PICKER MODAL
-    function openPicker() {
-        const q = document.getElementById('ns').value.toLowerCase();
-        document.getElementById('pickerSearch').value = q;
-        document.getElementById('pickerModal').style.display = 'flex';
-        filterSup();
-    }
-    function closePicker() { document.getElementById('pickerModal').style.display = 'none'; }
-    function filterSup() {
-        const q = document.getElementById('pickerSearch').value.toLowerCase();
-        const l = document.getElementById('pickerList'); l.innerHTML = "";
+    function openPicker() { document.getElementById('pickerModal').style.display='flex'; renderPicker(); }
+    function closeModal(id) { document.getElementById(id).style.display='none'; }
+    function renderPicker() {
+        const q = document.getElementById('pSearch').value.toLowerCase();
+        const area = document.getElementById('pList'); area.innerHTML = "";
         const filtered = sDb.filter(s => s.toLowerCase().includes(q));
-        if(!filtered.length) { l.innerHTML = `<div style="padding:20px; text-align:center; color:var(--text-light)">No existing supplier matches.</div>`; return; }
+        if(!filtered.length) { area.innerHTML = `<div style="padding:20px; text-align:center; color:var(--text-light)">No results.</div>`; return; }
         filtered.forEach(s => {
-            const d = document.createElement('div'); d.className = 'picker-item'; d.innerHTML = `<i class="fas fa-truck"></i> ${s}`;
-            d.onclick = () => { document.getElementById('ns').value = s; closePicker(); };
-            l.appendChild(d);
+            const d = document.createElement('div'); d.className = 'list-item'; d.innerText = s;
+            d.onclick = () => { document.getElementById('ns').value = s; closeModal('pickerModal'); };
+            area.appendChild(d);
         });
     }
 
-    // NAVIGATION
-    function stepRef() {
-      const steps = document.querySelectorAll('.step-content');
-      steps.forEach((s, i) => s.classList.toggle('active', i === curStep));
-      document.getElementById('pBar').style.width = `${((curStep + 1) / 4) * 100}%`;
-      document.getElementById('btnPrev').disabled = curStep === 0;
-      document.getElementById('btnNext').style.display = curStep === 3 ? 'none' : 'block';
-      document.getElementById('btnSub').style.display = curStep === 3 ? 'block' : 'none';
-      if(curStep === 1) { 
-          const b = document.getElementById('barcode').value.trim(); 
-          document.getElementById('metaName').innerText = pDb[b] || "Unknown Item"; 
-          document.getElementById('metaCode').innerText = b; 
-          document.getElementById('pMeta').style.display = 'block'; 
+    function refreshStep() {
+      const nodes = document.querySelectorAll('.step-node');
+      nodes.forEach((n, i) => n.classList.toggle('active', i === step));
+      document.getElementById('pBar').style.width = `${((step + 1) / 4) * 100}%`;
+      document.getElementById('btnPrev').disabled = step === 0;
+      document.getElementById('btnNext').style.display = step === 3 ? 'none' : 'block';
+      document.getElementById('btnSub').style.display = step === 3 ? 'block' : 'none';
+      if(step === 1) {
+          const b = document.getElementById('barcode').value.trim();
+          document.getElementById('metaName').innerText = pDb[b] || "Unregistered Product";
+          document.getElementById('metaCode').innerText = b;
+          document.getElementById('pMeta').style.display = 'block';
       }
-      if(curStep === 3) {
-        const b = document.getElementById('barcode').value.trim();
-        document.getElementById('revBox').innerHTML = `<div class="summary-row"><span style="color:var(--text-light)">Item</span><b>${pDb[b]}</b></div><div class="summary-row"><span style="color:var(--text-light)">Staff</span><b>${document.getElementById('identity').value}</b></div><div class="summary-row"><span style="color:var(--text-light)">Type</span><b>${document.getElementById('entryType').value}</b></div><div class="summary-row"><span style="color:var(--text-light)">Qty</span><b>${document.getElementById('qty').value}</b></div><div class="summary-row"><span style="color:var(--text-light)">Exp</span><b>${document.getElementById('expDate').value}</b></div><div class="summary-row" style="border:none"><span style="color:var(--text-light)">Zone</span><b>${document.getElementById('loc').value}</b></div>`;
+      if(step === 3) {
+          const b = document.getElementById('barcode').value.trim();
+          document.getElementById('revBox').innerHTML = `<div class="summary-item">Item:<b>${pDb[b]}</b></div><div class="summary-item">Staff:<b>${document.getElementById('identity').value}</b></div><div class="summary-item">Type:<b>${document.getElementById('entryType').value}</b></div><div class="summary-item">Quantity:<b>${document.getElementById('qty').value}</b></div><div class="summary-item">Expiry:<b>${document.getElementById('expDate').value}</b></div><div class="summary-item">Location:<b>${document.getElementById('loc').value}</b></div>`;
       }
-      checkNav();
+      updateNavUI();
     }
 
-    function checkNav() {
-      const v = (id) => document.getElementById(id).value.trim(); let ok = false;
-      if(curStep === 0) ok = v('barcode') !== "";
-      if(curStep === 1) ok = v('identity') !== "" && v('entryType') !== "" && v('qty') > 0 && v('expDate') !== "";
-      if(curStep === 2) ok = v('loc') !== "";
-      if(curStep === 3) ok = true;
+    function updateNavUI() {
+      const val = (id) => document.getElementById(id).value.trim();
+      let ok = false;
+      if(step === 0) ok = val('barcode') !== "";
+      if(step === 1) ok = val('identity') !== "" && val('entryType') !== "" && val('qty') > 0 && val('expDate') !== "";
+      if(step === 2) ok = val('loc') !== "";
+      if(step === 3) ok = true;
       document.getElementById('btnNext').disabled = !ok;
     }
 
-    function move(d) {
-      if(d === 1 && curStep === 0 && !pDb[document.getElementById('barcode').value.trim()]) return notify("Barcode not in Database!", "warn");
-      curStep += d; stepRef();
+    function navigate(d) {
+      if(d === 1 && step === 0 && !pDb[document.getElementById('barcode').value.trim()]) return notify("Barcode not found in DB!", "warn");
+      step += d; refreshStep();
     }
 
-    function setT(t) {
+    function setEntryType(t) {
       document.getElementById('entryType').value = t;
       document.getElementById('tExp').classList.toggle('selected', t === 'Expiry');
       document.getElementById('tDmg').classList.toggle('selected', t === 'Damage');
-      checkNav();
+      updateNavUI();
     }
 
-    // SUBMIT
     document.getElementById('mainForm').onsubmit = async (e) => {
       e.preventDefault(); document.getElementById('loading').style.display = 'flex';
       const d = { barcode: document.getElementById('barcode').value, identity: document.getElementById('identity').value, type: document.getElementById('entryType').value, quantity: document.getElementById('qty').value, expiryDate: document.getElementById('expDate').value, location: document.getElementById('loc').value, productName: pDb[document.getElementById('barcode').value], timestamp: new Date().toISOString() };
-      if(!navigator.onLine) { q(d); document.getElementById('loading').style.display = 'none'; return; }
-      try { const r = await fetch(ENDPOINT, { method:'POST', body:JSON.stringify(d) }); if((await r.json()).status === 'success') { notify("Logged Successfully"); reset(); } } catch(e) { q(d); }
+      if(!navigator.onLine) { saveQueue(d); document.getElementById('loading').style.display = 'none'; return; }
+      try { const r = await fetch(API, { method:'POST', body:JSON.stringify(d) }); if((await r.json()).status === 'success') { notify("Log Recorded"); resetApp(); } } catch(e) { saveQueue(d); }
       finally { document.getElementById('loading').style.display = 'none'; }
     };
 
-    function q(d) { const l = JSON.parse(localStorage.getItem(STORE_KEY) || "[]"); l.push(d); localStorage.setItem(STORE_KEY, JSON.stringify(l)); qRef(); notify("Saved Offline", "warn"); reset(); }
-    function sync() { const l = JSON.parse(localStorage.getItem(STORE_KEY) || "[]"); if(!l.length) return; fetch(ENDPOINT, {method:'POST', body:JSON.stringify(l[0])}).then(r=>r.json()).then(r=>{ if(r.status==='success') { l.shift(); localStorage.setItem(STORE_KEY, JSON.stringify(l)); qRef(); sync(); } }); }
-    function qRef() { document.getElementById('qCount').innerText = JSON.parse(localStorage.getItem(STORE_KEY) || "[]").length; }
-    function reset() { document.getElementById('mainForm').reset(); document.getElementById('entryType').value = ""; document.querySelectorAll('.type-card').forEach(b => b.classList.remove('selected')); curStep = 0; stepRef(); }
+    function saveQueue(d) { const q = JSON.parse(localStorage.getItem(OFF_KEY) || "[]"); q.push(d); localStorage.setItem(OFF_KEY, JSON.stringify(q)); refreshQueue(); notify("Saved to Pending Sync", "warn"); resetApp(); }
+    function runSync() { const q = JSON.parse(localStorage.getItem(OFF_KEY) || "[]"); if(!q.length) return; fetch(API, {method:'POST', body:JSON.stringify(q[0])}).then(r=>r.json()).then(r=>{ if(r.status==='success') { q.shift(); localStorage.setItem(OFF_KEY, JSON.stringify(q)); refreshQueue(); runSync(); } }); }
+    function refreshQueue() { document.getElementById('qCount').innerText = JSON.parse(localStorage.getItem(OFF_KEY) || "[]").length; }
+    function resetApp() { document.getElementById('mainForm').reset(); document.getElementById('entryType').value = ""; document.querySelectorAll('.card-type').forEach(c => c.classList.remove('selected')); step = 0; refreshStep(); }
     
-    // ADMIN FUNCTIONS
-    function openAdd() { document.getElementById('addModal').style.display='flex'; document.getElementById('nb').value = document.getElementById('barcode').value; }
-    function closeAdd() { document.getElementById('addModal').style.display='none'; }
-    async function doSave() {
-      const b = document.getElementById('nb').value, n = document.getElementById('nn').value, s = document.getElementById('ns').value, p = document.getElementById('ap').value;
-      if(!b || !n || !p) return notify("Fill all fields", "warn"); document.getElementById('loading').style.display = 'flex';
-      try { 
-          const r = await fetch(ENDPOINT, {method:'POST', body:JSON.stringify({action:'addProduct', barcode:b, name:n, supplier:s, password:p})}); 
-          const res = await r.json(); 
-          if(res.status==='success') { notify("Authenticated & Saved"); closeAdd(); forceUpdate(); } else notify(res.message, "warn"); 
-      } catch(e) { notify("Error connecting", "warn"); }
+    function openAddModal() { document.getElementById('addModal').style.display='flex'; document.getElementById('nb').value = document.getElementById('barcode').value; }
+    async function doSaveNewProduct() {
+      const b = document.getElementById('nb').value.trim(), n = document.getElementById('nn').value.trim(), s = document.getElementById('ns').value.trim(), p = document.getElementById('ap').value.trim();
+      if(!b || !n || !p) return notify("Please fill all required fields", "warn");
+      document.getElementById('loading').style.display = 'flex';
+      try {
+          const r = await fetch(API, {method:'POST', body:JSON.stringify({action:'addProduct', barcode:b, name:n, supplier:s, password:p})});
+          const res = await r.json();
+          if(res.status==='success') {
+              pDb[b] = n; localStorage.setItem('inventory_db', JSON.stringify({products: pDb, suppliers: sDb}));
+              notify("Product Added Instantly"); closeModal('addModal'); forceUpdate();
+          } else notify(res.message, "warn");
+      } catch(e) { notify("Verification Failed", "warn"); }
       finally { document.getElementById('loading').style.display = 'none'; }
     }
     
-    // SCANNER
-    function startScan() { document.getElementById('scanner-wrap').style.display = 'flex'; scanObj = new Html5Qrcode("reader"); scanObj.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (t) => { document.getElementById('barcode').value = t; stopScan(); if(pDb[t]) move(1); else notify("New Item Detected", "warn"); }); }
-    function stopScan() { if(scanObj) scanObj.stop().then(() => { document.getElementById('scanner-wrap').style.display = 'none'; scanObj = null; }); }
+    function startScan() { document.getElementById('scan-overlay').style.display = 'flex'; scanPtr = new Html5Qrcode("reader"); scanPtr.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (t) => { document.getElementById('barcode').value = t; stopScan(); if(pDb[t]) navigate(1); else notify("Unrecognized Barcode", "warn"); }); }
+    function stopScan() { if(scanPtr) scanPtr.stop().then(() => { document.getElementById('scan-overlay').style.display = 'none'; scanPtr = null; }); }
   </script>
 </body>
 </html>
