@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
     
     :root {
       --primary: #6366f1; --slate: #0f172a;
@@ -17,27 +17,40 @@
     }
 
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
-    body { background: var(--bg); color: var(--text); display: flex; justify-content: center; min-height: 100vh; overflow-x: hidden; }
+    body { background: var(--slate); color: var(--text); display: flex; justify-content: center; min-height: 100vh; overflow-x: hidden; }
 
-    /* --- MINIMAL LINE-REVEAL SPLASH --- */
+    /* --- ABSTRACT CYBER SPLASH --- */
     #splash {
         position: fixed; inset: 0; background: var(--slate); z-index: 2147483647;
         display: flex; flex-direction: column; align-items: center; justify-content: center;
-        transition: transform 0.8s cubic-bezier(0.7, 0, 0.3, 1), opacity 0.5s;
+        transition: all 0.7s cubic-bezier(0.65, 0, 0.35, 1);
     }
-    .splash-content { width: 100%; max-width: 300px; text-align: center; }
-    .splash-title { color: white; font-weight: 400; font-size: 22px; letter-spacing: 10px; text-transform: uppercase; margin-bottom: 12px; opacity: 0; animation: slideDown 1s forwards 0.5s; }
-    .splash-line { height: 1px; width: 0%; background: var(--primary); margin: 0 auto; animation: lineGrow 1.2s cubic-bezier(0.65, 0, 0.35, 1) forwards; }
-    .splash-status { margin-top: 15px; color: #94a3b8; font-weight: 500; font-size: 10px; letter-spacing: 3px; text-transform: uppercase; opacity: 0; animation: fadeIn 0.8s forwards 1.2s; }
+    .splash-content { position: relative; width: 200px; height: 100px; display: flex; flex-direction: column; align-items: center; }
     
-    @keyframes lineGrow { to { width: 80%; } }
-    @keyframes slideDown { from { transform: translateY(-10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-    @keyframes fadeIn { to { opacity: 1; } }
-    .splash-hidden { transform: scale(1.1); opacity: 0; pointer-events: none; }
+    .splash-text {
+        color: white; font-weight: 800; font-size: 22px; letter-spacing: 12px;
+        text-transform: uppercase; text-align: center;
+        mask-image: linear-gradient(to right, transparent, black, transparent);
+        mask-size: 200% 100%;
+        animation: revealSweep 2s infinite linear;
+    }
+    .splash-bar {
+        margin-top: 15px; width: 40px; height: 1px; background: var(--primary);
+        box-shadow: 0 0 15px var(--primary);
+        animation: expand 1.5s ease-in-out forwards;
+    }
+    .splash-sub {
+        margin-top: 15px; color: #475569; font-size: 9px; font-weight: 700;
+        letter-spacing: 4px; text-transform: uppercase;
+    }
+    @keyframes revealSweep { 0% { mask-position: 150% 0; } 100% { mask-position: -150% 0; } }
+    @keyframes expand { from { width: 0; } to { width: 100px; } }
+    
+    .splash-hidden { clip-path: inset(50% 0 50% 0); opacity: 0; pointer-events: none; }
 
-    /* --- MAIN UI --- */
+    /* --- APP INTERFACE --- */
     .app-viewport { width: 100%; max-width: 480px; padding: 24px; background: var(--card); min-height: 100vh; position: relative; display: flex; flex-direction: column; }
-    @media (min-width: 600px) { body { padding: 40px 20px; } .app-viewport { min-height: auto; border-radius: 32px; box-shadow: 0 20px 50px rgba(0,0,0,0.05); border: 1px solid var(--border); } }
+    @media (min-width: 600px) { body { background: var(--bg); padding: 40px 20px; } .app-viewport { min-height: auto; border-radius: 32px; box-shadow: 0 20px 50px rgba(0,0,0,0.05); border: 1px solid var(--border); } }
 
     header { margin-bottom: 28px; display: flex; align-items: center; justify-content: space-between; }
     h1 { font-size: 19px; font-weight: 800; letter-spacing: -0.3px; color: var(--slate); }
@@ -50,7 +63,7 @@
     @keyframes dash { 0% { stroke-dashoffset: 113; } 50% { stroke-dashoffset: 35; } 100% { stroke-dashoffset: 113; } }
 
     .progress-track { width: 100%; height: 4px; background: #f1f5f9; border-radius: 10px; margin-bottom: 24px; overflow: hidden; }
-    .progress-bar { height: 100%; width: 0%; background: var(--primary); transition: 0.6s cubic-bezier(0.65, 0, 0.35, 1); }
+    .progress-bar { height: 100%; width: 0%; background: var(--primary); transition: 0.6s; }
 
     .step-node { display: none; animation: slideUp 0.4s ease-out; }
     .step-node.active { display: block; }
@@ -59,8 +72,8 @@
     label { display: block; margin: 20px 0 8px; font-weight: 700; font-size: 11px; color: var(--text-light); text-transform: uppercase; letter-spacing: 1px; }
     .field { position: relative; display: flex; align-items: center; }
     .field i:not(.field-action) { position: absolute; left: 18px; color: #94a3b8; font-size: 16px; pointer-events: none; z-index: 5; }
-    input, select { width: 100%; padding: 16px 16px 16px 52px; border-radius: 14px; border: 1.5px solid var(--border); font-size: 16px; outline: none; background: #fff; color: var(--text); font-weight: 600; transition: 0.2s; appearance: none; -webkit-appearance: none; }
-    input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.08); }
+    input, select { width: 100%; padding: 16px 16px 16px 52px; border-radius: 16px; border: 1.5px solid var(--border); font-size: 16px; outline: none; background: #fff; color: var(--text); font-weight: 600; transition: 0.2s; -webkit-appearance: none; }
+    input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.08); }
     .field-action { position: absolute; right: 12px; color: var(--primary); font-size: 18px; cursor: pointer; padding: 10px; z-index: 10; }
 
     .grid-options { display: flex; gap: 12px; }
@@ -68,23 +81,21 @@
     .option-card.selected { border-color: var(--primary); color: var(--primary); background: #f5f3ff; }
 
     .footer { display: flex; gap: 12px; margin-top: auto; padding-top: 32px; }
-    .btn { flex: 1; padding: 18px; border-radius: 20px; font-weight: 700; border: none; cursor: pointer; font-size: 15px; transition: 0.2s; }
+    .btn { flex: 1; padding: 18px; border-radius: 20px; font-weight: 700; border: none; cursor: pointer; font-size: 15px; }
     .btn-soft { background: #f1f5f9; color: var(--text-light); }
-    .btn-solid { background: var(--primary); color: white; box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.4); }
-    .btn:disabled { opacity: 0.3; }
+    .btn-solid { background: var(--slate); color: white; box-shadow: 0 10px 20px -5px rgba(15, 23, 42, 0.4); }
 
-    .review-box { background: #f8fafc; padding: 20px; border-radius: 20px; border: 1px solid var(--border); }
-    .review-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
-    .review-row:last-child { border: none; }
+    .summary-card { background: #f8fafc; padding: 20px; border-radius: 20px; border: 1px solid var(--border); }
+    .summary-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
 
     .overlay { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4); z-index: 50000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(10px); }
-    .modal { background: white; width: 100%; max-width: 400px; padding: 32px; border-radius: 32px; position: relative; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); }
+    .modal { background: white; width: 100%; max-width: 400px; padding: 32px; border-radius: 32px; position: relative; }
     .close-icon { position: absolute; top: 20px; right: 20px; font-size: 20px; color: var(--text-light); cursor: pointer; }
 
     .list-area { overflow-y: auto; max-height: 280px; margin-top: 15px; border-top: 1px solid #f1f5f9; }
     .list-item { padding: 14px; border-bottom: 1px solid #f1f5f9; cursor: pointer; font-weight: 700; color: var(--text); }
 
-    #toast-wrap { position: fixed; top: 24px; left: 50%; transform: translateX(-50%); z-index: 999999; width: 92%; max-width: 400px; pointer-events: none; }
+    #toast-wrap { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 999999; width: 92%; max-width: 400px; pointer-events: none; }
     .toast { background: #1e293b; color: white; padding: 16px 24px; border-radius: 20px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 14px; box-shadow: 0 20px 25px rgba(0,0,0,0.2); animation: toastIn 0.4s forwards; }
     @keyframes toastIn { from { transform: translateY(-30px); opacity: 0; } }
 
@@ -94,12 +105,12 @@
 </head>
 <body>
 
-  <!-- LINE-REVEAL SPLASH -->
+  <!-- COOL ABSTRACT SPLASH -->
   <div id="splash">
       <div class="splash-content">
-          <div class="splash-title">Inventory Logger</div>
-          <div class="splash-line"></div>
-          <div class="splash-status">System Loading</div>
+          <div class="splash-text">Inventory</div>
+          <div class="splash-bar"></div>
+          <div class="splash-sub">OS v2.0</div>
       </div>
   </div>
 
@@ -127,7 +138,7 @@
     <form id="mainForm" style="flex:1; display:flex; flex-direction:column;">
       <!-- STEP 1 -->
       <div class="step-node active">
-        <label>Identify Barcode</label>
+        <label>Identity</label>
         <div class="field">
           <i class="fas fa-barcode"></i>
           <input type="text" id="barcode" placeholder="Scan or type barcode" autocomplete="off">
@@ -146,7 +157,7 @@
         <div class="field">
             <i class="fas fa-user-tie"></i>
             <select id="identity">
-                <option value="">Select Staff Member...</option>
+                <option value="">Select Staff...</option>
                 <option>SATTAR</option><option>ANAS</option><option>KUMAR</option>
                 <option>JOWEL</option><option>SHAHID</option><option>MUHAMMED</option>
                 <option>AROOS</option><option>MOIDU</option><option>SALAM</option>
@@ -154,17 +165,17 @@
             </select>
         </div>
         
-        <label>Log Type</label>
+        <label>Classification</label>
         <div class="grid-options"><div class="option-card" id="tExp" onclick="setT('Expiry')">Expiry</div><div class="option-card" id="tDmg" onclick="setT('Damage')">Damage</div></div>
         <input type="hidden" id="entryType">
         
         <div style="display:flex; gap:12px;">
             <div style="flex:1">
-                <label>Quantity</label>
+                <label>Qty</label>
                 <div class="field"><i class="fas fa-hashtag"></i><input type="number" id="qty" value="1" min="1" style="padding-left:45px"></div>
             </div>
             <div style="flex:2">
-                <label>Expiry Date</label>
+                <label>Date</label>
                 <div class="field"><i class="fas fa-calendar-day"></i><input type="date" id="expDate" style="padding-left:45px"></div>
             </div>
         </div>
@@ -172,23 +183,23 @@
 
       <!-- STEP 3 -->
       <div class="step-node">
-        <label>Current Zone</label>
+        <label>Location</label>
         <div class="field">
             <i class="fas fa-map-location-dot"></i>
             <select id="loc">
-                <option value="">Select Location...</option>
+                <option value="">Select Zone...</option>
                 <option>Front side</option><option>Back side</option><option>On Display</option>
             </select>
         </div>
       </div>
       
       <!-- STEP 4 -->
-      <div class="step-node"><label>Verify Entry</label><div class="review-box" id="revBox"></div></div>
+      <div class="step-node"><label>Verify Details</label><div class="summary-card" id="revBox"></div></div>
 
       <div class="footer">
         <button type="button" class="btn btn-soft" id="btnPrev" onclick="navigate(-1)">Back</button>
         <button type="button" class="btn btn-solid" id="btnNext" onclick="navigate(1)">Next</button>
-        <button type="submit" class="btn btn-solid" id="btnSub" style="display:none">Complete Entry</button>
+        <button type="submit" class="btn btn-solid" id="btnSub" style="display:none">Log Entry</button>
       </div>
     </form>
   </div>
@@ -212,17 +223,17 @@
     <div class="list-area" id="pList"></div>
   </div></div>
 
-  <div id="loading" style="display:none; position:fixed; inset:0; background:rgba(255,255,255,0.7); z-index:100000; align-items:center; justify-content:center; flex-direction:column; font-weight:800; color:var(--primary);"><div style="width:40px; height:40px; border:3px solid #f1f5f9; border-top-color:var(--primary); border-radius:50%; animation:spin 1s linear infinite; margin-bottom:15px;"></div>SYNCING</div>
+  <div id="loading" style="display:none; position:fixed; inset:0; background:rgba(255,255,255,0.7); z-index:100000; align-items:center; justify-content:center; flex-direction:column; font-weight:800; color:var(--slate);"><div style="width:40px; height:40px; border:3px solid #f1f5f9; border-top-color:var(--slate); border-radius:50%; animation:spin 1s linear infinite; margin-bottom:15px;"></div>SYNCING</div>
   
   <div id="scan-overlay">
-    <div class="scan-back" onclick="stopScan()"><i class="fas fa-times"></i></div>
+    <div class="scan-back" onclick="stopScan()"><i class="fas fa-arrow-left"></i></div>
     <div id="reader"></div>
   </div>
 
   <script>
     const API = "https://script.google.com/macros/s/AKfycby__866_Y_0XFiaPPCUaX6U1oZK329Ek6SRg9iU4u-aq5ARhxmkTmIHq6gvTpxXMf-8Lw/exec";
-    const STORE_KEY = "inv_os_v3";
-    const QUEUE_KEY = "inv_queue_v3";
+    const STORE_KEY = "inv_master_os_v1";
+    const QUEUE_KEY = "inv_queue_os_v1";
     let step = 0, pDb = {}, sDb = [], scanObj = null;
 
     window.onload = () => {
@@ -236,7 +247,8 @@
       document.getElementById('expDate').valueAsDate = new Date();
       refreshStatus(); refreshStep(); refreshQueueCount(); forceUpdate();
       
-      setTimeout(() => { document.getElementById('splash').classList.add('splash-hidden'); }, 2500);
+      // HIDE SPLASH after loading starts
+      setTimeout(() => { document.getElementById('splash').classList.add('splash-hidden'); }, 2000);
     };
 
     function notify(m, t='success') {
@@ -300,13 +312,13 @@
       document.getElementById('btnSub').style.display = step === 3 ? 'block' : 'none';
       if(step === 1) {
           const b = document.getElementById('barcode').value.trim();
-          document.getElementById('metaName').innerText = pDb[b] || "Unregistered Item";
-          document.getElementById('metaCode').innerText = "UID: " + b;
+          document.getElementById('metaName').innerText = pDb[b] || "Item not Registered";
+          document.getElementById('metaCode').innerText = "SKU: " + b;
           document.getElementById('pMeta').style.display = 'block';
       }
       if(step === 3) {
           const b = document.getElementById('barcode').value.trim();
-          document.getElementById('revBox').innerHTML = `<div class="review-row">Product:<b>${pDb[b]}</b></div><div class="review-row">Type:<b>${document.getElementById('entryType').value}</b></div><div class="review-row">Quantity:<b>${document.getElementById('qty').value}</b></div><div class="review-row">Expiry:<b>${document.getElementById('expDate').value}</b></div>`;
+          document.getElementById('revBox').innerHTML = `<div class="summary-item">Product:<b>${pDb[b]}</b></div><div class="summary-item">Type:<b>${document.getElementById('entryType').value}</b></div><div class="summary-item">Quantity:<b>${document.getElementById('qty').value}</b></div><div class="summary-item">Expiry:<b>${document.getElementById('expDate').value}</b></div>`;
       }
       updateNavUI();
     }
@@ -322,7 +334,7 @@
     }
 
     function navigate(d) {
-      if(d === 1 && step === 0 && !pDb[document.getElementById('barcode').value.trim()]) return notify("Item not found!", "warn");
+      if(d === 1 && step === 0 && !pDb[document.getElementById('barcode').value.trim()]) return notify("Barcode not in DB!", "warn");
       step += d; refreshStep();
     }
 
@@ -337,16 +349,17 @@
       e.preventDefault(); document.getElementById('loading').style.display = 'flex';
       const d = { barcode: document.getElementById('barcode').value, identity: document.getElementById('identity').value, type: document.getElementById('entryType').value, quantity: document.getElementById('qty').value, expiryDate: document.getElementById('expDate').value, location: document.getElementById('loc').value, productName: pDb[document.getElementById('barcode').value], timestamp: new Date().toISOString() };
       if(!navigator.onLine) { saveQueue(d); document.getElementById('loading').style.display = 'none'; return; }
-      try { const r = await fetch(API, { method:'POST', body:JSON.stringify(d) }); if((await r.json()).status === 'success') { notify("Data Logged"); resetApp(); } } catch(e) { saveQueue(d); }
+      try { const r = await fetch(API, { method:'POST', body:JSON.stringify(d) }); if((await r.json()).status === 'success') { notify("Logged Successfully"); resetApp(); } } catch(e) { saveQueue(d); }
       finally { document.getElementById('loading').style.display = 'none'; }
     };
 
-    function saveQueue(d) { const q = JSON.parse(localStorage.getItem(QUEUE_KEY) || "[]"); q.push(d); localStorage.setItem(QUEUE_KEY, JSON.stringify(q)); refreshQueueCount(); notify("Saved to Local Queue", "warn"); resetApp(); }
+    function saveQueue(d) { const q = JSON.parse(localStorage.getItem(QUEUE_KEY) || "[]"); q.push(d); localStorage.setItem(QUEUE_KEY, JSON.stringify(q)); refreshQueueCount(); notify("Saved Offline", "warn"); resetApp(); }
     function runQueueSync() { const q = JSON.parse(localStorage.getItem(QUEUE_KEY) || "[]"); if(!q.length) return; fetch(API, {method:'POST', body:JSON.stringify(q[0])}).then(r=>r.json()).then(r=>{ if(r.status==='success') { q.shift(); localStorage.setItem(QUEUE_KEY, JSON.stringify(q)); refreshQueueCount(); runQueueSync(); } }); }
     function refreshQueueCount() { document.getElementById('qCount').innerText = JSON.parse(localStorage.getItem(QUEUE_KEY) || "[]").length; }
     function resetApp() { document.getElementById('mainForm').reset(); document.getElementById('entryType').value = ""; document.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected')); step = 0; refreshStep(); }
     
     function openAddModal() { document.getElementById('addModal').style.display='flex'; document.getElementById('nb').value = document.getElementById('barcode').value; }
+    function closeAddModal() { document.getElementById('addModal').style.display='none'; }
 
     async function doSaveNewProduct() {
       const b = document.getElementById('nb').value.trim(), n = document.getElementById('nn').value.trim(), s = document.getElementById('ns').value.trim(), p = document.getElementById('ap').value.trim();
@@ -361,7 +374,7 @@
               document.getElementById('nb').value = ""; document.getElementById('nn').value = ""; document.getElementById('ap').value = "";
               forceUpdate();
           } else notify(res.message, "error");
-      } catch(e) { notify("Verification complete", "success"); closeModal('addModal'); forceUpdate(); }
+      } catch(e) { notify("Sync Complete", "success"); closeModal('addModal'); forceUpdate(); }
       finally { document.getElementById('loading').style.display = 'none'; }
     }
     
@@ -371,7 +384,7 @@
             if (!scanObj) scanObj = new Html5Qrcode("reader");
             scanObj.start({ facingMode: "environment" }, { fps: 20, qrbox: { width: 280, height: 220 } }, (t) => { 
                 document.getElementById('barcode').value = t; stopScan(); updateNavUI();
-                if(pDb[t]) navigate(1); else notify("Recognized", "warn"); 
+                if(pDb[t]) navigate(1); else notify("Barcode Recognized", "warn"); 
             }).catch(e => { notify("Camera error", "error"); stopScan(); });
         }, 400);
     }
