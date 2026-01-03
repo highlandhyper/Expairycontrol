@@ -1,4 +1,4 @@
-const CACHE_NAME = "inv-os-v10"; // 🔴 CHANGE THIS NUMBER TO FORCE UPDATE
+const CACHE_NAME = "inv-os-v11"; // 🔴 CHANGE THIS NUMBER TO FORCE UPDATE
 const ASSETS = [
   "./",
   "./index.html",
@@ -29,4 +29,5 @@ self.addEventListener("fetch", (e) => {
       .catch(() => caches.match(e.request))
   );
 });
+
 
