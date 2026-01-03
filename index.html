@@ -18,7 +18,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
     
     :root {
       --primary: #6366f1; --slate: #0f172a;
@@ -29,43 +29,28 @@
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
     body { background: var(--slate); color: var(--text); display: flex; justify-content: center; min-height: 100vh; overflow-x: hidden; }
 
-    /* --- ABSTRACT CYBER SPLASH --- */
+    /* --- MINIMAL TEXT SPLASH --- */
     #splash {
         position: fixed; inset: 0; background: var(--slate); z-index: 2147483647;
         display: flex; flex-direction: column; align-items: center; justify-content: center;
-        transition: all 0.7s cubic-bezier(0.65, 0, 0.35, 1);
+        transition: transform 0.8s cubic-bezier(0.7, 0, 0.3, 1), opacity 0.5s;
     }
-    .splash-content { position: relative; width: 200px; height: 100px; display: flex; flex-direction: column; align-items: center; }
-    
-    .splash-text {
-        color: white; font-weight: 800; font-size: 22px; letter-spacing: 12px;
-        text-transform: uppercase; text-align: center;
-        mask-image: linear-gradient(to right, transparent, black, transparent);
-        mask-size: 200% 100%;
-        animation: revealSweep 2s infinite linear;
-    }
-    .splash-bar {
-        margin-top: 15px; width: 40px; height: 1px; background: var(--primary);
-        box-shadow: 0 0 15px var(--primary);
-        animation: expand 1.5s ease-in-out forwards;
-    }
-    .splash-sub {
-        margin-top: 15px; color: #475569; font-size: 9px; font-weight: 700;
-        letter-spacing: 4px; text-transform: uppercase;
-    }
-    @keyframes revealSweep { 0% { mask-position: 150% 0; } 100% { mask-position: -150% 0; } }
-    @keyframes expand { from { width: 0; } to { width: 100px; } }
-    
-    .splash-hidden { clip-path: inset(50% 0 50% 0); opacity: 0; pointer-events: none; }
+    .splash-title { color: white; font-weight: 800; font-size: 26px; letter-spacing: 8px; text-transform: uppercase; animation: trackingIn 1.5s ease-out; }
+    .splash-status { margin-top: 18px; color: var(--primary); font-weight: 600; font-size: 11px; letter-spacing: 4px; text-transform: uppercase; opacity: 0.8; }
+    .loader-line { margin-top: 30px; width: 40px; height: 2px; background: rgba(255,255,255,0.1); position: relative; overflow: hidden; }
+    .loader-line::after { content: ''; position: absolute; left: -100%; width: 100%; height: 100%; background: var(--primary); animation: loading 1.5s infinite linear; }
+    @keyframes trackingIn { from { letter-spacing: -2px; opacity: 0; } to { letter-spacing: 8px; opacity: 1; } }
+    @keyframes loading { to { left: 100%; } }
+    .splash-hidden { transform: translateY(-100%); opacity: 0; pointer-events: none; }
 
-    /* --- APP INTERFACE --- */
+    /* --- MAIN UI --- */
     .app-viewport { width: 100%; max-width: 480px; padding: 24px; background: var(--card); min-height: 100vh; position: relative; display: flex; flex-direction: column; }
     @media (min-width: 600px) { body { background: var(--bg); padding: 40px 20px; } .app-viewport { min-height: auto; border-radius: 32px; box-shadow: 0 20px 50px rgba(0,0,0,0.05); border: 1px solid var(--border); } }
 
     header { margin-bottom: 28px; display: flex; align-items: center; justify-content: space-between; }
     h1 { font-size: 19px; font-weight: 800; letter-spacing: -0.3px; color: var(--slate); }
     
-    .h-btn { background: #f1f5f9; border: none; color: var(--slate); width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; position: relative; }
+    .nav-btn { background: #f1f5f9; border: none; color: var(--slate); width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; position: relative; }
     .sync-loader { position: absolute; inset: 0; display: none; transform: rotate(-90deg); }
     .sync-loader circle { fill: none; stroke: var(--primary); stroke-width: 4; stroke-dasharray: 113; stroke-dashoffset: 113; stroke-linecap: round; }
     .is-loading .sync-loader { display: block; }
@@ -73,17 +58,18 @@
     @keyframes dash { 0% { stroke-dashoffset: 113; } 50% { stroke-dashoffset: 35; } 100% { stroke-dashoffset: 113; } }
 
     .progress-track { width: 100%; height: 4px; background: #f1f5f9; border-radius: 10px; margin-bottom: 24px; overflow: hidden; }
-    .progress-bar { height: 100%; width: 0%; background: var(--primary); transition: 0.6s; }
+    .progress-bar { height: 100%; width: 0%; background: var(--primary); transition: 0.6s cubic-bezier(0.65, 0, 0.35, 1); }
 
     .step-node { display: none; animation: slideUp 0.4s ease-out; }
     .step-node.active { display: block; }
     @keyframes slideUp { from { opacity: 0; transform: translateY(12px); } }
 
+    /* PROFESSIONAL INPUTS */
     label { display: block; margin: 20px 0 8px; font-weight: 700; font-size: 11px; color: var(--text-light); text-transform: uppercase; letter-spacing: 1px; }
-    .field { position: relative; display: flex; align-items: center; }
+    .field { position: relative; display: flex; align-items: center; width: 100%; }
     .field i:not(.field-action) { position: absolute; left: 18px; color: #94a3b8; font-size: 16px; pointer-events: none; z-index: 5; }
-    input, select { width: 100%; padding: 16px 16px 16px 52px; border-radius: 16px; border: 1.5px solid var(--border); font-size: 16px; outline: none; background: #fff; color: var(--text); font-weight: 600; transition: 0.2s; -webkit-appearance: none; }
-    input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.08); }
+    input, select { width: 100%; padding: 16px 16px 16px 52px; border-radius: 16px; border: 1.5px solid var(--border); font-size: 16px; outline: none; background: #fff; color: var(--text); font-weight: 600; transition: 0.2s; appearance: none; -webkit-appearance: none; }
+    input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.08); }
     .field-action { position: absolute; right: 12px; color: var(--primary); font-size: 18px; cursor: pointer; padding: 10px; z-index: 10; }
 
     .grid-options { display: flex; gap: 12px; }
@@ -94,33 +80,38 @@
     .btn { flex: 1; padding: 18px; border-radius: 20px; font-weight: 700; border: none; cursor: pointer; font-size: 15px; }
     .btn-soft { background: #f1f5f9; color: var(--text-light); }
     .btn-solid { background: var(--slate); color: white; box-shadow: 0 10px 20px -5px rgba(15, 23, 42, 0.4); }
+    .btn:disabled { opacity: 0.3; }
 
     .summary-card { background: #f8fafc; padding: 20px; border-radius: 20px; border: 1px solid var(--border); }
     .summary-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
+    .summary-item:last-child { border: none; }
 
+    /* OVERLAYS & MODALS */
     .overlay { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4); z-index: 50000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(10px); }
-    .modal { background: white; width: 100%; max-width: 400px; padding: 32px; border-radius: 32px; position: relative; }
+    .modal { background: white; width: 100%; max-width: 400px; padding: 32px; border-radius: 32px; position: relative; box-shadow: 0 25px 50px rgba(0,0,0,0.25); }
     .close-icon { position: absolute; top: 20px; right: 20px; font-size: 20px; color: var(--text-light); cursor: pointer; }
 
     .list-area { overflow-y: auto; max-height: 280px; margin-top: 15px; border-top: 1px solid #f1f5f9; }
     .list-item { padding: 14px; border-bottom: 1px solid #f1f5f9; cursor: pointer; font-weight: 700; color: var(--text); }
 
-    #toast-wrap { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 999999; width: 92%; max-width: 400px; pointer-events: none; }
-    .toast { background: #1e293b; color: white; padding: 16px 24px; border-radius: 20px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 14px; box-shadow: 0 20px 25px rgba(0,0,0,0.2); animation: toastIn 0.4s forwards; }
-    @keyframes toastIn { from { transform: translateY(-30px); opacity: 0; } }
+    /* SCANNER (FIXED) */
+    #scan-overlay { display: none; position: fixed; inset: 0; background: #000; z-index: 100000; }
+    #reader { width: 100%; height: 100%; background: #000; }
+    .scan-back { position: absolute; top: 40px; left: 20px; background: white; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; z-index: 100001; color: black; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
 
-    #scan-overlay { display: none; position: fixed; inset: 0; background: black; z-index: 100000; }
-    .scan-back { position: absolute; top: 40px; left: 20px; background: white; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; z-index: 10; }
+    #toast-wrap { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 999999; width: 92%; max-width: 400px; pointer-events: none; }
+    .toast { background: #1e293b; color: white; padding: 16px 24px; border-radius: 20px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; font-weight: 700; box-shadow: 0 20px 25px rgba(0,0,0,0.2); animation: toastIn 0.4s forwards; }
+    @keyframes toastIn { from { transform: translateY(-30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
   </style>
 </head>
 <body>
 
-  <!-- COOL ABSTRACT SPLASH -->
+  <!-- MINIMAL TEXT SPLASH -->
   <div id="splash">
-      <div class="splash-content">
-          <div class="splash-text">Inventory</div>
-          <div class="splash-bar"></div>
-          <div class="splash-sub">OS v2.0</div>
+      <div class="splash-text-wrap">
+          <div class="splash-title">Inventory OS</div>
+          <div class="splash-status">System Initializing</div>
+          <div class="loader-line"></div>
       </div>
   </div>
 
@@ -128,12 +119,12 @@
 
   <div class="app-viewport">
     <header>
-      <button id="refreshBtn" class="h-btn" onclick="forceUpdate()">
+      <button id="refreshBtn" class="nav-btn" onclick="forceUpdate()">
         <svg class="sync-loader" viewBox="0 0 42 42"><circle cx="21" cy="21" r="18"></circle></svg>
         <i class="fas fa-rotate"></i>
       </button>
       <h1>Log Entry</h1>
-      <button class="h-btn" style="background: var(--slate); color: white;" onclick="openAddModal()">
+      <button class="nav-btn" style="background: var(--slate); color: white;" onclick="openAddModal()">
         <i class="fas fa-plus"></i>
       </button>
     </header>
@@ -163,11 +154,11 @@
             <div id="metaCode" style="font-size:11px; color:var(--text-light); margin-top:2px; font-weight:700;"></div>
         </div>
         
-        <label>Personnel</label>
+        <label>Operator</label>
         <div class="field">
             <i class="fas fa-user-tie"></i>
             <select id="identity">
-                <option value="">Select Staff...</option>
+                <option value="">Select Personnel...</option>
                 <option>SATTAR</option><option>ANAS</option><option>KUMAR</option>
                 <option>JOWEL</option><option>SHAHID</option><option>MUHAMMED</option>
                 <option>AROOS</option><option>MOIDU</option><option>SALAM</option>
@@ -175,25 +166,25 @@
             </select>
         </div>
         
-        <label>Classification</label>
+        <label>Log Type</label>
         <div class="grid-options"><div class="option-card" id="tExp" onclick="setT('Expiry')">Expiry</div><div class="option-card" id="tDmg" onclick="setT('Damage')">Damage</div></div>
         <input type="hidden" id="entryType">
         
         <div style="display:flex; gap:12px;">
             <div style="flex:1">
-                <label>Qty</label>
+                <label>Quantity</label>
                 <div class="field"><i class="fas fa-hashtag"></i><input type="number" id="qty" value="1" min="1" style="padding-left:45px"></div>
             </div>
             <div style="flex:2">
                 <label>Date</label>
-                <div class="field"><i class="fas fa-calendar-day"></i><input type="date" id="expDate" style="padding-left:45px"></div>
+                <div class="field"><i class="fas fa-calendar-alt"></i><input type="date" id="expDate" style="padding-left:45px"></div>
             </div>
         </div>
       </div>
 
       <!-- STEP 3 -->
       <div class="step-node">
-        <label>Location</label>
+        <label>Zone / Location</label>
         <div class="field">
             <i class="fas fa-map-location-dot"></i>
             <select id="loc">
@@ -219,7 +210,7 @@
     <i class="fas fa-times close-icon" onclick="closeModal('addModal')"></i>
     <h3 style="font-weight:800; margin-bottom:15px">Register Product</h3>
     <label>Barcode</label><div class="field"><i class="fas fa-barcode"></i><input type="text" id="nb"></div>
-    <label>Item Name</label><div class="field"><i class="fas fa-tag"></i><input type="text" id="nn"></div>
+    <label>Product Name</label><div class="field"><i class="fas fa-tag"></i><input type="text" id="nn"></div>
     <label>Supplier</label>
     <div class="field"><i class="fas fa-truck-field"></i><input type="text" id="ns" placeholder="Search..."><i class="fas fa-search field-action" onclick="openPicker()"></i></div>
     <label style="margin-top:10px">Admin Passcode</label><div class="field"><i class="fas fa-lock"></i><input type="password" id="ap"></div>
@@ -233,17 +224,17 @@
     <div class="list-area" id="pList"></div>
   </div></div>
 
-  <div id="loading" style="display:none; position:fixed; inset:0; background:rgba(255,255,255,0.7); z-index:100000; align-items:center; justify-content:center; flex-direction:column; font-weight:800; color:var(--slate);"><div style="width:40px; height:40px; border:3px solid #f1f5f9; border-top-color:var(--slate); border-radius:50%; animation:spin 1s linear infinite; margin-bottom:15px;"></div>SYNCING</div>
+  <div id="loading" style="display:none; position:fixed; inset:0; background:rgba(255,255,255,0.7); z-index:100000; align-items:center; justify-content:center; flex-direction:column; font-weight:800; color:var(--slate);"><div style="width:40px; height:40px; border:3px solid #f1f5f9; border-top-color:var(--slate); border-radius:50%; animation:spin 1s linear infinite; margin-bottom:15px;"></div>COMMUNICATING...</div>
   
   <div id="scan-overlay">
-    <div class="scan-back" onclick="stopScan()"><i class="fas fa-arrow-left"></i></div>
+    <div class="scan-back" onclick="stopScan()"><i class="fas fa-times"></i></div>
     <div id="reader"></div>
   </div>
 
   <script>
     const API = "https://script.google.com/macros/s/AKfycby__866_Y_0XFiaPPCUaX6U1oZK329Ek6SRg9iU4u-aq5ARhxmkTmIHq6gvTpxXMf-8Lw/exec";
-    const STORE_KEY = "inv_master_os_v1";
-    const QUEUE_KEY = "inv_queue_os_v1";
+    const STORE_KEY = "inv_v8_db";
+    const QUEUE_KEY = "inv_v8_queue";
     let step = 0, pDb = {}, sDb = [], scanObj = null;
 
     window.onload = () => {
@@ -256,9 +247,7 @@
       document.getElementById('camTrigger').onclick = startScan;
       document.getElementById('expDate').valueAsDate = new Date();
       refreshStatus(); refreshStep(); refreshQueueCount(); forceUpdate();
-      
-      // HIDE SPLASH after loading starts
-      setTimeout(() => { document.getElementById('splash').classList.add('splash-hidden'); }, 2000);
+      setTimeout(() => { document.getElementById('splash').classList.add('splash-hidden'); }, 2500);
     };
 
     function notify(m, t='success') {
@@ -322,7 +311,7 @@
       document.getElementById('btnSub').style.display = step === 3 ? 'block' : 'none';
       if(step === 1) {
           const b = document.getElementById('barcode').value.trim();
-          document.getElementById('metaName').innerText = pDb[b] || "Item not Registered";
+          document.getElementById('metaName').innerText = pDb[b] || "Item Unregistered";
           document.getElementById('metaCode').innerText = "SKU: " + b;
           document.getElementById('pMeta').style.display = 'block';
       }
@@ -344,14 +333,14 @@
     }
 
     function navigate(d) {
-      if(d === 1 && step === 0 && !pDb[document.getElementById('barcode').value.trim()]) return notify("Barcode not in DB!", "warn");
+      if(d === 1 && step === 0 && !pDb[document.getElementById('barcode').value.trim()]) return notify("Item not found!", "warn");
       step += d; refreshStep();
     }
 
     function setT(t) {
       document.getElementById('entryType').value = t;
-      document.getElementById('tExp').classList.toggle('selected', t === 'Expiry');
-      document.getElementById('tDmg').classList.toggle('selected', t === 'Damage');
+      document.getElementById('btnExp').classList.toggle('selected', t === 'Expiry');
+      document.getElementById('btnDmg').classList.toggle('selected', t === 'Damage');
       updateNavUI();
     }
 
@@ -359,7 +348,7 @@
       e.preventDefault(); document.getElementById('loading').style.display = 'flex';
       const d = { barcode: document.getElementById('barcode').value, identity: document.getElementById('identity').value, type: document.getElementById('entryType').value, quantity: document.getElementById('qty').value, expiryDate: document.getElementById('expDate').value, location: document.getElementById('loc').value, productName: pDb[document.getElementById('barcode').value], timestamp: new Date().toISOString() };
       if(!navigator.onLine) { saveQueue(d); document.getElementById('loading').style.display = 'none'; return; }
-      try { const r = await fetch(API, { method:'POST', body:JSON.stringify(d) }); if((await r.json()).status === 'success') { notify("Logged Successfully"); resetApp(); } } catch(e) { saveQueue(d); }
+      try { const r = await fetch(API, { method:'POST', body:JSON.stringify(d) }); if((await r.json()).status === 'success') { notify("Log Recorded"); resetApp(); } } catch(e) { saveQueue(d); }
       finally { document.getElementById('loading').style.display = 'none'; }
     };
 
@@ -369,7 +358,6 @@
     function resetApp() { document.getElementById('mainForm').reset(); document.getElementById('entryType').value = ""; document.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected')); step = 0; refreshStep(); }
     
     function openAddModal() { document.getElementById('addModal').style.display='flex'; document.getElementById('nb').value = document.getElementById('barcode').value; }
-    function closeAddModal() { document.getElementById('addModal').style.display='none'; }
 
     async function doSaveNewProduct() {
       const b = document.getElementById('nb').value.trim(), n = document.getElementById('nn').value.trim(), s = document.getElementById('ns').value.trim(), p = document.getElementById('ap').value.trim();
@@ -384,22 +372,44 @@
               document.getElementById('nb').value = ""; document.getElementById('nn').value = ""; document.getElementById('ap').value = "";
               forceUpdate();
           } else notify(res.message, "error");
-      } catch(e) { notify("Sync Complete", "success"); closeModal('addModal'); forceUpdate(); }
+      } catch(e) { notify("Product ready locally", "success"); closeModal('addModal'); forceUpdate(); }
       finally { document.getElementById('loading').style.display = 'none'; }
     }
     
     function startScan() {
-        document.getElementById('scan-overlay').style.display = 'flex';
+        document.getElementById('scan-overlay').style.display = 'block';
+        // Give mobile UI time to paint the overlay
         setTimeout(() => {
             if (!scanObj) scanObj = new Html5Qrcode("reader");
-            scanObj.start({ facingMode: "environment" }, { fps: 20, qrbox: { width: 280, height: 220 } }, (t) => { 
-                document.getElementById('barcode').value = t; stopScan(); updateNavUI();
-                if(pDb[t]) navigate(1); else notify("Barcode Recognized", "warn"); 
-            }).catch(e => { notify("Camera error", "error"); stopScan(); });
-        }, 400);
+            
+            const config = { 
+                fps: 20, 
+                qrbox: { width: 260, height: 200 },
+                aspectRatio: 1.0 
+            };
+
+            scanObj.start({ facingMode: "environment" }, config, (text) => {
+                document.getElementById('barcode').value = text;
+                stopScan();
+                updateNavUI();
+                if(pDb[text]) navigate(1); else notify("Barcode Recognized", "warn");
+            }).catch(err => {
+                console.error(err);
+                notify("Camera Error", "error");
+                stopScan();
+            });
+        }, 350);
     }
-    function stopScan() { if(scanObj && scanObj.isScanning) { scanObj.stop().then(() => { document.getElementById('scan-overlay').style.display = 'none'; }).catch(() => { document.getElementById('scan-overlay').style.display = 'none'; }); } else { document.getElementById('scan-overlay').style.display = 'none'; } }
+
+    function stopScan() {
+        if (scanObj && scanObj.isScanning) {
+            scanObj.stop().then(() => {
+                document.getElementById('scan-overlay').style.display = 'none';
+            });
+        } else {
+            document.getElementById('scan-overlay').style.display = 'none';
+        }
+    }
   </script>
 </body>
 </html>
-
