@@ -1,4 +1,4 @@
-const CACHE_NAME = "inventory-v19"; 
+const CACHE_NAME = "inventory-v20"; 
 const ASSETS = ["./", "./index.html", "https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js", "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"];
 
 self.addEventListener("install", (e) => {
@@ -23,6 +23,7 @@ self.addEventListener("fetch", (e) => {
       .catch(() => caches.match(e.request))
   );
 });
+
 
 
 
