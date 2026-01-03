@@ -1,5 +1,11 @@
-const CACHE_NAME = "inventory-v22"; 
-const ASSETS = ["./", "./index.html", "https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js", "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"];
+const CACHE_NAME = "inv-os-v10"; // 🔴 CHANGE THIS NUMBER TO FORCE UPDATE
+const ASSETS = [
+  "./",
+  "./index.html",
+  "./manifest.json", // Ensure manifest is cached
+  "https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js",
+  "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+];
 
 self.addEventListener("install", (e) => {
   self.skipWaiting();
@@ -23,13 +29,3 @@ self.addEventListener("fetch", (e) => {
       .catch(() => caches.match(e.request))
   );
 });
-
-
-
-
-
-
-
-
-
-
