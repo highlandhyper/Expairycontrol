@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Inventory OS</title>
+  <title>Inventory Logger</title>
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0f172a">
@@ -26,18 +26,74 @@
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
     body { background: var(--slate); color: var(--text); display: flex; justify-content: center; min-height: 100vh; overflow-x: hidden; }
 
-    /* --- MINIMAL TEXT SPLASH SCREEN --- */
-    #splash {
-        position: fixed; inset: 0; background: var(--slate); z-index: 2147483647;
-        display: flex; flex-direction: column; align-items: center; justify-content: center;
-        transition: opacity 0.8s cubic-bezier(0.77, 0, 0.175, 1), transform 0.8s;
-    }
-    .splash-text-wrap { text-align: center; }
-    .splash-title { color: white; font-weight: 800; font-size: 26px; letter-spacing: 12px; text-transform: uppercase; animation: trackingIn 1.5s ease-out; }
-    .splash-version { color: var(--primary); font-weight: 600; font-size: 10px; margin-top: 15px; letter-spacing: 4px; text-transform: uppercase; opacity: 0.8; animation: fadeIn 1s ease-out forwards 1.2s; }
-    @keyframes trackingIn { from { letter-spacing: -2px; opacity: 0; } to { letter-spacing: 10px; opacity: 1; } }
-    @keyframes fadeIn { to { opacity: 0.8; } }
-    .splash-hidden { opacity: 0; pointer-events: none; transform: scale(1.05); }
+/* --- SHUTTER STYLE SPLASH --- */
+#splash {
+    position: fixed;
+    inset: 0;
+    background: var(--slate);
+    z-index: 2147483647;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    transition: opacity 0.6s ease;
+}
+
+/* SHUTTER PANELS */
+#splash::before,
+#splash::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--slate);
+    z-index: 2;
+    animation: shutterOpen 1.2s cubic-bezier(0.77, 0, 0.175, 1) forwards;
+}
+
+#splash::after {
+    animation-delay: 0.15s;
+}
+
+/* TEXT */
+.splash-text-wrap {
+    text-align: center;
+    z-index: 3;
+}
+
+.splash-title {
+    color: white;
+    font-weight: 800;
+    font-size: 26px;
+    text-transform: uppercase;
+    opacity: 0;
+    animation: textSnap 0.4s ease forwards 0.9s;
+}
+
+.splash-version {
+    color: var(--primary);
+    font-size: 11px;
+    letter-spacing: 3px;
+    margin-top: 14px;
+    opacity: 0;
+    animation: textSnap 0.4s ease forwards 1.05s;
+}
+
+/* ANIMATIONS */
+@keyframes shutterOpen {
+    from { clip-path: inset(0 0 0 0); }
+    to { clip-path: inset(0 0 100% 0); }
+}
+
+@keyframes textSnap {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* EXIT */
+.splash-hidden {
+    opacity: 0;
+    pointer-events: none;
+}
 
     /* --- DASHBOARD UI --- */
     .app-viewport { width: 100%; max-width: 480px; padding: 24px; background: var(--card); min-height: 100vh; position: relative; display: flex; flex-direction: column; }
@@ -100,7 +156,7 @@
   <!-- CLEAN TEXT-ONLY SPLASH SCREEN -->
   <div id="splash">
       <div class="splash-text-wrap">
-          <div class="splash-title">Inventory OS</div>
+          <div class="splash-title">Inventory Logger</div>
           <div class="splash-version">Professional Build v3.9.0</div>
       </div>
   </div>
