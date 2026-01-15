@@ -3,26 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <title>Inventory Logger</title>
+  
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0f172a">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="manifest" href="manifest.json">
+
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
   
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+    
     :root {
       --primary: #6366f1; --slate: #0f172a;
       --bg: #f8fafc; --card: #ffffff; --text: #1e293b; --text-light: #64748b;
       --border: #e2e8f0; --success: #10b981; --error: #ef4444; --warn: #f59e0b;
     }
+
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
     body { background: var(--slate); color: var(--text); display: flex; justify-content: center; min-height: 100vh; overflow-x: hidden; }
 
-    /* --- SHUTTER SPLASH --- */
+    /* --- SHUTTER STYLE SPLASH --- */
     #splash { position: fixed; inset: 0; background: var(--slate); z-index: 2147483647; display: flex; align-items: center; justify-content: center; overflow: hidden; transition: opacity 0.6s ease; }
     #splash::before, #splash::after { content: ""; position: absolute; inset: 0; background: var(--slate); z-index: 2; animation: shutterOpen 1.2s cubic-bezier(0.77, 0, 0.175, 1) forwards; }
     #splash::after { animation-delay: 0.15s; }
@@ -33,19 +37,23 @@
     @keyframes textSnap { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
     .splash-hidden { opacity: 0; pointer-events: none; }
 
-    /* --- UI --- */
+    /* --- DASHBOARD UI --- */
     .app-viewport { width: 100%; max-width: 480px; padding: 24px; background: var(--card); min-height: 100vh; position: relative; display: flex; flex-direction: column; }
     @media (min-width: 600px) { body { background: var(--bg); padding: 40px 20px; } .app-viewport { min-height: auto; border-radius: 32px; box-shadow: 0 20px 50px rgba(0,0,0,0.05); border: 1px solid var(--border); } }
+
     header { margin-bottom: 28px; display: flex; align-items: center; justify-content: space-between; }
     h1 { font-size: 19px; font-weight: 800; letter-spacing: -0.3px; color: var(--slate); }
-    .nav-btn { background: #f1f5f9; border: none; color: var(--slate); width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; }
+    
+    .nav-btn { background: #f1f5f9; border: none; color: var(--slate); width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; position: relative; }
     .sync-loader { position: absolute; inset: 0; display: none; transform: rotate(-90deg); }
     .sync-loader circle { fill: none; stroke: var(--primary); stroke-width: 4; stroke-dasharray: 113; stroke-dashoffset: 113; stroke-linecap: round; }
     .is-loading .sync-loader { display: block; }
     .is-loading .sync-loader circle { animation: dash 1.5s infinite; }
     @keyframes dash { 0% { stroke-dashoffset: 113; } 50% { stroke-dashoffset: 30; } 100% { stroke-dashoffset: 113; } }
+
     .progress-track { width: 100%; height: 4px; background: #f1f5f9; border-radius: 10px; margin-bottom: 24px; overflow: hidden; }
     .progress-bar { height: 100%; width: 0%; background: var(--primary); transition: 0.6s cubic-bezier(0.65, 0, 0.35, 1); }
+
     .step-node { display: none; animation: slideUp 0.4s ease-out; }
     .step-node.active { display: block; }
     @keyframes slideUp { from { opacity: 0; transform: translateY(12px); } }
@@ -65,28 +73,33 @@
     .btn { flex: 1; padding: 18px; border-radius: 20px; font-weight: 700; border: none; cursor: pointer; font-size: 15px; transition: 0.2s; }
     .btn-soft { background: #f1f5f9; color: var(--text-light); }
     .btn-solid { background: var(--slate); color: white; box-shadow: 0 10px 20px -5px rgba(15, 23, 42, 0.4); }
-    .btn:disabled { opacity: 0.3; }
+    .btn:disabled { opacity: 0.4; pointer-events: none; filter: grayscale(1); }
 
-    .summary-card { background: #f8fafc; padding: 20px; border-radius: 20px; border: 1px solid var(--border); }
-    .summary-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
     .overlay { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4); z-index: 50000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(10px); }
     .modal { background: white; width: 100%; max-width: 400px; padding: 32px; border-radius: 32px; position: relative; box-shadow: 0 25px 50px rgba(0,0,0,0.25); }
     .close-icon { position: absolute; top: 20px; right: 20px; font-size: 20px; color: var(--text-light); cursor: pointer; }
-    .list-area { overflow-y: auto; max-height: 280px; margin-top: 15px; border-top: 1px solid #f1f5f9; }
-    .list-item { padding: 14px; border-bottom: 1px solid #f1f5f9; cursor: pointer; font-weight: 700; color: var(--text); }
+
+    /* ADMIN PANEL STYLES */
+    .admin-tabs { display: flex; gap: 10px; margin-bottom: 20px; background: #f1f5f9; padding: 5px; border-radius: 14px; }
+    .admin-tab-btn { flex: 1; padding: 10px; border: none; background: transparent; border-radius: 10px; font-size: 12px; font-weight: 800; color: var(--text-light); cursor: pointer; }
+    .admin-tab-btn.active { background: white; color: var(--primary); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+
     #toast-wrap { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 999999; width: 92%; max-width: 400px; pointer-events: none; }
     .toast { background: #1e293b; color: white; padding: 16px 24px; border-radius: 20px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 14px; box-shadow: 0 20px 25px rgba(0,0,0,0.2); animation: toastIn 0.4s forwards; }
     @keyframes toastIn { from { transform: translateY(-30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-    #scan-overlay { display: none; position: fixed; inset: 0; background: black; z-index: 100000; }
-    .scan-back { position: absolute; top: 40px; left: 20px; background: white; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; z-index: 10; }
+
+    #scan-overlay { display: none; position: fixed; inset: 0; background: #000; z-index: 100000; }
+    #reader { width: 100%; height: 100%; }
+    .scan-back { position: absolute; top: 40px; left: 20px; background: white; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; z-index: 101; color: black; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
   </style>
 </head>
 <body>
 
+  <!-- CLEAN TEXT-ONLY SPLASH SCREEN -->
   <div id="splash">
       <div class="splash-text-wrap">
           <div class="splash-title">Inventory Logger</div>
-          <div class="splash-version">Professional Build v4.0.0</div>
+          <div class="splash-version">Build v4.0.1</div>
       </div>
   </div>
 
@@ -99,8 +112,9 @@
         <i class="fas fa-rotate"></i>
       </button>
       <h1>Log Entry</h1>
-      <button class="nav-btn" style="background: var(--slate); color: white;" onclick="openAddModal()">
-        <i class="fas fa-plus"></i>
+      <!-- USER PROFILE ICON (Admin Button) -->
+      <button class="nav-btn" style="background: var(--slate); color: white;" onclick="promptAdminPassword()">
+        <i class="fas fa-user-shield"></i>
       </button>
     </header>
 
@@ -123,30 +137,65 @@
         <div class="field"><i class="fas fa-user-shield"></i><select id="identity"><option value="">Loading Staff...</option></select></div>
         <label>Classification</label>
         <div class="grid-options"><div class="option-card" id="tExp" onclick="setT('Expiry')">Expiry</div><div class="option-card" id="tDmg" onclick="setT('Damage')">Damage</div></div><input type="hidden" id="entryType">
-        <div style="display:flex; gap:12px;"><div style="flex:1"><label>Qty</label><div class="field"><i class="fas fa-list-ol"></i><input type="number" id="qty" value="1" min="1" style="padding-left:45px"></div></div><div style="flex:2"><label>Date</label><div class="field"><i class="fas fa-calendar-check"></i><input type="date" id="expDate" style="padding-left:45px"></div></div></div>
+        <div style="display:flex; gap:12px;"><div style="flex:1"><label>Qty</label><div class="field"><i class="fas fa-hashtag"></i><input type="number" id="qty" value="1" min="1" style="padding-left:45px"></div></div><div style="flex:2"><label>Date</label><div class="field"><i class="fas fa-calendar-day"></i><input type="date" id="expDate" style="padding-left:45px"></div></div></div>
       </div>
 
-      <div class="step-node"><label>Location</label><div class="field"><i class="fas fa-map-pin"></i><select id="loc"><option value="">Select Zone...</option><option>Front side</option><option>Back side</option><option>On Display</option></select></div></div>
-      <div class="step-node"><label>Verify Details</label><div class="review-card" id="revBox"></div></div>
+      <div class="step-node"><label>Location</label><div class="field"><i class="fas fa-map-location-dot"></i><select id="loc"><option value="">Select Zone...</option><option>Front side</option><option>Back side</option><option>On Display</option></select></div></div>
+      <div class="step-node"><label>Confirmation</label><div id="revBox" style="background:#f8fafc; padding:20px; border-radius:20px; border:1px solid var(--border); font-size:14px; line-height:1.8;"></div></div>
 
       <div class="footer">
         <button type="button" class="btn btn-soft" id="btnPrev" onclick="navigate(-1)">Back</button>
         <button type="button" class="btn btn-solid" id="btnNext" onclick="navigate(1)">Next</button>
-        <button type="submit" class="btn btn-solid" id="btnSub" style="display:none">Complete</button>
+        <button type="submit" class="btn btn-solid" id="btnSub" style="display:none">Log Data</button>
       </div>
     </form>
   </div>
 
-  <div id="addModal" class="overlay"><div class="modal"><i class="fas fa-times close-icon" onclick="closeModal('addModal')"></i><h3 style="font-weight:800; margin-bottom:15px">Register Product</h3><label>Barcode</label><div class="field"><i class="fas fa-barcode"></i><input type="text" id="nb"></div><label>Product Name</label><div class="field"><i class="fas fa-tag"></i><input type="text" id="nn"></div><label>Supplier</label><div class="field"><i class="fas fa-truck-fast"></i><input type="text" id="ns" placeholder="Search..."><i class="fas fa-search field-action" onclick="openPicker()"></i></div><label style="margin-top:10px">Admin Pass</label><div class="field"><i class="fas fa-lock"></i><input type="password" id="ap"></div><button onclick="doSaveNewProduct()" class="btn btn-solid" style="width:100%; margin-top:25px;">Authorize & Save</button></div></div>
-  <div id="pickerModal" class="overlay"><div class="modal"><i class="fas fa-times close-icon" onclick="closeModal('pickerModal')"></i><h3 style="margin-bottom:15px; font-weight:800">Select Supplier</h3><div class="field"><i class="fas fa-filter"></i><input type="text" id="pSearch" placeholder="Type to filter..." oninput="renderPicker()"></div><div class="list-area" id="pList"></div></div></div>
+  <!-- ADMIN MODAL -->
+  <div id="adminModal" class="overlay"><div class="modal">
+    <i class="fas fa-times close-icon" onclick="closeModal('adminModal')"></i>
+    <h3 style="font-weight:800; margin-bottom:20px; text-align:center;">Admin Control</h3>
+    
+    <div class="admin-tabs">
+        <button class="admin-tab-btn active" id="tabProduct" onclick="switchAdminTab('product')">PRODUCT</button>
+        <button class="admin-tab-btn" id="tabStaff" onclick="switchAdminTab('staff')">STAFF</button>
+    </div>
+
+    <!-- Product Form -->
+    <div id="formProduct">
+        <label>Barcode</label><div class="field"><i class="fas fa-barcode"></i><input type="text" id="nb"></div>
+        <label>Name</label><div class="field"><i class="fas fa-tag"></i><input type="text" id="nn"></div>
+        <label>Supplier</label><div class="field"><i class="fas fa-truck-fast"></i><input type="text" id="ns" placeholder="Search..."><i class="fas fa-search field-action" onclick="openPicker()"></i></div>
+    </div>
+
+    <!-- Staff Form -->
+    <div id="formStaff" style="display:none;">
+        <label>New Staff Name</label><div class="field"><i class="fas fa-user-plus"></i><input type="text" id="nst" placeholder="Full Name"></div>
+    </div>
+
+    <button onclick="submitAdminAction()" class="btn btn-solid" style="width:100%; margin-top:25px;">Save Changes</button>
+  </div></div>
+
+  <!-- PASSWORD PROMPT MODAL -->
+  <div id="passwordModal" class="overlay"><div class="modal">
+    <h3 style="font-weight:800; margin-bottom:15px; text-align:center;">Enter Admin Key</h3>
+    <div class="field"><i class="fas fa-lock"></i><input type="password" id="adminLockPass" placeholder="••••" style="text-align:center; letter-spacing:8px; padding-left:16px;"></div>
+    <div style="display:flex; gap:10px; margin-top:20px;">
+        <button onclick="closeModal('passwordModal')" class="btn btn-soft">Cancel</button>
+        <button onclick="checkAdminPassword()" class="btn btn-solid">Access</button>
+    </div>
+  </div></div>
+
+  <div id="pickerModal" class="overlay"><div class="modal"><i class="fas fa-times close-icon" onclick="closeModal('pickerModal')"></i><h3 style="margin-bottom:15px; font-weight:800">Suppliers</h3><div class="field"><i class="fas fa-filter"></i><input type="text" id="pSearch" placeholder="Filter..." oninput="renderPicker()"></div><div class="list-area" id="pList"></div></div></div>
   <div id="loading" style="display:none; position:fixed; inset:0; background:rgba(255,255,255,0.7); z-index:100000; align-items:center; justify-content:center; flex-direction:column; font-weight:800; color:var(--slate);"><div style="width:40px; height:40px; border:3px solid #f1f5f9; border-top-color:var(--slate); border-radius:50%; animation:spin 1s linear infinite; margin-bottom:15px;"></div>SYNCING</div>
-  <div id="scan-overlay"><div class="scan-back" onclick="stopScan()"><i class="fas fa-times"></i></div><div id="reader"></div></div>
+  <div id="scan-overlay"><div class="scan-back" onclick="stopScan()"><i class="fas fa-arrow-left"></i></div><div id="reader"></div></div>
 
   <script>
     const API = "https://script.google.com/macros/s/AKfycby__866_Y_0XFiaPPCUaX6U1oZK329Ek6SRg9iU4u-aq5ARhxmkTmIHq6gvTpxXMf-8Lw/exec";
-    const STORE_KEY = "inv_os_v15_db";
-    const QUEUE_KEY = "inv_q15";
-    let step = 0, pDb = {}, sDb = [], staffDb = [], scanObj = null, isSubmitting = false;
+    const STORE_KEY = "inv_v11_db";
+    const QUEUE_KEY = "inv_q11";
+    const ADMIN_KEY = "0438"; // Standardized Admin Password
+    let step = 0, pDb = {}, sDb = [], staffDb = [], scanObj = null, isSubmitting = false, activeAdminTab = 'product';
 
     window.onload = () => {
       loadLocal();
@@ -155,7 +204,11 @@
           el.addEventListener('input', updateNavUI);
           el.addEventListener('change', updateNavUI);
       });
-      document.getElementById('barcode').addEventListener('keydown', e => { if(e.key === 'Enter') { e.preventDefault(); navigate(1); } });
+
+      document.getElementById('barcode').addEventListener('keydown', function(e) {
+          if (e.key === 'Enter') { e.preventDefault(); navigate(1); }
+      });
+
       document.getElementById('camTrigger').onclick = startScan;
       document.getElementById('expDate').valueAsDate = new Date();
       refreshStatus(); refreshStep(); refreshQueueCount(); forceUpdate();
@@ -170,12 +223,12 @@
     }
 
     function loadLocal() {
-      const saved = localStorage.getItem(STORE_KEY);
-      if(saved) {
-          const d = JSON.parse(saved);
-          pDb = d.products || {}; sDb = d.suppliers || [];
-          if(d.staff) { staffDb = d.staff; renderStaff(staffDb); }
-      }
+        const saved = localStorage.getItem(STORE_KEY);
+        if(saved) {
+            const d = JSON.parse(saved);
+            pDb = d.products || {}; sDb = d.suppliers || [];
+            if(d.staff) { staffDb = d.staff; renderStaffDropdown(staffDb); }
+        }
     }
 
     async function forceUpdate() {
@@ -186,23 +239,73 @@
         if(d.products) {
             pDb = d.products; sDb = d.suppliers || []; staffDb = d.staff || [];
             localStorage.setItem(STORE_KEY, JSON.stringify(d));
-            renderStaff(staffDb);
+            renderStaffDropdown(staffDb);
             notify("System Synced");
         }
       } catch(e) {} finally { setTimeout(() => btn.classList.remove('is-loading'), 600); }
     }
 
-    function renderStaff(list) {
+    function renderStaffDropdown(list) {
         const sel = document.getElementById('identity');
         const currentVal = sel.value;
-        sel.innerHTML = '<option value="">Select Personnel...</option>';
-        list.forEach(name => {
-            const opt = document.createElement('option');
-            opt.value = opt.innerText = name;
-            sel.appendChild(opt);
-        });
+        sel.innerHTML = '<option value="">Select Staff...</option>';
+        list.forEach(name => { const opt = document.createElement('option'); opt.value = opt.innerText = name; sel.appendChild(opt); });
         sel.value = currentVal;
     }
+
+    function promptAdminPassword() {
+        document.getElementById('adminLockPass').value = "";
+        document.getElementById('passwordModal').style.display = 'flex';
+    }
+
+    function checkAdminPassword() {
+        const pass = document.getElementById('adminLockPass').value;
+        if(pass === ADMIN_KEY) {
+            closeModal('passwordModal');
+            document.getElementById('adminModal').style.display = 'flex';
+        } else {
+            notify("Wrong Password", "error");
+        }
+    }
+
+    function switchAdminTab(tab) {
+        activeAdminTab = tab;
+        document.getElementById('tabProduct').classList.toggle('active', tab === 'product');
+        document.getElementById('tabStaff').classList.toggle('active', tab === 'staff');
+        document.getElementById('formProduct').style.display = tab === 'product' ? 'block' : 'none';
+        document.getElementById('formStaff').style.display = tab === 'staff' ? 'block' : 'none';
+    }
+
+    async function submitAdminAction() {
+        const pass = ADMIN_KEY; 
+        document.getElementById('loading').style.display = 'flex';
+        
+        let payload = { password: pass };
+        if(activeAdminTab === 'product') {
+            payload.action = 'addProduct';
+            payload.barcode = document.getElementById('nb').value.trim();
+            payload.name = document.getElementById('nn').value.trim();
+            payload.supplier = document.getElementById('ns').value.trim();
+            if(!payload.barcode || !payload.name) return stopAdminLoading("Fill fields");
+        } else {
+            payload.action = 'addStaff';
+            payload.staffName = document.getElementById('nst').value.trim();
+            if(!payload.staffName) return stopAdminLoading("Enter name");
+        }
+
+        try {
+            const r = await fetch(API, { method:'POST', body:JSON.stringify(payload) });
+            const res = await r.json();
+            if(res.status === 'success') {
+                notify("Success!");
+                closeModal('adminModal');
+                forceUpdate();
+            } else notify(res.message, "error");
+        } catch(e) { notify("Error", "error"); }
+        finally { document.getElementById('loading').style.display = 'none'; }
+    }
+
+    function stopAdminLoading(msg) { notify(msg, "error"); document.getElementById('loading').style.display = 'none'; }
 
     function refreshStatus() { const online = navigator.onLine, el = document.getElementById('connStat'); el.innerText = online ? "● ONLINE" : "○ OFFLINE"; el.style.color = online ? "var(--success)" : "var(--error)"; if(online) runQueueSync(); }
     window.ononline = window.onoffline = refreshStatus;
@@ -221,8 +324,8 @@
       document.getElementById('btnPrev').disabled = step === 0;
       document.getElementById('btnNext').style.display = step === 3 ? 'none' : 'block';
       document.getElementById('btnSub').style.display = step === 3 ? 'block' : 'none';
-      if(step === 1) { const b = document.getElementById('barcode').value.trim(); document.getElementById('metaName').innerText = pDb[b] || "Unknown"; document.getElementById('metaCode').innerText = "ID: " + b; document.getElementById('pMeta').style.display = 'block'; }
-      if(step === 3) { const b = document.getElementById('barcode').value.trim(); document.getElementById('revBox').innerHTML = `<div class="review-row">Product:<b>${pDb[b]}</b></div><div class="review-row">Type:<b>${document.getElementById('entryType').value}</b></div><div class="review-row">Qty:<b>${document.getElementById('qty').value}</b></div><div class="review-row">Date:<b>${document.getElementById('expDate').value}</b></div>`; }
+      if(step === 1) { const b = document.getElementById('barcode').value.trim(); document.getElementById('metaName').innerText = pDb[b] || "Unknown"; document.getElementById('metaCode').innerText = "SKU: " + b; document.getElementById('pMeta').style.display = 'block'; }
+      if(step === 3) { const b = document.getElementById('barcode').value.trim(); document.getElementById('revBox').innerHTML = `Product: <b>${pDb[b]}</b><br>Type: <b>${document.getElementById('entryType').value}</b><br>Qty: <b>${document.getElementById('qty').value}</b><br>Exp: <b>${document.getElementById('expDate').value}</b>`; }
       updateNavUI();
     }
 
@@ -235,12 +338,10 @@
     }
 
     function navigate(d) { if(d === 1 && step === 0 && !pDb[document.getElementById('barcode').value.trim()]) return notify("Item not found!", "warn"); step += d; refreshStep(); }
-
     function setT(t) { document.getElementById('entryType').value = t; document.getElementById('tExp').classList.toggle('selected', t === 'Expiry'); document.getElementById('tDmg').classList.toggle('selected', t === 'Damage'); updateNavUI(); }
 
     document.getElementById('mainForm').onsubmit = async (e) => {
-      e.preventDefault();
-      if(isSubmitting) return;
+      e.preventDefault(); if(isSubmitting) return; 
       isSubmitting = true; document.getElementById('btnSub').disabled = true; document.getElementById('loading').style.display = 'flex';
       const d = { barcode: document.getElementById('barcode').value, identity: document.getElementById('identity').value, type: document.getElementById('entryType').value, quantity: document.getElementById('qty').value, expiryDate: document.getElementById('expDate').value, location: document.getElementById('loc').value, productName: pDb[document.getElementById('barcode').value], timestamp: new Date().toISOString() };
       if(!navigator.onLine) { saveQueue(d); finishSub(); return; }
@@ -252,14 +353,18 @@
     function runQueueSync() { const q = JSON.parse(localStorage.getItem(QUEUE_KEY) || "[]"); if(!q.length || isSubmitting) return; fetch(API, {method:'POST', body:JSON.stringify(q[0])}).then(r=>r.json()).then(r=>{ if(r.status==='success') { q.shift(); localStorage.setItem(QUEUE_KEY, JSON.stringify(q)); refreshQueueCount(); runQueueSync(); } }); }
     function refreshQueueCount() { document.getElementById('qCount').innerText = JSON.parse(localStorage.getItem(QUEUE_KEY) || "[]").length; }
     function resetApp() { document.getElementById('mainForm').reset(); document.getElementById('entryType').value = ""; document.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected')); step = 0; refreshStep(); }
-    function openAddModal() { document.getElementById('addModal').style.display='flex'; document.getElementById('nb').value = document.getElementById('barcode').value; }
-    async function doSaveNewProduct() {
-      const b = document.getElementById('nb').value.trim(), n = document.getElementById('nn').value.trim(), s = document.getElementById('ns').value.trim(), p = document.getElementById('ap').value.trim();
-      if(!b || !n || !p) return notify("Fill all fields", "warn"); document.getElementById('loading').style.display = 'flex';
-      try { const r = await fetch(API, {method:'POST', body:JSON.stringify({action:'addProduct', barcode:b, name:n, supplier:s, password:p})}); const res = await r.json(); if(res.status === 'success') { pDb[b] = n; localStorage.setItem(STORE_KEY, JSON.stringify({products: pDb, suppliers: sDb, staff: staffDb})); notify("Item Registered!"); closeModal('addModal'); forceUpdate(); } else notify(res.message, "error"); } catch(e) { notify("Local Save Only", "success"); closeModal('addModal'); forceUpdate(); }
-      finally { document.getElementById('loading').style.display = 'none'; }
+    
+    function startScan() {
+        document.getElementById('scan-overlay').style.display = 'block';
+        setTimeout(() => {
+            if (!scanObj) scanObj = new Html5Qrcode("reader");
+            const config = { fps: 20, qrbox: { width: 280, height: 220 }, aspectRatio: 1.0 };
+            scanObj.start({ facingMode: "environment" }, config, (t) => { 
+                document.getElementById('barcode').value = t; stopScan(); updateNavUI();
+                if(pDb[t]) navigate(1); else notify("Recognized", "warn"); 
+            }).catch(e => { notify("Camera error", "error"); stopScan(); });
+        }, 450);
     }
-    function startScan() { document.getElementById('scan-overlay').style.display = 'block'; setTimeout(() => { if (!scanObj) scanObj = new Html5Qrcode("reader"); scanObj.start({ facingMode: "environment" }, { fps: 20, qrbox: { width: 280, height: 220 }, aspectRatio: 1.0 }, (t) => { document.getElementById('barcode').value = t; stopScan(); updateNavUI(); if(pDb[t]) navigate(1); else notify("Recognized", "warn"); }).catch(e => { notify("Camera error", "error"); stopScan(); }); }, 450); }
     function stopScan() { if(scanObj && scanObj.isScanning) { scanObj.stop().then(() => { document.getElementById('scan-overlay').style.display = 'none'; }).catch(() => { document.getElementById('scan-overlay').style.display = 'none'; }); } else { document.getElementById('scan-overlay').style.display = 'none'; } }
   </script>
 </body>
