@@ -3,30 +3,27 @@
 <head>
   <meta charset="UTF-8">
   <title>Inventory Logger</title>
-  
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0f172a">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="manifest" href="manifest.json">
-
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
   
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-    
     :root {
       --primary: #6366f1; --slate: #0f172a;
       --bg: #f8fafc; --card: #ffffff; --text: #1e293b; --text-light: #64748b;
       --border: #e2e8f0; --success: #10b981; --error: #ef4444; --warn: #f59e0b;
+      --manage-bg: #1a1c23; --manage-input: #0d1117; --manage-teal: #00d1b2;
     }
-
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
     body { background: var(--slate); color: var(--text); display: flex; justify-content: center; min-height: 100vh; overflow-x: hidden; }
 
-    /* --- SHUTTER STYLE SPLASH --- */
+    /* --- SHUTTER SPLASH --- */
     #splash { position: fixed; inset: 0; background: var(--slate); z-index: 2147483647; display: flex; align-items: center; justify-content: center; overflow: hidden; transition: opacity 0.6s ease; }
     #splash::before, #splash::after { content: ""; position: absolute; inset: 0; background: var(--slate); z-index: 2; animation: shutterOpen 1.2s cubic-bezier(0.77, 0, 0.175, 1) forwards; }
     #splash::after { animation-delay: 0.15s; }
@@ -37,23 +34,19 @@
     @keyframes textSnap { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
     .splash-hidden { opacity: 0; pointer-events: none; }
 
-    /* --- DASHBOARD UI --- */
+    /* --- UI --- */
     .app-viewport { width: 100%; max-width: 480px; padding: 24px; background: var(--card); min-height: 100vh; position: relative; display: flex; flex-direction: column; }
     @media (min-width: 600px) { body { background: var(--bg); padding: 40px 20px; } .app-viewport { min-height: auto; border-radius: 32px; box-shadow: 0 20px 50px rgba(0,0,0,0.05); border: 1px solid var(--border); } }
-
     header { margin-bottom: 28px; display: flex; align-items: center; justify-content: space-between; }
     h1 { font-size: 19px; font-weight: 800; letter-spacing: -0.3px; color: var(--slate); }
-    
-    .nav-btn { background: #f1f5f9; border: none; color: var(--slate); width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; position: relative; }
+    .nav-btn { background: #f1f5f9; border: none; color: var(--slate); width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; }
     .sync-loader { position: absolute; inset: 0; display: none; transform: rotate(-90deg); }
     .sync-loader circle { fill: none; stroke: var(--primary); stroke-width: 4; stroke-dasharray: 113; stroke-dashoffset: 113; stroke-linecap: round; }
     .is-loading .sync-loader { display: block; }
     .is-loading .sync-loader circle { animation: dash 1.5s infinite; }
     @keyframes dash { 0% { stroke-dashoffset: 113; } 50% { stroke-dashoffset: 30; } 100% { stroke-dashoffset: 113; } }
-
     .progress-track { width: 100%; height: 4px; background: #f1f5f9; border-radius: 10px; margin-bottom: 24px; overflow: hidden; }
     .progress-bar { height: 100%; width: 0%; background: var(--primary); transition: 0.6s cubic-bezier(0.65, 0, 0.35, 1); }
-
     .step-node { display: none; animation: slideUp 0.4s ease-out; }
     .step-node.active { display: block; }
     @keyframes slideUp { from { opacity: 0; transform: translateY(12px); } }
@@ -73,33 +66,39 @@
     .btn { flex: 1; padding: 18px; border-radius: 20px; font-weight: 700; border: none; cursor: pointer; font-size: 15px; transition: 0.2s; }
     .btn-soft { background: #f1f5f9; color: var(--text-light); }
     .btn-solid { background: var(--slate); color: white; box-shadow: 0 10px 20px -5px rgba(15, 23, 42, 0.4); }
-    .btn:disabled { opacity: 0.4; pointer-events: none; filter: grayscale(1); }
+    .btn:disabled { opacity: 0.3; }
 
     .overlay { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4); z-index: 50000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(10px); }
-    .modal { background: white; width: 100%; max-width: 400px; padding: 32px; border-radius: 32px; position: relative; box-shadow: 0 25px 50px rgba(0,0,0,0.25); }
-    .close-icon { position: absolute; top: 20px; right: 20px; font-size: 20px; color: var(--text-light); cursor: pointer; }
+    .modal { background: white; width: 100%; max-width: 440px; padding: 32px; border-radius: 32px; position: relative; box-shadow: 0 25px 50px rgba(0,0,0,0.25); }
+    .close-icon { position: absolute; top: 20px; right: 20px; font-size: 20px; color: var(--text-light); cursor: pointer; z-index: 100; }
 
-    /* ADMIN PANEL STYLES */
-    .admin-tabs { display: flex; gap: 10px; margin-bottom: 20px; background: #f1f5f9; padding: 5px; border-radius: 14px; }
-    .admin-tab-btn { flex: 1; padding: 10px; border: none; background: transparent; border-radius: 10px; font-size: 12px; font-weight: 800; color: var(--text-light); cursor: pointer; }
-    .admin-tab-btn.active { background: white; color: var(--primary); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+    /* --- ADMIN UI (DARK THEME) --- */
+    .admin-modal-content { background: var(--manage-bg) !important; color: #ffffff !important; border: 1px solid #30363d; }
+    .admin-modal-content h3 { color: #f0f6fc; margin-bottom: 5px; }
+    .admin-modal-content label { color: #8b949e; font-size: 12px; margin-top: 15px; }
+    .search-box { display: flex; gap: 8px; margin-bottom: 20px; margin-top: 10px; }
+    .search-input { background: var(--manage-input) !important; border: 1px solid #30363d !important; color: white !important; flex: 1; padding-left: 15px !important; }
+    .btn-search { background: var(--manage-teal) !important; color: #000 !important; width: auto !important; padding: 0 20px !important; border-radius: 12px; font-weight: 800; font-size: 13px; }
+    .status-box { background: rgba(45, 62, 45, 0.4); border: 1px solid #3e4e3e; padding: 12px; border-radius: 10px; margin-bottom: 20px; font-size: 13px; display: flex; gap: 12px; align-items: center; }
+    .status-box i { color: #4ade80; font-size: 18px; }
+    .admin-field { background: #161b22 !important; border: 1px solid #30363d !important; color: white !important; padding-left: 15px !important; }
+    .admin-tabs { display: flex; background: #21262d; padding: 4px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #30363d; }
+    .tab { flex: 1; padding: 10px; border: none; border-radius: 10px; font-weight: 800; font-size: 11px; cursor: pointer; background: transparent; color: #8b949e; }
+    .tab.active { background: #30363d; color: white; }
 
     #toast-wrap { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 999999; width: 92%; max-width: 400px; pointer-events: none; }
     .toast { background: #1e293b; color: white; padding: 16px 24px; border-radius: 20px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 14px; box-shadow: 0 20px 25px rgba(0,0,0,0.2); animation: toastIn 0.4s forwards; }
     @keyframes toastIn { from { transform: translateY(-30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-
-    #scan-overlay { display: none; position: fixed; inset: 0; background: #000; z-index: 100000; }
-    #reader { width: 100%; height: 100%; }
-    .scan-back { position: absolute; top: 40px; left: 20px; background: white; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; z-index: 101; color: black; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+    #scan-overlay { display: none; position: fixed; inset: 0; background: black; z-index: 100000; }
+    .scan-back { position: absolute; top: 40px; left: 20px; background: white; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; z-index: 101; color: black; }
   </style>
 </head>
 <body>
 
-  <!-- CLEAN TEXT-ONLY SPLASH SCREEN -->
   <div id="splash">
       <div class="splash-text-wrap">
-          <div class="splash-title">Inventory Logger</div>
-          <div class="splash-version">Build v4.0.1</div>
+          <div class="splash-title">Inventory OS</div>
+          <div class="splash-version">Build v4.6.0</div>
       </div>
   </div>
 
@@ -112,8 +111,7 @@
         <i class="fas fa-rotate"></i>
       </button>
       <h1>Log Entry</h1>
-      <!-- USER PROFILE ICON (Admin Button) -->
-      <button class="nav-btn" style="background: var(--slate); color: white;" onclick="promptAdminPassword()">
+      <button class="nav-btn" style="background: var(--slate); color: white;" onclick="openAuthPrompt()">
         <i class="fas fa-user-shield"></i>
       </button>
     </header>
@@ -137,65 +135,58 @@
         <div class="field"><i class="fas fa-user-shield"></i><select id="identity"><option value="">Loading Staff...</option></select></div>
         <label>Classification</label>
         <div class="grid-options"><div class="option-card" id="tExp" onclick="setT('Expiry')">Expiry</div><div class="option-card" id="tDmg" onclick="setT('Damage')">Damage</div></div><input type="hidden" id="entryType">
-        <div style="display:flex; gap:12px;"><div style="flex:1"><label>Qty</label><div class="field"><i class="fas fa-hashtag"></i><input type="number" id="qty" value="1" min="1" style="padding-left:45px"></div></div><div style="flex:2"><label>Date</label><div class="field"><i class="fas fa-calendar-day"></i><input type="date" id="expDate" style="padding-left:45px"></div></div></div>
+        <div style="display:flex; gap:12px;"><div style="flex:1"><label>Quantity</label><div class="field"><i class="fas fa-list-ol"></i><input type="number" id="qty" value="1" min="1" style="padding-left:45px"></div></div><div style="flex:2"><label>Date</label><div class="field"><i class="fas fa-calendar-check"></i><input type="date" id="expDate" style="padding-left:45px"></div></div></div>
       </div>
 
-      <div class="step-node"><label>Location</label><div class="field"><i class="fas fa-map-location-dot"></i><select id="loc"><option value="">Select Zone...</option><option>Front side</option><option>Back side</option><option>On Display</option></select></div></div>
+      <div class="step-node"><label>Location</label><div class="field"><i class="fas fa-map-pin"></i><select id="loc"><option value="">Select Zone...</option><option>Front side</option><option>Back side</option><option>On Display</option></select></div></div>
       <div class="step-node"><label>Confirmation</label><div id="revBox" style="background:#f8fafc; padding:20px; border-radius:20px; border:1px solid var(--border); font-size:14px; line-height:1.8;"></div></div>
 
       <div class="footer">
         <button type="button" class="btn btn-soft" id="btnPrev" onclick="navigate(-1)">Back</button>
         <button type="button" class="btn btn-solid" id="btnNext" onclick="navigate(1)">Next</button>
-        <button type="submit" class="btn btn-solid" id="btnSub" style="display:none">Log Data</button>
+        <button type="submit" class="btn btn-solid" id="btnSub" style="display:none">Complete</button>
       </div>
     </form>
   </div>
 
-  <!-- ADMIN MODAL -->
-  <div id="adminModal" class="overlay"><div class="modal">
-    <i class="fas fa-times close-icon" onclick="closeModal('adminModal')"></i>
-    <h3 style="font-weight:800; margin-bottom:20px; text-align:center;">Admin Control</h3>
-    
-    <div class="admin-tabs">
-        <button class="admin-tab-btn active" id="tabProduct" onclick="switchAdminTab('product')">PRODUCT</button>
-        <button class="admin-tab-btn" id="tabStaff" onclick="switchAdminTab('staff')">STAFF</button>
-    </div>
-
-    <!-- Product Form -->
-    <div id="formProduct">
-        <label>Barcode</label><div class="field"><i class="fas fa-barcode"></i><input type="text" id="nb"></div>
-        <label>Name</label><div class="field"><i class="fas fa-tag"></i><input type="text" id="nn"></div>
-        <label>Supplier</label><div class="field"><i class="fas fa-truck-fast"></i><input type="text" id="ns" placeholder="Search..."><i class="fas fa-search field-action" onclick="openPicker()"></i></div>
-    </div>
-
-    <!-- Staff Form -->
-    <div id="formStaff" style="display:none;">
-        <label>New Staff Name</label><div class="field"><i class="fas fa-user-plus"></i><input type="text" id="nst" placeholder="Full Name"></div>
-    </div>
-
-    <button onclick="submitAdminAction()" class="btn btn-solid" style="width:100%; margin-top:25px;">Save Changes</button>
-  </div></div>
-
-  <!-- PASSWORD PROMPT MODAL -->
-  <div id="passwordModal" class="overlay"><div class="modal">
+  <!-- AUTH PROMPT MODAL -->
+  <div id="authModal" class="overlay"><div class="modal">
     <h3 style="font-weight:800; margin-bottom:15px; text-align:center;">Enter Admin Key</h3>
-    <div class="field"><i class="fas fa-lock"></i><input type="password" id="adminLockPass" placeholder="••••" style="text-align:center; letter-spacing:8px; padding-left:16px;"></div>
+    <div class="field"><i class="fas fa-lock"></i><input type="password" id="adminPass" placeholder="••••" style="text-align:center; letter-spacing:8px; padding-left:16px;"></div>
     <div style="display:flex; gap:10px; margin-top:20px;">
-        <button onclick="closeModal('passwordModal')" class="btn btn-soft">Cancel</button>
-        <button onclick="checkAdminPassword()" class="btn btn-solid">Access</button>
+        <button onclick="closeModal('authModal')" class="btn btn-soft">Cancel</button>
+        <button onclick="validateAdminAccess()" class="btn btn-solid">Verify</button>
     </div>
   </div></div>
 
-  <div id="pickerModal" class="overlay"><div class="modal"><i class="fas fa-times close-icon" onclick="closeModal('pickerModal')"></i><h3 style="margin-bottom:15px; font-weight:800">Suppliers</h3><div class="field"><i class="fas fa-filter"></i><input type="text" id="pSearch" placeholder="Filter..." oninput="renderPicker()"></div><div class="list-area" id="pList"></div></div></div>
+  <!-- ADMIN CONTROL MODAL -->
+  <div id="adminModal" class="overlay"><div class="modal admin-modal-content">
+    <i class="fas fa-times close-icon" onclick="closeModal('adminModal')"></i>
+    <div class="admin-tabs"><button class="tab active" id="tabP" onclick="setAdminTab('product')">MANAGE PRODUCT</button><button class="tab" id="tabS" onclick="setAdminTab('staff')">PERSONNEL</button></div>
+    <div id="adminProductForm">
+        <div class="search-box"><input type="text" id="searchBarcode" class="search-input" placeholder="Search Barcode"><button onclick="adminSearch()" class="btn btn-search">Search</button></div>
+        <div id="editStatus" class="status-box" style="display:none;"><i class="fas fa-pen-to-square"></i><div><b style="display:block">Editing Row</b><span id="statusText" style="opacity:0.7">Found.</span></div></div>
+        <label>Barcode</label><input type="text" id="nb" class="admin-field">
+        <label>Product Name</label><input type="text" id="nn" class="admin-field">
+        <div style="display:flex; gap:12px;">
+            <div style="flex:1"><label>Supplier</label><input type="text" id="ns" class="admin-field" list="supOptions"></div>
+            <div style="flex:1"><label>Cost Price</label><div class="field" style="position:relative"><span style="position:absolute; left:12px; color:#8b949e">$</span><input type="number" id="nc" class="admin-field" style="padding-left:25px !important;"></div></div>
+        </div>
+    </div>
+    <div id="adminStaffForm" style="display:none"><label>Full Name</label><div class="field"><i class="fas fa-user-plus"></i><input type="text" id="nst" class="admin-field" placeholder="New Staff Name" style="padding-left:45px !important;"></div></div>
+    <button onclick="saveAdminAction()" class="btn btn-solid" style="width:100%; margin-top:25px; background:var(--manage-teal); color:#000;">Authorize & Save</button>
+  </div></div>
+
+  <datalist id="supOptions"></datalist>
   <div id="loading" style="display:none; position:fixed; inset:0; background:rgba(255,255,255,0.7); z-index:100000; align-items:center; justify-content:center; flex-direction:column; font-weight:800; color:var(--slate);"><div style="width:40px; height:40px; border:3px solid #f1f5f9; border-top-color:var(--slate); border-radius:50%; animation:spin 1s linear infinite; margin-bottom:15px;"></div>SYNCING</div>
   <div id="scan-overlay"><div class="scan-back" onclick="stopScan()"><i class="fas fa-arrow-left"></i></div><div id="reader"></div></div>
 
   <script>
     const API = "https://script.google.com/macros/s/AKfycby__866_Y_0XFiaPPCUaX6U1oZK329Ek6SRg9iU4u-aq5ARhxmkTmIHq6gvTpxXMf-8Lw/exec";
-    const STORE_KEY = "inv_v11_db";
-    const QUEUE_KEY = "inv_q11";
-    const ADMIN_KEY = "0438"; // Standardized Admin Password
-    let step = 0, pDb = {}, sDb = [], staffDb = [], scanObj = null, isSubmitting = false, activeAdminTab = 'product';
+    const STORE_KEY = "inv_os_v17_db";
+    const QUEUE_KEY = "inv_q17";
+    const ADMIN_KEY = "0438"; 
+    let step = 0, pDb = {}, sDb = [], staffDb = [], scanObj = null, isSubmitting = false, adminTab = 'product';
 
     window.onload = () => {
       loadLocal();
@@ -204,11 +195,7 @@
           el.addEventListener('input', updateNavUI);
           el.addEventListener('change', updateNavUI);
       });
-
-      document.getElementById('barcode').addEventListener('keydown', function(e) {
-          if (e.key === 'Enter') { e.preventDefault(); navigate(1); }
-      });
-
+      document.getElementById('barcode').addEventListener('keydown', e => { if(e.key === 'Enter') { e.preventDefault(); navigate(1); } });
       document.getElementById('camTrigger').onclick = startScan;
       document.getElementById('expDate').valueAsDate = new Date();
       refreshStatus(); refreshStep(); refreshQueueCount(); forceUpdate();
@@ -223,12 +210,13 @@
     }
 
     function loadLocal() {
-        const saved = localStorage.getItem(STORE_KEY);
-        if(saved) {
-            const d = JSON.parse(saved);
-            pDb = d.products || {}; sDb = d.suppliers || [];
-            if(d.staff) { staffDb = d.staff; renderStaffDropdown(staffDb); }
-        }
+      const saved = localStorage.getItem(STORE_KEY);
+      if(saved) {
+          const d = JSON.parse(saved);
+          pDb = d.products || {}; sDb = d.suppliers || [];
+          if(d.staff) { staffDb = d.staff; renderStaff(staffDb); }
+          renderSuppliers(sDb);
+      }
     }
 
     async function forceUpdate() {
@@ -239,84 +227,86 @@
         if(d.products) {
             pDb = d.products; sDb = d.suppliers || []; staffDb = d.staff || [];
             localStorage.setItem(STORE_KEY, JSON.stringify(d));
-            renderStaffDropdown(staffDb);
-            notify("System Synced");
+            renderStaff(staffDb); renderSuppliers(sDb);
+            notify("Database Synced");
         }
       } catch(e) {} finally { setTimeout(() => btn.classList.remove('is-loading'), 600); }
     }
 
-    function renderStaffDropdown(list) {
+    function renderStaff(list) {
         const sel = document.getElementById('identity');
         const currentVal = sel.value;
-        sel.innerHTML = '<option value="">Select Staff...</option>';
+        sel.innerHTML = '<option value="">Select Personnel...</option>';
         list.forEach(name => { const opt = document.createElement('option'); opt.value = opt.innerText = name; sel.appendChild(opt); });
         sel.value = currentVal;
     }
 
-    function promptAdminPassword() {
-        document.getElementById('adminLockPass').value = "";
-        document.getElementById('passwordModal').style.display = 'flex';
+    function renderSuppliers(list) {
+        const dl = document.getElementById('supOptions');
+        dl.innerHTML = "";
+        list.forEach(s => { const o = document.createElement('option'); o.value = s; dl.appendChild(o); });
     }
 
-    function checkAdminPassword() {
-        const pass = document.getElementById('adminLockPass').value;
-        if(pass === ADMIN_KEY) {
-            closeModal('passwordModal');
-            document.getElementById('adminModal').style.display = 'flex';
+    function openAuthPrompt() { document.getElementById('adminPass').value = ""; document.getElementById('authModal').style.display='flex'; }
+    function validateAdminAccess() {
+        const p = document.getElementById('adminPass').value;
+        if(p === ADMIN_KEY) { closeModal('authModal'); document.getElementById('adminModal').style.display='flex'; }
+        else notify("Access Denied", "error");
+    }
+
+    function setAdminTab(t) {
+        adminTab = t;
+        document.getElementById('tabP').classList.toggle('active', t==='product');
+        document.getElementById('tabS').classList.toggle('active', t==='staff');
+        document.getElementById('adminProductForm').style.display = t==='product' ? 'block' : 'none';
+        document.getElementById('adminStaffForm').style.display = t==='staff' ? 'block' : 'none';
+    }
+
+    function adminSearch() {
+        const code = document.getElementById('searchBarcode').value.trim();
+        if (!code) return;
+        const product = pDb[code];
+        document.getElementById('nb').value = code;
+        if (product) {
+            document.getElementById('editStatus').style.display = 'flex';
+            document.getElementById('nn').value = product.name;
+            document.getElementById('ns').value = product.supplier;
+            document.getElementById('nc').value = product.cost;
         } else {
-            notify("Wrong Password", "error");
+            document.getElementById('editStatus').style.display = 'none';
+            document.getElementById('nn').value = ""; document.getElementById('ns').value = ""; document.getElementById('nc').value = "";
+            notify("Barcode not found.", "warn");
         }
     }
 
-    function switchAdminTab(tab) {
-        activeAdminTab = tab;
-        document.getElementById('tabProduct').classList.toggle('active', tab === 'product');
-        document.getElementById('tabStaff').classList.toggle('active', tab === 'staff');
-        document.getElementById('formProduct').style.display = tab === 'product' ? 'block' : 'none';
-        document.getElementById('formStaff').style.display = tab === 'staff' ? 'block' : 'none';
-    }
-
-    async function submitAdminAction() {
-        const pass = ADMIN_KEY; 
+    async function saveAdminAction() {
         document.getElementById('loading').style.display = 'flex';
-        
-        let payload = { password: pass };
-        if(activeAdminTab === 'product') {
+        let payload = { password: ADMIN_KEY };
+        if(adminTab === 'product') {
             payload.action = 'addProduct';
             payload.barcode = document.getElementById('nb').value.trim();
             payload.name = document.getElementById('nn').value.trim();
             payload.supplier = document.getElementById('ns').value.trim();
-            if(!payload.barcode || !payload.name) return stopAdminLoading("Fill fields");
+            payload.cost = document.getElementById('nc').value.trim();
+            if(!payload.barcode || !payload.name) return stopLoading("Fill required fields");
         } else {
             payload.action = 'addStaff';
             payload.staffName = document.getElementById('nst').value.trim();
-            if(!payload.staffName) return stopAdminLoading("Enter name");
+            if(!payload.staffName) return stopLoading("Enter name");
         }
-
         try {
-            const r = await fetch(API, { method:'POST', body:JSON.stringify(payload) });
+            const r = await fetch(API, {method:'POST', body:JSON.stringify(payload)});
             const res = await r.json();
-            if(res.status === 'success') {
-                notify("Success!");
-                closeModal('adminModal');
-                forceUpdate();
-            } else notify(res.message, "error");
-        } catch(e) { notify("Error", "error"); }
+            if(res.status === 'success') { notify("Updated!"); closeModal('adminModal'); forceUpdate(); }
+            else notify(res.message, "error");
+        } catch(e) { notify("Offline check needed", "warn"); }
         finally { document.getElementById('loading').style.display = 'none'; }
     }
-
-    function stopAdminLoading(msg) { notify(msg, "error"); document.getElementById('loading').style.display = 'none'; }
+    function stopLoading(m) { notify(m, "error"); document.getElementById('loading').style.display = 'none'; }
 
     function refreshStatus() { const online = navigator.onLine, el = document.getElementById('connStat'); el.innerText = online ? "● ONLINE" : "○ OFFLINE"; el.style.color = online ? "var(--success)" : "var(--error)"; if(online) runQueueSync(); }
     window.ononline = window.onoffline = refreshStatus;
-
-    function openPicker() { document.getElementById('pickerModal').style.display='flex'; renderPicker(); }
     function closeModal(id) { document.getElementById(id).style.display='none'; }
-    function renderPicker() {
-        const q = document.getElementById('pSearch').value.toLowerCase(), area = document.getElementById('pList'); area.innerHTML = "";
-        const filtered = sDb.filter(s => s.toLowerCase().includes(q));
-        filtered.forEach(s => { const d = document.createElement('div'); d.className = 'list-item'; d.innerText = s; d.onclick = () => { document.getElementById('ns').value = s; closeModal('pickerModal'); }; area.appendChild(d); });
-    }
 
     function refreshStep() {
       const nodes = document.querySelectorAll('.step-node'); nodes.forEach((n, i) => n.classList.toggle('active', i === step));
@@ -324,8 +314,17 @@
       document.getElementById('btnPrev').disabled = step === 0;
       document.getElementById('btnNext').style.display = step === 3 ? 'none' : 'block';
       document.getElementById('btnSub').style.display = step === 3 ? 'block' : 'none';
-      if(step === 1) { const b = document.getElementById('barcode').value.trim(); document.getElementById('metaName').innerText = pDb[b] || "Unknown"; document.getElementById('metaCode').innerText = "SKU: " + b; document.getElementById('pMeta').style.display = 'block'; }
-      if(step === 3) { const b = document.getElementById('barcode').value.trim(); document.getElementById('revBox').innerHTML = `Product: <b>${pDb[b]}</b><br>Type: <b>${document.getElementById('entryType').value}</b><br>Qty: <b>${document.getElementById('qty').value}</b><br>Exp: <b>${document.getElementById('expDate').value}</b>`; }
+      if(step === 1) { 
+          const b = document.getElementById('barcode').value.trim();
+          const prod = pDb[b];
+          document.getElementById('metaName').innerText = prod ? prod.name : "Unknown Item";
+          document.getElementById('metaCode').innerText = "SKU: " + b;
+          document.getElementById('pMeta').style.display = 'block';
+      }
+      if(step === 3) {
+          const b = document.getElementById('barcode').value.trim();
+          document.getElementById('revBox').innerHTML = `Product: <b>${pDb[b].name}</b><br>Type: <b>${document.getElementById('entryType').value}</b><br>Qty: <b>${document.getElementById('qty').value}</b><br>Date: <b>${document.getElementById('expDate').value}</b>`;
+      }
       updateNavUI();
     }
 
@@ -343,9 +342,10 @@
     document.getElementById('mainForm').onsubmit = async (e) => {
       e.preventDefault(); if(isSubmitting) return; 
       isSubmitting = true; document.getElementById('btnSub').disabled = true; document.getElementById('loading').style.display = 'flex';
-      const d = { barcode: document.getElementById('barcode').value, identity: document.getElementById('identity').value, type: document.getElementById('entryType').value, quantity: document.getElementById('qty').value, expiryDate: document.getElementById('expDate').value, location: document.getElementById('loc').value, productName: pDb[document.getElementById('barcode').value], timestamp: new Date().toISOString() };
+      const b = document.getElementById('barcode').value;
+      const d = { barcode: b, identity: document.getElementById('identity').value, type: document.getElementById('entryType').value, quantity: document.getElementById('qty').value, expiryDate: document.getElementById('expDate').value, location: document.getElementById('loc').value, productName: pDb[b].name, timestamp: new Date().toISOString() };
       if(!navigator.onLine) { saveQueue(d); finishSub(); return; }
-      try { const r = await fetch(API, { method:'POST', body:JSON.stringify(d) }); if((await r.json()).status === 'success') { notify("Logged Successfully"); resetApp(); } else { saveQueue(d); } } catch(e) { saveQueue(d); }
+      try { const r = await fetch(API, { method:'POST', body:JSON.stringify(d) }); if((await r.json()).status === 'success') { notify("Log Recorded"); resetApp(); } else { saveQueue(d); } } catch(e) { saveQueue(d); }
       finally { finishSub(); }
     };
     function finishSub() { isSubmitting = false; document.getElementById('btnSub').disabled = false; document.getElementById('loading').style.display = 'none'; }
@@ -354,17 +354,7 @@
     function refreshQueueCount() { document.getElementById('qCount').innerText = JSON.parse(localStorage.getItem(QUEUE_KEY) || "[]").length; }
     function resetApp() { document.getElementById('mainForm').reset(); document.getElementById('entryType').value = ""; document.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected')); step = 0; refreshStep(); }
     
-    function startScan() {
-        document.getElementById('scan-overlay').style.display = 'block';
-        setTimeout(() => {
-            if (!scanObj) scanObj = new Html5Qrcode("reader");
-            const config = { fps: 20, qrbox: { width: 280, height: 220 }, aspectRatio: 1.0 };
-            scanObj.start({ facingMode: "environment" }, config, (t) => { 
-                document.getElementById('barcode').value = t; stopScan(); updateNavUI();
-                if(pDb[t]) navigate(1); else notify("Recognized", "warn"); 
-            }).catch(e => { notify("Camera error", "error"); stopScan(); });
-        }, 450);
-    }
+    function startScan() { document.getElementById('scan-overlay').style.display = 'block'; setTimeout(() => { if (!scanObj) scanObj = new Html5Qrcode("reader"); scanObj.start({ facingMode: "environment" }, { fps: 20, qrbox: { width: 280, height: 220 }, aspectRatio: 1.0 }, (t) => { document.getElementById('barcode').value = t; stopScan(); updateNavUI(); if(pDb[t]) navigate(1); else notify("Recognized", "warn"); }).catch(e => { notify("Camera error", "error"); stopScan(); }); }, 450); }
     function stopScan() { if(scanObj && scanObj.isScanning) { scanObj.stop().then(() => { document.getElementById('scan-overlay').style.display = 'none'; }).catch(() => { document.getElementById('scan-overlay').style.display = 'none'; }); } else { document.getElementById('scan-overlay').style.display = 'none'; } }
   </script>
 </body>
