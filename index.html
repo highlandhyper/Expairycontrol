@@ -38,28 +38,31 @@
     @keyframes textSnap { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
     .splash-hidden { opacity: 0; pointer-events: none; }
 
-    /* --- DASHBOARD UI --- */
+    /* --- DASHBOARD --- */
+    #dashboard { display: flex; flex-direction: column; gap: 15px; margin-top: 10px; animation: fadeIn 0.5s ease; }
+    .dash-card { background: white; padding: 22px; border-radius: 20px; border: 1px solid var(--border); display: flex; align-items: center; gap: 18px; cursor: pointer; transition: 0.2s; }
+    .dash-card:active { transform: scale(0.97); background: #f8fafc; }
+    .dash-icon { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+    .dash-info h3 { font-size: 16px; font-weight: 800; color: var(--slate); }
+    .dash-info p { font-size: 12px; color: var(--text-light); margin-top: 2px; }
+
+    /* --- UI --- */
     .app-viewport { width: 100%; max-width: 480px; padding: 24px; background: var(--card); min-height: 100vh; position: relative; display: flex; flex-direction: column; }
     @media (min-width: 600px) { body { background: var(--bg); padding: 40px 20px; } .app-viewport { min-height: auto; border-radius: 32px; box-shadow: 0 20px 50px rgba(0,0,0,0.05); border: 1px solid var(--border); } }
-
     header { margin-bottom: 28px; display: flex; align-items: center; justify-content: space-between; }
     h1 { font-size: 19px; font-weight: 800; letter-spacing: -0.3px; color: var(--slate); }
-    
-    .nav-btn { background: #f1f5f9; border: none; color: var(--slate); width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; position: relative; }
+    .nav-btn { background: #f1f5f9; border: none; color: var(--slate); width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; }
     .sync-loader { position: absolute; inset: 0; display: none; transform: rotate(-90deg); }
     .sync-loader circle { fill: none; stroke: var(--primary); stroke-width: 4; stroke-dasharray: 113; stroke-dashoffset: 113; stroke-linecap: round; }
     .is-loading .sync-loader { display: block; }
     .is-loading .sync-loader circle { animation: dash 1.5s infinite; }
     @keyframes dash { 0% { stroke-dashoffset: 113; } 50% { stroke-dashoffset: 30; } 100% { stroke-dashoffset: 113; } }
-
     .progress-track { width: 100%; height: 4px; background: #f1f5f9; border-radius: 10px; margin-bottom: 24px; overflow: hidden; }
     .progress-bar { height: 100%; width: 0%; background: var(--primary); transition: 0.6s cubic-bezier(0.65, 0, 0.35, 1); }
-
     .step-node { display: none; animation: slideUp 0.4s ease-out; }
     .step-node.active { display: block; }
     @keyframes slideUp { from { opacity: 0; transform: translateY(12px); } }
 
-    /* INPUTS WITH ICONS */
     label { display: block; margin: 20px 0 8px; font-weight: 700; font-size: 11px; color: var(--text-light); text-transform: uppercase; letter-spacing: 1px; }
     .field { position: relative; display: flex; align-items: center; width: 100%; }
     .field i:not(.field-action) { position: absolute; left: 18px; color: #94a3b8; font-size: 16px; pointer-events: none; z-index: 5; }
@@ -77,15 +80,11 @@
     .btn-solid { background: var(--slate); color: white; box-shadow: 0 10px 20px -5px rgba(15, 23, 42, 0.4); }
     .btn:disabled { opacity: 0.3; }
 
-    .summary-card { background: #f8fafc; padding: 20px; border-radius: 20px; border: 1px solid var(--border); }
-    .summary-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f1f5f9; font-size: 14px; }
-    .summary-item:last-child { border: none; }
-
     .overlay { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.4); z-index: 50000; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(10px); }
     .modal { background: white; width: 100%; max-width: 440px; padding: 32px; border-radius: 32px; position: relative; box-shadow: 0 25px 50px rgba(0,0,0,0.25); }
     .close-icon { position: absolute; top: 20px; right: 20px; font-size: 20px; color: var(--text-light); cursor: pointer; z-index: 100; }
 
-    /* --- ADMIN UI (DARK THEME) --- */
+    /* ADMIN THEME */
     .admin-modal-content { background: var(--manage-bg) !important; color: #ffffff !important; border: 1px solid #30363d; }
     .admin-tabs { display: flex; background: #21262d; padding: 4px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #30363d; }
     .tab { flex: 1; padding: 10px; border: none; border-radius: 10px; font-weight: 800; font-size: 11px; cursor: pointer; background: transparent; color: #8b949e; }
@@ -97,16 +96,16 @@
     .toast { background: #1e293b; color: white; padding: 16px 24px; border-radius: 20px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 14px; box-shadow: 0 20px 25px rgba(0,0,0,0.2); animation: toastIn 0.4s forwards; }
     @keyframes toastIn { from { transform: translateY(-30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     #scan-overlay { display: none; position: fixed; inset: 0; background: black; z-index: 100000; }
-    .scan-back { position: absolute; top: 40px; left: 20px; background: white; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; z-index: 101; color: black; }
+    .scan-back { position: absolute; top: 40px; left: 20px; background: white; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; z-index: 101; color: black; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
   </style>
 </head>
 <body>
 
-  <!-- SHUTTER SPLASH -->
+  <!-- SPLASH SCREEN -->
   <div id="splash">
       <div class="splash-text-wrap">
-          <div class="splash-title">Inventory OS</div>
-          <div class="splash-version">Build v6.1.0</div>
+          <div class="splash-title">Inventory Logger</div>
+          <div class="splash-version">Build v7.5.0</div>
       </div>
   </div>
 
@@ -118,89 +117,88 @@
         <svg class="sync-loader" viewBox="0 0 42 42"><circle cx="21" cy="21" r="18"></circle></svg>
         <i class="fas fa-rotate"></i>
       </button>
-      <h1>Log Entry</h1>
-      <button class="nav-btn" style="background: var(--slate); color: white;" onclick="openAuthPrompt()">
+      <h1 id="viewTitle">Dashboard</h1>
+      <button class="nav-btn" style="background: var(--slate); color: white;" onclick="openGate('admin')">
         <i class="fas fa-user-shield"></i>
       </button>
     </header>
 
-    <div style="display:flex; justify-content:space-between; font-size:10px; font-weight:800; color:var(--text-light); text-transform:uppercase; margin-bottom:10px;">
-        <span id="connStat">● ONLINE</span>
-        <span>QUEUE: <span id="qCount" style="color:var(--warn)">0</span></span>
+    <!-- DASHBOARD VIEW -->
+    <div id="dashboard">
+        <div class="dash-card" onclick="startFlow('standard')">
+            <div class="dash-icon" style="background: #e0e7ff; color: #4338ca;"><i class="fas fa-pen-nib"></i></div>
+            <div class="dash-info"><h3>Standard Log</h3><p>Logging with automated expiry alerts.</p></div>
+        </div>
+        <div class="dash-card" onclick="openGate('special')">
+            <div class="dash-icon" style="background: #fef3c7; color: #d97706;"><i class="fas fa-star"></i></div>
+            <div class="dash-info"><h3>Special Entry</h3><p>Internal logging. No email alerts sent.</p></div>
+        </div>
     </div>
 
-    <div class="progress-track"><div class="progress-bar" id="pBar"></div></div>
-
-    <form id="mainForm" style="flex:1; display:flex; flex-direction:column;">
-      <!-- STEP 1 -->
-      <div class="step-node active">
-        <label>Identity</label>
-        <div class="field"><i class="fas fa-barcode"></i><input type="text" id="barcode" placeholder="Scan or type barcode" autocomplete="off"><i class="fas fa-camera field-action" id="camTrigger"></i></div>
-      </div>
-
-      <!-- STEP 2 -->
-      <div class="step-node">
-        <div id="pMeta" style="margin-bottom:20px; padding:18px; background:#f8fafc; border-radius:18px; display:none; border:1px solid var(--border)"><div id="metaName" style="font-weight:800; color:var(--primary); font-size:16px;"></div><div id="metaCode" style="font-size:11px; color:var(--text-light); margin-top:2px; font-weight:700;"></div></div>
-        
-        <label>Personnel</label>
-        <div class="field">
-            <i class="fas fa-user-shield"></i>
-            <select id="identity">
-                <option value="">Select Staff...</option>
-                <!-- HARDCODED STAFF LIST -->
-                <option value="ASLAM">ASLAM</option>
-                <option value="SALAM">SALAM</option>
-                <option value="MOIDU">MOIDU</option>
-                <option value="RAMSHAD">RAMSHAD</option>
-                <option value="MUHAMMED">MUHAMMED</option>
-                <option value="ANAS">ANAS</option>
-                <option value="SATTAR">SATTAR</option>
-                <option value="JOWEL">JOWEL</option>
-                <option value="AROOS">AROOS</option>
-                <option value="SHAHID">SHAHID</option>
-                <option value="RALEEM">RALEEM</option>
-            </select>
+    <!-- FORM VIEW -->
+    <div id="form-container" style="display:none; flex:1; flex-direction:column;">
+        <div style="display:flex; justify-content:space-between; font-size:10px; font-weight:800; color:var(--text-light); text-transform:uppercase; margin-bottom:10px;">
+            <span id="connStat">● ONLINE</span>
+            <span>QUEUE: <span id="qCount" style="color:var(--warn)">0</span></span>
         </div>
-
-        <label>Classification</label>
-        <div class="grid-options"><div class="option-card" id="tExp" onclick="setT('Expiry')">Expiry</div><div class="option-card" id="tDmg" onclick="setT('Damage')">Damage</div></div><input type="hidden" id="entryType">
-        
-        <div style="display:flex; gap:12px;">
-            <div style="flex:1"><label>Quantity</label><div class="field"><i class="fas fa-hashtag"></i><input type="number" id="qty" value="1" min="1" style="padding-left:45px"></div></div>
-            <div style="flex:2"><label>Expiry Date</label><div class="field"><i class="fas fa-calendar-day"></i><input type="date" id="expDate" style="padding-left:45px"></div></div>
-        </div>
-      </div>
-
-      <!-- STEP 3 -->
-      <div class="step-node"><label>Location</label><div class="field"><i class="fas fa-map-location-dot"></i><select id="loc"><option value="">Select Zone...</option><option>Front side</option><option>Back side</option><option>On Display</option></select></div></div>
-      
-      <!-- STEP 4 -->
-      <div class="step-node"><label>Confirmation</label><div id="revBox" style="background:#f8fafc; padding:20px; border-radius:20px; border:1px solid var(--border); font-size:14px; line-height:1.8;"></div></div>
-
-      <div class="footer">
-        <button type="button" class="btn btn-soft" id="btnPrev" onclick="navigate(-1)">Back</button>
-        <button type="button" class="btn btn-solid" id="btnNext" onclick="navigate(1)">Next</button>
-        <button type="submit" class="btn btn-solid" id="btnSub" style="display:none">Complete</button>
-      </div>
-    </form>
+        <div class="progress-track"><div class="progress-bar" id="pBar"></div></div>
+        <form id="mainForm" style="flex:1; display:flex; flex-direction:column;">
+            <div class="step-node active">
+                <label>Identity</label>
+                <div class="field"><i class="fas fa-barcode"></i><input type="text" id="barcode" placeholder="Scan or type barcode" autocomplete="off"><i class="fas fa-camera field-action" id="camTrigger"></i></div>
+            </div>
+            <div class="step-node">
+                <div id="pMeta" style="margin-bottom:20px; padding:18px; background:#f8fafc; border-radius:18px; display:none; border:1px solid var(--border)"><div id="metaName" style="font-weight:800; color:var(--primary); font-size:16px;"></div><div id="metaCode" style="font-size:11px; color:var(--text-light); margin-top:2px; font-weight:700;"></div></div>
+                <label>Personnel</label>
+                <div class="field">
+                    <i class="fas fa-user-shield"></i>
+                    <select id="identity">
+                        <option value="">Select Staff...</option>
+                        <option value="ASLAM">ASLAM</option>
+                        <option value="SALAM">SALAM</option>
+                        <option value="MOIDU">MOIDU</option>
+                        <option value="RAMSHAD">RAMSHAD</option>
+                        <option value="MUHAMMED">MUHAMMED</option>
+                        <option value="ANAS">ANAS</option>
+                        <option value="SATTAR">SATTAR</option>
+                        <option value="JOWEL">JOWEL</option>
+                        <option value="AROOS">AROOS</option>
+                        <option value="SHAHID">SHAHID</option>
+                        <option value="RALEEM">RALEEM</option>
+                    </select>
+                </div>
+                <label>Classification</label>
+                <div class="grid-options"><div class="option-card" id="tExp" onclick="setT('Expiry')">Expiry</div><div class="option-card" id="tDmg" onclick="setT('Damage')">Damage</div></div><input type="hidden" id="entryType">
+                <div style="display:flex; gap:12px;"><div style="flex:1"><label>Qty</label><div class="field"><i class="fas fa-list-ol"></i><input type="number" id="qty" value="1" min="1" style="padding-left:45px"></div></div><div style="flex:2"><label>Date</label><div class="field"><i class="fas fa-calendar-day"></i><input type="date" id="expDate" style="padding-left:45px"></div></div></div>
+            </div>
+            <div class="step-node"><label>Location</label><div class="field"><i class="fas fa-map-location-dot"></i><select id="loc"><option value="">Select Zone...</option><option>Front side</option><option>Back side</option><option>On Display</option></select></div></div>
+            <div class="step-node"><label>Verification</label><div id="revBox" style="background:#f8fafc; padding:20px; border-radius:20px; border:1px solid var(--border); font-size:14px; line-height:1.8;"></div></div>
+            <div class="footer">
+                <button type="button" class="btn btn-soft" id="btnPrev" onclick="navigate(-1)">Back</button>
+                <button type="button" class="btn btn-solid" id="btnNext" onclick="navigate(1)">Next</button>
+                <button type="submit" class="btn btn-solid" id="btnSub" style="display:none">Complete</button>
+            </div>
+        </form>
+    </div>
   </div>
 
-  <!-- AUTH PROMPT MODAL -->
-  <div id="authModal" class="overlay"><div class="modal">
-    <h3 style="font-weight:800; margin-bottom:15px; text-align:center;">Admin Access</h3>
-    <div class="field"><i class="fas fa-lock"></i><input type="password" id="adminPass" placeholder="••••" style="text-align:center; letter-spacing:8px; padding-left:16px;"></div>
+  <!-- PASSWORD GATE MODAL -->
+  <div id="gateModal" class="overlay"><div class="modal">
+    <h3 id="gateTitle" style="font-weight:800; margin-bottom:15px; text-align:center;">Admin Access</h3>
+    <div class="field"><i class="fas fa-lock"></i><input type="password" id="gatePass" placeholder="••••" style="text-align:center; letter-spacing:8px; padding-left:16px;"></div>
     <div style="display:flex; gap:10px; margin-top:20px;">
-        <button onclick="closeModal('authModal')" class="btn btn-soft">Cancel</button>
-        <button onclick="validateAdminAccess()" class="btn btn-solid">Verify</button>
+        <button onclick="closeModal('gateModal')" class="btn btn-soft">Cancel</button>
+        <button onclick="checkGate()" class="btn btn-solid">Verify</button>
     </div>
   </div></div>
 
   <!-- ADMIN CONTROL MODAL -->
   <div id="adminModal" class="overlay"><div class="modal admin-modal-content">
     <i class="fas fa-times close-icon" onclick="closeModal('adminModal')"></i>
-    <div class="admin-tabs"><button class="tab active" id="tabP" onclick="setAdminTab('product')">PRODUCT</button><button class="tab" id="tabS" onclick="setAdminTab('staff')">PERSONNEL</button></div>
+    <div class="admin-tabs"><button class="tab active" id="tabP" onclick="setAdminTab('product')">MANAGE PRODUCT</button><button class="tab" id="tabS" onclick="setAdminTab('staff')">PERSONNEL</button></div>
     <div id="adminProductForm">
-        <div class="search-box"><input type="text" id="searchBarcode" class="search-input" placeholder="Barcode"><button onclick="adminSearch()" class="btn btn-search">Search</button></div>
+        <div class="search-box"><input type="text" id="searchBarcode" class="search-input" placeholder="Search SKU"><button onclick="adminSearch()" class="btn btn-search">Search</button></div>
+        <div id="editStatus" class="status-box" style="display:none;"><i class="fas fa-pen-to-square"></i><div><b style="display:block">Editing Row</b><span id="statusText" style="opacity:0.7">Found.</span></div></div>
         <label>Barcode</label><input type="text" id="nb" class="admin-field">
         <label>Product Name</label><input type="text" id="nn" class="admin-field">
         <div style="display:flex; gap:12px;">
@@ -208,29 +206,29 @@
             <div style="flex:1"><label>Cost</label><input type="number" id="nc" class="admin-field"></div>
         </div>
     </div>
-    <div id="adminStaffForm" style="display:none"><label>Full Name</label><div class="field"><i class="fas fa-user-plus"></i><input type="text" id="nst" class="admin-field" placeholder="New Staff Name" style="padding-left:45px !important;"></div></div>
+    <div id="adminStaffForm" style="display:none"><h3 style="font-weight:700;">Personnel Management</h3><label>Full Name</label><div class="field"><i class="fas fa-user-plus"></i><input type="text" id="nst" class="admin-field" placeholder="Enter Staff Name" style="padding-left:45px !important;"></div></div>
     <button onclick="saveAdminAction()" class="btn btn-solid" style="width:100%; margin-top:25px; background:var(--manage-teal); color:#000;">Authorize & Save</button>
   </div></div>
 
   <datalist id="supOptions"></datalist>
   <div id="loading" style="display:none; position:fixed; inset:0; background:rgba(255,255,255,0.7); z-index:100000; align-items:center; justify-content:center; flex-direction:column; font-weight:800; color:var(--slate);"><div style="width:40px; height:40px; border:3px solid #f1f5f9; border-top-color:var(--slate); border-radius:50%; animation:spin 1s linear infinite; margin-bottom:15px;"></div>SYNCING</div>
-  <div id="scan-overlay"><div class="scan-back" onclick="stopScan()"><i class="fas fa-times"></i></div><div id="reader"></div></div>
+  <div id="scan-overlay"><div class="scan-back" onclick="stopScan()"><i class="fas fa-arrow-left"></i></div><div id="reader"></div></div>
 
   <script>
     const API = "https://script.google.com/macros/s/AKfycby__866_Y_0XFiaPPCUaX6U1oZK329Ek6SRg9iU4u-aq5ARhxmkTmIHq6gvTpxXMf-8Lw/exec";
-    const STORE_KEY = "inv_os_v25_db";
-    const QUEUE_KEY = "inv_q25";
+    const STORE_KEY = "inv_os_v32_db";
+    const QUEUE_KEY = "inv_q32";
     const ADMIN_KEY = "0438"; 
-    let step = 0, pDb = {}, sDb = [], scanObj = null, isSubmitting = false, adminTab = 'product';
+    let step = 0, pDb = {}, sDb = [], scanObj = null, isSubmitting = false, adminTab = 'product', isSpecial = false, currentGate = '';
 
     window.onload = () => {
-      loadCacheFirst(); 
+      loadCached();
       ['barcode','identity','loc','qty','expDate','entryType'].forEach(id => {
           const el = document.getElementById(id);
           el.addEventListener('input', updateNavUI);
           el.addEventListener('change', updateNavUI);
       });
-      document.getElementById('identity').addEventListener('change', function() { localStorage.setItem('cached_staff_name', this.value); });
+      document.getElementById('identity').addEventListener('change', function() { localStorage.setItem('cached_staff', this.value); });
       document.getElementById('barcode').addEventListener('keydown', e => { if(e.key === 'Enter') { e.preventDefault(); navigate(1); } });
       document.getElementById('camTrigger').onclick = startScan;
       document.getElementById('expDate').valueAsDate = new Date();
@@ -245,15 +243,15 @@
       if(navigator.vibrate) navigator.vibrate(40);
     }
 
-    function loadCacheFirst() {
+    function loadCached() {
       const saved = localStorage.getItem(STORE_KEY);
       if(saved) {
           const d = JSON.parse(saved);
           pDb = d.products || {}; sDb = d.suppliers || [];
           renderSuppliers(sDb);
       }
-      const lastSelected = localStorage.getItem('cached_staff_name');
-      if(lastSelected) document.getElementById('identity').value = lastSelected;
+      const lastStaff = localStorage.getItem('cached_staff');
+      if(lastStaff) document.getElementById('identity').value = lastStaff;
     }
 
     async function forceUpdate() {
@@ -270,88 +268,57 @@
       } catch(e) {} finally { setTimeout(() => btn.classList.remove('is-loading'), 600); }
     }
 
-    function renderSuppliers(list) {
-        const dl = document.getElementById('supOptions'); dl.innerHTML = "";
-        list.forEach(s => { const o = document.createElement('option'); o.value = s; dl.appendChild(o); });
+    function renderSuppliers(list) { const dl = document.getElementById('supOptions'); dl.innerHTML = ""; list.forEach(s => { const o = document.createElement('option'); o.value = s; dl.appendChild(o); }); }
+
+    function openGate(ctx) {
+        currentGate = ctx;
+        document.getElementById('gatePass').value = "";
+        document.getElementById('gateTitle').innerText = ctx === 'special' ? "Special Access" : "Admin Panel";
+        document.getElementById('gateModal').style.display = 'flex';
     }
 
-    function openAuthPrompt() { document.getElementById('adminPass').value = ""; document.getElementById('authModal').style.display='flex'; }
-    function validateAdminAccess() {
-        if(document.getElementById('adminPass').value === ADMIN_KEY) { closeModal('authModal'); document.getElementById('adminModal').style.display='flex'; }
-        else notify("Access Denied", "error");
+    function checkGate() {
+        if(document.getElementById('gatePass').value === ADMIN_KEY) {
+            closeModal('gateModal');
+            if(currentGate === 'admin') document.getElementById('adminModal').style.display='flex';
+            else { isSpecial = true; startFlow('special'); }
+        } else notify("Access Denied", "error");
     }
 
-    function setAdminTab(t) {
-        adminTab = t;
-        document.getElementById('tabP').classList.toggle('active', t==='product');
-        document.getElementById('tabS').classList.toggle('active', t==='staff');
-        document.getElementById('adminProductForm').style.display = t==='product' ? 'block' : 'none';
-        document.getElementById('adminStaffForm').style.display = t==='staff' ? 'block' : 'none';
+    function startFlow(mode) { 
+        isSpecial = (mode === 'special'); 
+        document.getElementById('dashboard').style.display='none'; 
+        document.getElementById('form-container').style.display='flex'; 
+        document.getElementById('viewTitle').innerText = isSpecial ? "Special Entry" : "Standard Log";
+        step = 0; refreshStep();
     }
 
-    function adminSearch() {
-        const code = document.getElementById('searchBarcode').value.trim();
-        if (!code) return;
-        const product = pDb[code];
-        document.getElementById('nb').value = code;
-        if (product) {
-            document.getElementById('editStatus').style.display = 'flex';
-            document.getElementById('statusText').innerText = `Editing barcode ${code}.`;
-            document.getElementById('nn').value = product.name;
-            document.getElementById('ns').value = product.supplier;
-            document.getElementById('nc').value = product.cost;
-        } else {
-            document.getElementById('editStatus').style.display = 'none';
-            document.getElementById('nn').value = ""; document.getElementById('ns').value = ""; document.getElementById('nc').value = "";
-            notify("Barcode not found.", "warn");
+    function navigate(d) {
+        if (d === -1 && step === 0) {
+            document.getElementById('dashboard').style.display = 'flex';
+            document.getElementById('form-container').style.display = 'none';
+            document.getElementById('viewTitle').innerText = "Dashboard";
+            return;
         }
+        if(d === 1 && step === 0 && !pDb[document.getElementById('barcode').value.trim()]) return notify("Item not in DB!", "warn");
+        step += d; refreshStep();
     }
-
-    async function saveAdminAction() {
-        document.getElementById('loading').style.display = 'flex';
-        let payload = { password: ADMIN_KEY };
-        if(adminTab === 'product') {
-            payload.action = 'addProduct';
-            payload.barcode = document.getElementById('nb').value.trim();
-            payload.name = document.getElementById('nn').value.trim();
-            payload.supplier = document.getElementById('ns').value.trim();
-            payload.cost = document.getElementById('nc').value.trim();
-            if(!payload.barcode || !payload.name) return stopAdminLoading("Fill fields");
-        } else {
-            payload.action = 'addStaff';
-            payload.staffName = document.getElementById('nst').value.trim();
-            if(!payload.staffName) return stopAdminLoading("Enter name");
-        }
-        try {
-            const r = await fetch(API, {method:'POST', body:JSON.stringify(payload)});
-            const res = await r.json();
-            if(res.status === 'success') { notify("Updated!"); closeModal('adminModal'); forceUpdate(); }
-            else notify(res.message, "error");
-        } catch(e) { notify("Sync Check...", "success"); closeModal('adminModal'); forceUpdate(); }
-        finally { document.getElementById('loading').style.display = 'none'; }
-    }
-    function stopAdminLoading(msg) { notify(msg, "error"); document.getElementById('loading').style.display = 'none'; }
-
-    function refreshStatus() { const online = navigator.onLine, el = document.getElementById('connStat'); el.innerText = online ? "● ONLINE" : "○ OFFLINE"; el.style.color = online ? "var(--success)" : "var(--error)"; if(online) runQueueSync(); }
-    window.ononline = window.onoffline = refreshStatus;
-    function closeModal(id) { document.getElementById(id).style.display='none'; }
 
     function refreshStep() {
       const nodes = document.querySelectorAll('.step-node'); nodes.forEach((n, i) => n.classList.toggle('active', i === step));
       document.getElementById('pBar').style.width = `${((step + 1) / 4) * 100}%`;
-      document.getElementById('btnPrev').disabled = step === 0;
+      document.getElementById('btnPrev').disabled = false;
       document.getElementById('btnNext').style.display = step === 3 ? 'none' : 'block';
       document.getElementById('btnSub').style.display = step === 3 ? 'block' : 'none';
       if(step === 1) { 
-          const b = document.getElementById('barcode').value.trim();
-          const prod = pDb[b];
+          const b = document.getElementById('barcode').value.trim(), prod = pDb[b];
           document.getElementById('metaName').innerText = prod ? prod.name : "Unknown Item";
-          document.getElementById('metaCode').innerText = "SKU: " + b;
+          document.getElementById('metaCode').innerText = "ID: " + b;
           document.getElementById('pMeta').style.display = 'block';
       }
       if(step === 3) {
           const b = document.getElementById('barcode').value.trim();
-          document.getElementById('revBox').innerHTML = `Product: <b>${pDb[b].name}</b><br>Type: <b>${document.getElementById('entryType').value}</b><br>Qty: <b>${document.getElementById('qty').value}</b><br>Date: <b>${document.getElementById('expDate').value}</b>`;
+          document.getElementById('revBox').innerHTML = `Product: <b>${pDb[b].name}</b><br>Type: <b>${document.getElementById('entryType').value}</b><br>Qty: <b>${document.getElementById('qty').value}</b><br>Exp: <b>${document.getElementById('expDate').value}</b>`;
       }
       updateNavUI();
     }
@@ -364,14 +331,13 @@
       document.getElementById('btnNext').disabled = !ok;
     }
 
-    function navigate(d) { if(d === 1 && step === 0 && !pDb[document.getElementById('barcode').value.trim()]) return notify("Recognize Item First!", "warn"); step += d; refreshStep(); }
     function setT(t) { document.getElementById('entryType').value = t; document.getElementById('tExp').classList.toggle('selected', t === 'Expiry'); document.getElementById('tDmg').classList.toggle('selected', t === 'Damage'); updateNavUI(); }
 
     document.getElementById('mainForm').onsubmit = async (e) => {
       e.preventDefault(); if(isSubmitting) return; 
       isSubmitting = true; document.getElementById('btnSub').disabled = true; document.getElementById('loading').style.display = 'flex';
       const b = document.getElementById('barcode').value;
-      const d = { barcode: b, identity: document.getElementById('identity').value, type: document.getElementById('entryType').value, quantity: document.getElementById('qty').value, expiryDate: document.getElementById('expDate').value, location: document.getElementById('loc').value, productName: pDb[b].name, timestamp: new Date().toISOString() };
+      const d = { isSpecial: isSpecial, barcode: b, identity: document.getElementById('identity').value, type: document.getElementById('entryType').value, quantity: document.getElementById('qty').value, expiryDate: document.getElementById('expDate').value, location: document.getElementById('loc').value, productName: pDb[b].name, timestamp: new Date().toISOString() };
       if(!navigator.onLine) { saveQueue(d); finishSub(); return; }
       try { const r = await fetch(API, { method:'POST', body:JSON.stringify(d) }); if((await r.json()).status === 'success') { notify("Logged Successfully"); resetApp(); } else { saveQueue(d); } } catch(e) { saveQueue(d); }
       finally { finishSub(); }
@@ -380,16 +346,15 @@
     function saveQueue(d) { const q = JSON.parse(localStorage.getItem(QUEUE_KEY) || "[]"); q.push(d); localStorage.setItem(QUEUE_KEY, JSON.stringify(q)); refreshQueueCount(); notify("Saved Offline", "warn"); resetApp(); }
     function runQueueSync() { const q = JSON.parse(localStorage.getItem(QUEUE_KEY) || "[]"); if(!q.length || isSubmitting) return; fetch(API, {method:'POST', body:JSON.stringify(q[0])}).then(r=>r.json()).then(r=>{ if(r.status==='success') { q.shift(); localStorage.setItem(QUEUE_KEY, JSON.stringify(q)); refreshQueueCount(); runQueueSync(); } }); }
     function refreshQueueCount() { document.getElementById('qCount').innerText = JSON.parse(localStorage.getItem(QUEUE_KEY) || "[]").length; }
+    function resetApp() { document.getElementById('barcode').value = ""; document.getElementById('qty').value = "1"; document.getElementById('entryType').value = ""; document.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected')); navigate(-1); }
     
-    function resetApp() { 
-        document.getElementById('barcode').value = ""; 
-        document.getElementById('qty').value = "1"; 
-        document.getElementById('entryType').value = ""; 
-        document.querySelectorAll('.option-card').forEach(c => c.classList.remove('selected')); 
-        step = 0; 
-        refreshStep(); 
-    }
-    
+    function setAdminTab(t) { adminTab = t; document.getElementById('tabP').classList.toggle('active', t==='product'); document.getElementById('tabS').classList.toggle('active', t==='staff'); document.getElementById('adminProductForm').style.display = t==='product' ? 'block' : 'none'; document.getElementById('adminStaffForm').style.display = t==='staff' ? 'block' : 'none'; }
+    function closeModal(id) { document.getElementById(id).style.display='none'; }
+    function adminSearch() { const code = document.getElementById('searchBarcode').value.trim(); if (!code) return; const product = pDb[code]; document.getElementById('nb').value = code; if (product) { document.getElementById('editStatus').style.display = 'flex'; document.getElementById('nn').value = product.name; document.getElementById('ns').value = product.supplier; document.getElementById('nc').value = product.cost; } else { document.getElementById('editStatus').style.display = 'none'; notify("Not Found", "warn"); } }
+    async function saveAdminAction() { document.getElementById('loading').style.display = 'flex'; let payload = { password: ADMIN_KEY }; if(adminTab === 'product') { payload.action = 'addProduct'; payload.barcode = document.getElementById('nb').value.trim(); payload.name = document.getElementById('nn').value.trim(); payload.supplier = document.getElementById('ns').value.trim(); payload.cost = document.getElementById('nc').value.trim(); if(!payload.barcode || !payload.name) return stopLoading("Missing Info"); } else { payload.action = 'addStaff'; payload.staffName = document.getElementById('nst').value.trim(); if(!payload.staffName) return stopLoading("Enter name"); } try { const r = await fetch(API, {method:'POST', body:JSON.stringify(payload)}); if((await r.json()).status === 'success') { notify("Success!"); closeModal('adminModal'); forceUpdate(); } } catch(e) { notify("Sync Complete", "success"); closeModal('adminModal'); forceUpdate(); } finally { document.getElementById('loading').style.display = 'none'; } }
+    function stopLoading(m) { notify(m, "error"); document.getElementById('loading').style.display = 'none'; }
+    function refreshStatus() { const online = navigator.onLine, el = document.getElementById('connStat'); if(el) { el.innerText = online ? "● ONLINE" : "○ OFFLINE"; el.style.color = online ? "var(--success)" : "var(--error)"; if(online) runQueueSync(); } }
+    window.ononline = window.onoffline = refreshStatus;
     function startScan() { document.getElementById('scan-overlay').style.display = 'block'; setTimeout(() => { if (!scanObj) scanObj = new Html5Qrcode("reader"); scanObj.start({ facingMode: "environment" }, { fps: 20, qrbox: { width: 280, height: 220 }, aspectRatio: 1.0 }, (t) => { document.getElementById('barcode').value = t; stopScan(); updateNavUI(); if(pDb[t]) navigate(1); else notify("Recognized", "warn"); }).catch(e => { notify("Camera error", "error"); stopScan(); }); }, 450); }
     function stopScan() { if(scanObj && scanObj.isScanning) { scanObj.stop().then(() => { document.getElementById('scan-overlay').style.display = 'none'; }).catch(() => { document.getElementById('scan-overlay').style.display = 'none'; }); } else { document.getElementById('scan-overlay').style.display = 'none'; } }
   </script>
