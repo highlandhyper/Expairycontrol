@@ -215,7 +215,7 @@
     const STORE_KEY = "inv_v40_db";
     const QUEUE_KEY = "inv_q40";
     const ADMIN_KEY = "0438"; 
-    let step = 0, pDb = {}, sDb = [], scanObj = null, isSubmitting = false, isSpecial = false, currentGate = '', adminTab = 'product';
+    let step = 0, pDb = {}, sDb = [], scanObj = null, isSubmitting = false, isSyncing = false, isSpecial = false, currentGate = '', adminTab = 'product';
 
     window.onload = () => {
       loadCached();
@@ -338,7 +338,35 @@
     };
     function finishSub() { isSubmitting = false; document.getElementById('btnSub').disabled = false; document.getElementById('loading').style.display = 'none'; }
     function saveQueue(d) { const q = JSON.parse(localStorage.getItem(QUEUE_KEY) || "[]"); q.push(d); localStorage.setItem(QUEUE_KEY, JSON.stringify(q)); refreshQueueCount(); notify("Saved Offline", "warn"); resetApp(); }
-    function runQueueSync() { const q = JSON.parse(localStorage.getItem(QUEUE_KEY) || "[]"); if(!q.length || isSubmitting) return; fetch(API, {method:'POST', body:JSON.stringify(q[0])}).then(r=>r.json()).then(r=>{ if(r.status==='success') { q.shift(); localStorage.setItem(QUEUE_KEY, JSON.stringify(q)); refreshQueueCount(); runQueueSync(); } }); }
+    async function runQueueSync() {
+        if(isSubmitting || isSyncing || !navigator.onLine) return;
+        const q = JSON.parse(localStorage.getItem(QUEUE_KEY) || "[]");
+        if(!q.length) return;
+        isSyncing = true;
+        const concurrency = Math.min(4, q.length);
+        const successful = new Set();
+        let i = 0;
+        const fingerprint = (item) => `${item.timestamp}|${item.barcode}|${item.location}|${item.quantity}`;
+        const worker = async () => {
+            while(i < q.length) {
+                const item = q[i++];
+                try {
+                    const r = await fetch(API, { method:'POST', body:JSON.stringify(item) });
+                    const data = await r.json();
+                    if(data.status === 'success') successful.add(fingerprint(item));
+                } catch(e) {}
+            }
+        };
+        try {
+            await Promise.all(Array.from({ length: concurrency }, worker));
+            const latestQueue = JSON.parse(localStorage.getItem(QUEUE_KEY) || "[]");
+            const remaining = latestQueue.filter(item => !successful.has(fingerprint(item)));
+            localStorage.setItem(QUEUE_KEY, JSON.stringify(remaining));
+            refreshQueueCount();
+        } finally {
+            isSyncing = false;
+        }
+    }
     function refreshQueueCount() { document.getElementById('qCount').innerText = JSON.parse(localStorage.getItem(QUEUE_KEY) || "[]").length; }
     
     function resetApp() { 
