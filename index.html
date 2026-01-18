@@ -191,9 +191,9 @@
   <!-- ADMIN MODAL -->
   <div id="adminModal" class="overlay"><div class="modal admin-modal-content">
     <i class="fas fa-times close-icon" onclick="closeModal('adminModal')"></i>
-    <div class="admin-tabs"><button class="tab active" id="tabP" onclick="setAdminTab('product')">MANAGE PRODUCT</button><button class="tab" id="tabS" onclick="setAdminTab('staff')">PERSONNEL</button></div>
     <div id="adminProductForm">
         <div class="search-box"><input type="text" id="searchBarcode" class="search-input" placeholder="Search SKU"><button onclick="adminSearch()" class="btn btn-search">Search</button></div>
+        <div class="search-box" style="margin-top:10px;"><input type="text" id="searchSupplier" class="search-input" list="supOptions" placeholder="Search Supplier"><button onclick="adminSearchSupplier()" class="btn btn-search">Search</button></div>
         <div id="editStatus" class="status-box" style="display:none;"><i class="fas fa-pen-to-square"></i><div><b style="display:block">Editing Row</b><span id="statusText" style="opacity:0.7">Found.</span></div></div>
         <label>Barcode</label><input type="text" id="nb" class="admin-field">
         <label>Product Name</label><input type="text" id="nn" class="admin-field">
@@ -202,7 +202,6 @@
             <div style="flex:1"><label>Cost</label><input type="number" id="nc" class="admin-field"></div>
         </div>
     </div>
-    <div id="adminStaffForm" style="display:none"><label>Full Name</label><div class="field"><i class="fas fa-user-plus"></i><input type="text" id="nst" class="admin-field" placeholder="Staff Name" style="padding-left:45px !important;"></div></div>
     <button onclick="saveAdminAction()" class="btn btn-solid" style="width:100%; margin-top:25px; background:var(--manage-teal); color:#000;">Authorize & Save</button>
   </div></div>
 
@@ -215,6 +214,7 @@
     const STORE_KEY = "inv_v40_db";
     const QUEUE_KEY = "inv_q40";
     const ADMIN_KEY = "0438"; 
+    let step = 0, pDb = {}, sDb = [], scanObj = null, isSubmitting = false, isSyncing = false, isSpecial = false, currentGate = '';
     let step = 0, pDb = {}, sDb = [], scanObj = null, isSubmitting = false, isSyncing = false, isSpecial = false, currentGate = '', adminTab = 'product';
 
     window.onload = () => {
@@ -376,7 +376,6 @@
         step = 0; refreshStep();
     }
     
-    function setAdminTab(t) { adminTab = t; document.getElementById('tabP').classList.toggle('active', t==='product'); document.getElementById('tabS').classList.toggle('active', t==='staff'); document.getElementById('adminProductForm').style.display = t==='product' ? 'block' : 'none'; document.getElementById('adminStaffForm').style.display = t==='staff' ? 'block' : 'none'; }
     function closeModal(id) { document.getElementById(id).style.display='none'; }
 
     function adminSearch() {
@@ -396,22 +395,33 @@
             notify("New SKU", "warn");
         }
     }
+    function adminSearchSupplier() {
+        const supplier = document.getElementById('searchSupplier').value.trim().toLowerCase();
+        if (!supplier) return;
+        const matches = Object.entries(pDb).filter(([, product]) => (product.supplier || "").toLowerCase() === supplier);
+        if (!matches.length) {
+            document.getElementById('editStatus').style.display = 'none';
+            notify("Supplier not found", "warn");
+            return;
+        }
+        const [code, product] = matches[0];
+        document.getElementById('nb').value = code;
+        document.getElementById('nn').value = product.name;
+        document.getElementById('ns').value = product.supplier;
+        document.getElementById('nc').value = product.cost;
+        document.getElementById('editStatus').style.display = 'flex';
+        document.getElementById('statusText').innerText = matches.length > 1 ? `Found ${matches.length} items for ${product.supplier}.` : `Found supplier ${product.supplier}.`;
+    }
 
     async function saveAdminAction() {
         document.getElementById('loading').style.display = 'flex';
         let payload = { password: ADMIN_KEY };
-        if(adminTab === 'product') {
-            payload.action = 'addProduct';
-            payload.barcode = document.getElementById('nb').value.trim();
-            payload.name = document.getElementById('nn').value.trim();
-            payload.supplier = document.getElementById('ns').value.trim();
-            payload.cost = document.getElementById('nc').value.trim();
-            if(!payload.barcode || !payload.name) return stopAdminLoading("Fill fields");
-        } else {
-            payload.action = 'addStaff';
-            payload.staffName = document.getElementById('nst').value.trim();
-            if(!payload.staffName) return stopAdminLoading("Enter name");
-        }
+        payload.action = 'addProduct';
+        payload.barcode = document.getElementById('nb').value.trim();
+        payload.name = document.getElementById('nn').value.trim();
+        payload.supplier = document.getElementById('ns').value.trim();
+        payload.cost = document.getElementById('nc').value.trim();
+        if(!payload.barcode || !payload.name) return stopAdminLoading("Fill fields");
         try {
             const r = await fetch(API, {method:'POST', body:JSON.stringify(payload)});
             if((await r.json()).status === 'success') { notify("Success!"); closeModal('adminModal'); forceUpdate(); }
