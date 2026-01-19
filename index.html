@@ -104,6 +104,14 @@
           <div class="splash-version">Build v7.8.0</div>
       </div>
   </div>
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+        const splash = document.getElementById('splash');
+        if (splash) splash.classList.add('splash-hidden');
+      }, 4000);
+    });
+  </script>
 
   <div id="toast-wrap"></div>
 
@@ -436,7 +444,7 @@
     }
     function stopAdminLoading(m) { notify(m, "error"); document.getElementById('loading').style.display = 'none'; }
 
-    function refreshStatus() { const online = navigator.onLine, el = document.getElementById('connStat'); if(el) { el.innerText = online ? "● ONLINE" : "○ OFFLINE"; el.style.color = online ? "var(--success)" : "var(--error)"; if(online) runQueueSync(); } }
+    function refreshStatus() { const online = navigator.onLine, el = document.getElementById('connStat'); if(el) { el.innerText = online ? "● ONLINE" : "○ OFFLINE"; el.style.color = online ? "var(--success)" : "var(--error)"; if(online) setTimeout(runQueueSync, 0); } }
     window.ononline = window.onoffline = refreshStatus;
     function startScan() { document.getElementById('scan-overlay').style.display = 'block'; setTimeout(() => { if (!scanObj) scanObj = new Html5Qrcode("reader"); scanObj.start({ facingMode: "environment" }, { fps: 20, qrbox: { width: 280, height: 220 }, aspectRatio: 1.0 }, (t) => { document.getElementById('barcode').value = t; stopScan(); updateNavUI(); if(pDb[t]) navigate(1); else notify("Recognized", "warn"); }).catch(e => { notify("Camera error", "error"); stopScan(); }); }, 450); }
     function stopScan() { if(scanObj && scanObj.isScanning) { scanObj.stop().then(() => { document.getElementById('scan-overlay').style.display = 'none'; }).catch(() => { document.getElementById('scan-overlay').style.display = 'none'; }); } else { document.getElementById('scan-overlay').style.display = 'none'; } }
