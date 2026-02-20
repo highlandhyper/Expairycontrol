@@ -234,8 +234,7 @@
       document.getElementById('barcode').addEventListener('keydown', e => { if(e.key === 'Enter') { e.preventDefault(); navigate(1); } });
       document.getElementById('camTrigger').onclick = startScan;
       document.getElementById('expDate').valueAsDate = new Date();
-      refreshStatus(); refreshStep(); refreshQueueCount();
-      scheduleStartupSync();
+      refreshStatus(); refreshStep(); refreshQueueCount(); forceUpdate();
       setTimeout(() => { document.getElementById('splash').classList.add('splash-hidden'); }, 2000);
     };
 
@@ -262,31 +261,18 @@
       }
     }
 
-
-    function scheduleStartupSync() {
-      const runSync = () => {
-        forceUpdate(true);
-        setTimeout(runQueueSync, 0);
-      };
-      if ('requestIdleCallback' in window) requestIdleCallback(runSync, { timeout: 1800 });
-      else setTimeout(runSync, 450);
-    }
-
-    async function forceUpdate(silent = false) {
+    async function forceUpdate() {
       if(!navigator.onLine) return;
-      const btn = document.getElementById('refreshBtn');
-      if (!silent) btn.classList.add('is-loading');
+      const btn = document.getElementById('refreshBtn'); btn.classList.add('is-loading');
       try {
         const r = await fetch(`${API}?action=getProducts&_cb=${Date.now()}`), d = await r.json();
         if(d.products) {
             pDb = d.products; sDb = d.suppliers || [];
             localStorage.setItem(STORE_KEY, JSON.stringify(d));
             renderSuppliers(sDb);
-            if (!silent) notify("System Synced");
+            notify("System Synced");
         }
-      } catch(e) {} finally {
-        if (!silent) setTimeout(() => btn.classList.remove('is-loading'), 600);
-      }
+      } catch(e) {} finally { setTimeout(() => btn.classList.remove('is-loading'), 600); }
     }
 
     function renderSuppliers(list) { const dl = document.getElementById('supOptions'); dl.innerHTML = ""; list.forEach(s => { const o = document.createElement('option'); o.value = s; dl.appendChild(o); }); }
@@ -340,9 +326,7 @@
       }
       if(step === 3) {
           const b = document.getElementById('barcode').value.trim();
-          const product = pDb[b] || {};
-          const supplier = product.supplier ? product.supplier : 'Not Available';
-          document.getElementById('revBox').innerHTML = `Product: <b>${product.name || 'Unknown Item'}</b><br>Supplier: <b>${supplier}</b><br>Type: <b>${document.getElementById('entryType').value}</b><br>Qty: <b>${document.getElementById('qty').value}</b><br>Exp: <b>${document.getElementById('expDate').value}</b>`;
+          document.getElementById('revBox').innerHTML = `Product: <b>${pDb[b].name}</b><br>Type: <b>${document.getElementById('entryType').value}</b><br>Qty: <b>${document.getElementById('qty').value}</b><br>Exp: <b>${document.getElementById('expDate').value}</b>`;
       }
       updateNavUI();
     }
@@ -361,23 +345,15 @@
       e.preventDefault(); if(isSubmitting) return; 
       isSubmitting = true; document.getElementById('btnSub').disabled = true; document.getElementById('loading').style.display = 'flex';
       const b = document.getElementById('barcode').value;
-      const product = pDb[b] || {};
-      const d = { isSpecial: isSpecial, barcode: b, identity: document.getElementById('identity').value, type: document.getElementById('entryType').value, quantity: document.getElementById('qty').value, expiryDate: document.getElementById('expDate').value, location: document.getElementById('loc').value, productName: product.name || 'Unknown Item', timestamp: new Date().toISOString() };
-      enqueueSubmission(d);
-      finishSub();
+      const d = { isSpecial: isSpecial, barcode: b, identity: document.getElementById('identity').value, type: document.getElementById('entryType').value, quantity: document.getElementById('qty').value, expiryDate: document.getElementById('expDate').value, location: document.getElementById('loc').value, productName: pDb[b].name, timestamp: new Date().toISOString() };
+      if(!navigator.onLine) { saveQueue(d); finishSub(); return; }
+      try { const r = await fetch(API, { method:'POST', body:JSON.stringify(d) }); if((await r.json()).status === 'success') { notify("Logged Successfully"); resetApp(); } else { saveQueue(d); } } catch(e) { saveQueue(d); }
+      finally { finishSub(); }
     };
     function finishSub() { isSubmitting = false; document.getElementById('btnSub').disabled = false; document.getElementById('loading').style.display = 'none'; }
-    function enqueueSubmission(d) {
-      const q = JSON.parse(localStorage.getItem(QUEUE_KEY) || "[]");
-      q.push(d);
-      localStorage.setItem(QUEUE_KEY, JSON.stringify(q));
-      refreshQueueCount();
-      resetApp();
-      notify(navigator.onLine ? "Saved. Syncing..." : "Saved Offline", navigator.onLine ? "success" : "warn");
-      if(navigator.onLine) setTimeout(runQueueSync, 0);
-    }
+    function saveQueue(d) { const q = JSON.parse(localStorage.getItem(QUEUE_KEY) || "[]"); q.push(d); localStorage.setItem(QUEUE_KEY, JSON.stringify(q)); refreshQueueCount(); notify("Saved Offline", "warn"); resetApp(); }
     async function runQueueSync() {
-        if(isSyncing || !navigator.onLine) return;
+        if(isSubmitting || isSyncing || !navigator.onLine) return;
         const q = JSON.parse(localStorage.getItem(QUEUE_KEY) || "[]");
         if(!q.length) return;
         isSyncing = true;
